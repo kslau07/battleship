@@ -20,4 +20,10 @@ describe('Ship class', () => {
   //   expect(ship.hits).toBe(0);
   //   expect(ship.sunk).toBe(false);
   // });
+
+  // hit() method - COMMAND FUNCTION - produces side-effects, returns nothing
+  it('hit method', () => {
+    ship.hit();
+    expect(ship.hits).toBe(1);
+  });
 });
