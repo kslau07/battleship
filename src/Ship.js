@@ -5,11 +5,11 @@ export default class Ship {
     this.name = name;
     this.length = length;
     this.hits = 0;
-    this.sunk = false;
+    // this.sunk = false; // Do we need this?
   }
 
   hit() {
-    this.hits = this.hits + 1;
+    this.hits += 1;
   }
 
   isSunk() {
