@@ -26,40 +26,65 @@ export default class Gameboard {
     return this.grid;
   }
 
-  hasClearedSpace(ship, coords, orientation, grid) {
-    const cells = [];
+  isValidCoordinates(coords) {
+    const [colIndex, rowIndex] = coords;
+    const maxIndex = 9;
 
-    for (let i = 0; i < ship.length; i += 1) {
-      if (orientation === 'horizontal') {
-        cells.push(grid[coords[0]][coords[1] + i]);
-      } else if (orientation === 'vertical') {
-        cells.push((grid[coords[0] + i][coords[1]].ship = ship));
-      }
-    }
+    if (colIndex > maxIndex) return false;
+    if (rowIndex > maxIndex) return false;
 
-    const isFree = cells.every((cell) => cell.ship === 'none');
-    return isFree;
+    return true;
   }
 
-  isWithinBoundaries(ship, coords, orientation) {}
+  isValidCell(nextCell) {
+    if (nextCell === undefined) return 'Out of bounds';
 
-  placeShip(ship, coords, orientation) {
-    const { hasClearedSpace, isWithinBoundaries, grid } = this;
+    if (nextCell.ship !== 'none')
+      return 'Cell is already occupied by another ship.';
 
-    if (!hasClearedSpace(ship, coords, orientation, grid)) {
-      throw new Error('Oops! You already have a ship there!');
+    return true;
+  }
+
+  // Check ship placement cells are in-bounds and unoccupied
+  isValidPlacement(ship, coords, orientation) {
+    if (!this.isValidCoordinates(coords)) return false;
+
+    const { grid } = this;
+
+    let nextCell;
+    for (let i = 0; i < ship.length; i += 1) {
+      if (orientation === 'vertical') {
+        nextCell = grid[coords[0] + i]?.[coords[1]]; // Use optional chaining operator (?.) to try to access next hypothetical cell
+      } else if (orientation === 'horizontal') {
+        nextCell = grid[coords[0]]?.[coords[1] + i];
+      }
+
+      if (this.isValidCell(nextCell) !== true) {
+        return false;
+      }
     }
 
-    // if (!isWithinBoundaries(ship, coords, orientation)) {
-    // throw new Error('Oops! Ship was placed out of bounds!');
-    // }
+    return true;
+  }
 
+  performPlacement(ship, coords, orientation) {
+    const { grid } = this;
+
+    let nextCell;
     for (let i = 0; i < ship.length; i += 1) {
-      if (orientation === 'horizontal') {
-        grid[coords[0]][coords[1] + i].ship = ship;
-      } else if (orientation === 'vertical') {
-        grid[coords[0] + i][coords[1]].ship = ship;
+      if (orientation === 'vertical') {
+        nextCell = grid[coords[0] + i][coords[1]];
+      } else if (orientation === 'horizontal') {
+        nextCell = grid[coords[0]][coords[1] + i];
       }
+
+      nextCell.ship = ship;
+    }
+  }
+
+  placeShip(ship, coords, orientation) {
+    if (this.isValidPlacement(ship, coords, orientation)) {
+      this.performPlacement(ship, coords, orientation);
     }
   }
 }

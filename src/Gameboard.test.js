@@ -58,15 +58,15 @@ describe('Gameboard class', () => {
       });
 
       it('should place ship object named "Patrol Boat" on grid', () => {
-        const { name } = cell.ship;
-        expect(name).toBe('Patrol Boat');
+        const { name: shipName } = cell.ship;
+        expect(shipName).toBe('Patrol Boat');
       });
 
       it('should show that "Patrol Boat" occupies 2 cells on grid', () => {
         // Use reduce + filter to count number of cells that contain given ship
         const matchedCells = grid.reduce((acc, curColumn) => {
           const matches = curColumn.filter(
-            (cell) => cell.ship.name == 'Patrol Boat',
+            (curCell) => curCell.ship.name === 'Patrol Boat',
           );
           const count = matches.length;
           return acc + count;
@@ -75,10 +75,7 @@ describe('Gameboard class', () => {
         expect(matchedCells).toBe(2);
       });
 
-      it('should add ship to cells [0, 0] and [0, 1] when we specify "horizontal" for orientation', () => {
-        const fakedShip = { name: 'Patrol Boat', length: 2 };
-        const coords = [0, 0];
-        gameboard.placeShip(fakedShip, coords, 'horizontal');
+      it('should add "Patrol Boat" to grid cells [0, 0] and [0, 1]', () => {
         const cell1 = grid[0][0];
         const cell2 = grid[0][1];
 
@@ -89,10 +86,10 @@ describe('Gameboard class', () => {
 
     describe('when ship has length:3, name:"Destroyer" and coords are [5, 4]', () => {
       it('should add ship to cells [5, 4], [6, 4], [7, 4]  when we specify "vertical" for orientation', () => {
-        const fakedShip = { name: 'Destroyer', length: 3 };
+        const fakedDestroyer = { name: 'Destroyer', length: 3 };
         const coords = [5, 4];
         const orientation = 'vertical';
-        gameboard.placeShip(fakedShip, coords, orientation);
+        gameboard.placeShip(fakedDestroyer, coords, orientation);
         const cell1 = grid[5][4];
         const cell2 = grid[6][4];
         const cell3 = grid[7][4];
@@ -103,17 +100,63 @@ describe('Gameboard class', () => {
       });
     });
 
-    describe('when trying to place a ship on an occupied cell [5, 4]', () => {
-      it.only('raises an error and does not place the ship', () => {
-        const fakedShip1 = { name: 'Destroyer', length: 3 };
-        const fakedShip2 = { name: 'Destroyer', length: 3 };
-        gameboard.placeShip(fakedShip1, [5, 4], 'horizontal');
-        gameboard.placeShip(fakedShip2, [5, 4], 'horizontal');
+    describe('when placing a second ship on the same cell [5, 4]', () => {
+      it('does not place the second ship', () => {
+        const fakedPatrolBoat = { name: 'Patrol Boat', length: 2 };
+        const fakedDestroyer = { name: 'Destroyer', length: 3 };
+        gameboard.placeShip(fakedPatrolBoat, [5, 4], 'horizontal');
+        gameboard.placeShip(fakedDestroyer, [5, 4], 'horizontal');
+        const shipNameOnCell = grid[5][4].ship.name;
+
+        expect(shipNameOnCell).not.toBe('Destroyer');
+        expect(shipNameOnCell).toBe('Patrol Boat');
       });
     });
 
-    describe('when trying to place a ship that will go out-of-bounds', () => {
-      it.skip('', () => {});
+    describe('when trying to place a long ship (Carrier) that spans across an occupied space', () => {
+      it('does not place the second ship', () => {
+        const fakedSubmarine = { name: 'Submarine', length: 3 };
+        gameboard.placeShip(fakedSubmarine, [0, 7], 'horizontal');
+        const fakedCarrier = { name: 'Carrier', length: 5 };
+        gameboard.placeShip(fakedCarrier, [0, 3], 'horizontal');
+        const shipNameOnCell = grid[0][7].ship.name;
+
+        expect(shipNameOnCell).not.toBe('Carrier');
+        expect(shipNameOnCell).toBe('Submarine');
+      });
+    });
+
+    describe('when trying to place a ship (vertically) that is out-of-bounds', () => {
+      it('does not place the ship', () => {
+        const fakedBattleship = { name: 'Battleship', length: 4 };
+        const targetCell = [7, 0];
+        gameboard.placeShip(fakedBattleship, targetCell, 'vertical');
+        const targetCellShip = grid[targetCell[0]][targetCell[1]].ship;
+
+        expect(targetCellShip).toBe('none');
+      });
+    });
+
+    describe('when trying to place a ship (horizontally) that is out-of-bounds', () => {
+      it('does not place the ship', () => {
+        const fakedBattleship = { name: 'Battleship', length: 4 };
+        const targetCell = [0, 7];
+        gameboard.placeShip(fakedBattleship, targetCell, 'horizontal');
+        const targetCellShip = grid[targetCell[0]][targetCell[1]].ship;
+
+        expect(targetCellShip).toBe('none');
+      });
+    });
+
+    describe('when trying to place a ship out-of-range of grid -> [99, 0]', () => {
+      it('shows "undefined" for cell at [99, 0]', () => {
+        const fakedSubmarine = { name: 'Submarine', length: 3 };
+        const targetCell = [99, 0];
+        gameboard.placeShip(fakedSubmarine, targetCell, 'horizontal');
+        const targetCellShip = grid[targetCell[0]]?.[targetCell[1]];
+
+        expect(targetCellShip).toBeUndefined;
+      });
     });
   });
 });
