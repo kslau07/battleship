@@ -16,22 +16,22 @@ describe('Ship class', () => {
   // hit() method - COMMAND FUNCTION - produces side-effects, returns nothing
   describe('hit method', () => {
     it('when invoked once, increases `hits` from 0 to 1', () => {
-      const oldHits = ship.hits;
+      const oldHits = ship.getHits();
       ship.hit();
-      const curHits = ship.hits;
+      const curHits = ship.getHits();
       const difference = curHits - oldHits;
       expect(difference).toBe(1);
-      expect(ship.hits).toBe(1);
+      expect(ship.getHits()).toBe(1);
     });
 
     it('when invoked twice, increases `hits` from 0 to 2', () => {
-      const oldHits = ship.hits;
+      const oldHits = ship.getHits();
       ship.hit();
       ship.hit();
-      const curHits = ship.hits;
+      const curHits = ship.getHits();
       const difference = curHits - oldHits;
       expect(difference).toBe(2);
-      expect(ship.hits).toBe(2);
+      expect(ship.getHits()).toBe(2);
     });
   });
 
