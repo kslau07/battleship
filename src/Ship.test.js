@@ -13,6 +13,22 @@ describe('Ship class', () => {
     ship = new Ship('Destroyer', 3);
   });
 
+  // Test existence of certain Ship properties (methods)
+
+  test('hit method exists', () => {
+    expect(ship).toHaveProperty('hit');
+  });
+
+  test('getHits method exists', () => {
+    expect(ship).toHaveProperty('getHits');
+  });
+
+  test('isSunk method exists', () => {
+    expect(ship).toHaveProperty('isSunk');
+  });
+
+  // Unit tests for the above methods in Ship
+
   // hit() method - COMMAND FUNCTION - produces side-effects, returns nothing
   describe('hit method', () => {
     it('when invoked once, increases `hits` from 0 to 1', () => {
@@ -35,7 +51,7 @@ describe('Ship class', () => {
     });
   });
 
-  // isSunk() method - QUERY FUNCTION - no side-effects, returns a boolean
+  // isSunk() method - QUERY FUNCTION - no side-effects, returns a (boolean) value
   describe('isSunk method', () => {
     it('returns false when `hits` less than `length`', () => {
       ship.hit();

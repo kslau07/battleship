@@ -261,21 +261,37 @@ describe('Gameboard class', () => {
   });
 
   describe('allSunk method', () => {
-    it.skip('returns true when all ships for target gameboard have been sunk', () => {
-      // Add all 5 ships to gameboard
-      const fakedCarrier = { name: 'Carrier', length: 5, hit: mockHit };
-      // const fakedCarrier = { name: 'Battleship', length: 4, hit: mockHit };
-      // const fakedCarrier = { name: 'Destroyer', length: 3, hit: mockHit };
-      // const fakedCarrier = { name: 'Submarine', length: 3, hit: mockHit };
-      // const fakedCarrier = { name: 'Patrol Boat', length: 2, hit: mockHit };
+    beforeEach(() => {
+      // Add all 4 ships to board with sunk:true
+      const fakedCarrier = { name: 'Carrier', length: 5, sunk: true };
+      const fakedBattleship = { name: 'Battleship', length: 4, sunk: true };
+      const fakedDestroyer = { name: 'Destroyer', length: 3, sunk: true };
+      const fakedSubmarine = { name: 'Submarine', length: 3, sunk: true };
+      gameboard.placeShip(fakedCarrier, [4, 4], 'vertical');
+      gameboard.placeShip(fakedBattleship, [1, 3], 'horizontal');
+      gameboard.placeShip(fakedDestroyer, [4, 3], 'vertical');
+      gameboard.placeShip(fakedSubmarine, [0, 6], 'horizontal');
+    });
 
-      gameboard.placeShip();
-      // Sink all of the ships
-      // Invoke allSunk(), it should return true
+    it.only('returns true when all ships have been sunk on gameboard', () => {
+      const sunkValue = true;
+      const fakedPatrolBoat = {
+        name: 'Patrol Boat',
+        length: 2,
+        sunk: sunkValue,
+      };
+      gameboard.placeShip(fakedPatrolBoat, [1, 9], 'vertical');
       expect(gameboard.allSunk()).toBe(true);
     });
 
-    it.skip('returns false when there are remaining ships on target gameboard', () => {
+    it('returns false when there are unsunk ships on gameboard', () => {
+      const sunkValue = false;
+      const fakedPatrolBoat = {
+        name: 'Patrol Boat',
+        length: 2,
+        sunk: sunkValue,
+      };
+      gameboard.placeShip(fakedPatrolBoat, [1, 9], 'vertical');
       expect(gameboard.allSunk()).toBe(false);
     });
   });
