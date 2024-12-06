@@ -21,9 +21,13 @@ export default class Gameboard {
     return gridArray;
   }
 
-  constructor() {
+  constructor(shipSet) {
     this.#grid = Gameboard.#buildGrid();
-    this.#allShips = [];
+    this.#allShips = []; // Ships are added by placeShip()
+
+    if (shipSet !== undefined) {
+      this.placeAllShips(shipSet);
+    }
   }
 
   getGrid() {
@@ -32,17 +36,6 @@ export default class Gameboard {
 
   getAllShips() {
     return this.#allShips;
-  }
-
-  // Check cell and throw relevant error
-  #validateCell(cell, ship) {
-    if (cell === undefined) {
-      throw new RangeError('Out of bounds');
-    } else if (cell.ship !== 'none') {
-      throw new Error(
-        `Cannot place "${ship.name}" because a cell is already occupied by "${cell.ship.name}".`,
-      );
-    }
   }
 
   *#getNextCell(ship, coords, orientation) {
@@ -57,20 +50,83 @@ export default class Gameboard {
     }
   }
 
-  placeShip(ship, coords, orientation) {
-    const gridDeepClone = JSON.parse(JSON.stringify(this.#grid));
+  // Check cell and throw relevant error
+  #validateCell(cell, ship) {
+    if (cell === undefined) {
+      throw new RangeError(
+        `Cannot place "${ship.name}" here because it is out of bounds.`,
+      );
+    } else if (cell.ship !== 'none') {
+      throw new Error(
+        `Cannot place "${ship.name}" here because it is occupied by "${cell.ship.name}".`,
+      );
+    }
+  }
+
+  // Iterate through cells at given coords and check for errors
+  #validatePlacement(ship, coords, orientation) {
     const generator = this.#getNextCell(ship, coords, orientation);
 
+    for (let nextCell of generator) {
+      this.#validateCell(nextCell, ship);
+    }
+  }
+
+  // Iterate through cells at given coords and set to ship instance
+  #placeShip(ship, coords, orientation) {
+    const generator = this.#getNextCell(ship, coords, orientation);
+
+    for (let nextCell of generator) {
+      nextCell.ship = ship;
+    }
+
+    this.#allShips.push(ship);
+  }
+
+  // Try to place a ship and intercept errors
+  safePlaceShip(ship, coords, orientation) {
+    const gridDeepClone = JSON.parse(JSON.stringify(this.#grid));
+
     try {
-      for (let nextCell of generator) {
-        this.#validateCell(nextCell, ship);
-        nextCell.ship = ship;
-      }
-      this.#allShips.push(ship); // Only add ship if no errors above
+      this.#validatePlacement(ship, coords, orientation);
+      this.#placeShip(ship, coords, orientation);
     } catch ({ name, message }) {
       console.log(`${name}: ${message}`);
       this.#grid = gridDeepClone; // Revert grid when error thrown
     }
+  }
+
+  placeAllShips(shipSet) {
+    this.placeAllShipsRandomly(shipSet);
+  }
+
+  randCoordinates() {
+    const side = 10;
+    const x = Math.floor(Math.random() * side);
+    const y = Math.floor(Math.random() * side);
+    return [x, y];
+  }
+
+  randOrientation() {
+    const choices = ['vertical', 'horizontal'];
+    return choices[Math.floor(Math.random() * 2)];
+  }
+
+  // Given an array of ship objects, place each ship randomly using a do-while loop
+  placeAllShipsRandomly(shipSet) {
+    let numShipsAdded;
+    let success;
+
+    shipSet.forEach((ship, index) => {
+      do {
+        const randCoords = this.randCoordinates();
+        const randOrient = this.randOrientation();
+        this.safePlaceShip(ship, randCoords, randOrient);
+
+        numShipsAdded = this.getAllShips().length;
+        success = numShipsAdded === index + 1;
+      } while (!success); // Loop again if ship couldn't be placed
+    });
   }
 
   receiveAttack(coords) {
