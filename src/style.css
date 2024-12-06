@@ -1,0 +1,25 @@
+/* style.css */
+
+body {
+  --cell: 50px;
+}
+
+.grid {
+  border: 2px solid black;
+  width: max-content;
+}
+
+.row {
+  /* height: var(--cell); */
+  /* width: 100%; */
+  border: 2px solid white;
+  background: lightGrey;
+}
+
+.cell {
+  height: var(--cell);
+  width: var(--cell);
+  display: inline-block;
+  border: 2px solid white;
+  background: lightBlue;
+}
