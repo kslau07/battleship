@@ -1,8 +1,8 @@
 // Player.test.js
 
 import Player from './Player';
-
 import Gameboard from './Gameboard';
+
 jest.mock('./Gameboard'); // Gameboard is now a mock constructor
 
 describe('Player class', () => {
@@ -10,17 +10,17 @@ describe('Player class', () => {
     expect(Player).toBeDefined();
   });
 
-  let player;
+  let playerInstance;
 
   beforeEach(() => {
     // Gameboard.mockClear(); // Reset mocks with mockClear / clearAllMocks
     const gameboardInstance = new Gameboard();
-    player = new Player(gameboardInstance);
+    playerInstance = new Player(gameboardInstance);
   });
 
   describe('getGameboard method', () => {
     it('returns a gameboard instance', () => {
-      const gbInstance = player.getGameboard();
+      const gbInstance = playerInstance.getGameboard();
       expect(gbInstance instanceof Gameboard).toBe(true);
     });
   });
