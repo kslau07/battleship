@@ -13,6 +13,14 @@ export default class Ship {
     this.#sunk = false;
   }
 
+  getName() {
+    return this.#name;
+  }
+
+  getLength() {
+    return this.#length;
+  }
+
   hit() {
     this.#hits += 1;
     this.#updateSunk();

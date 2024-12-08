@@ -6,17 +6,18 @@ import Game from './Game';
 
 const foo = document.querySelector('#new-game-button');
 
-const createCellElement = () => {
+const createCellElement = (cellObj) => {
   const cellEl = document.createElement('div');
   cellEl.className = 'cell';
+  cellEl.textContent = cellObj.ship === 'none' ? '' : cellObj.ship.getName();
   return cellEl;
 };
 
-const createRowElement = (row) => {
+const createRowElement = (rowObj) => {
   const rowEl = document.createElement('div');
   rowEl.className = 'row';
-  row.forEach((cell) => {
-    const cellEl = createCellElement();
+  rowObj.forEach((cellObj) => {
+    const cellEl = createCellElement(cellObj);
     rowEl.appendChild(cellEl);
   });
   return rowEl;
@@ -44,7 +45,7 @@ const createGame = () => {
 
 foo.addEventListener('click', createGame);
 
-// FIXME: DELETE ME, TESTING
+// FIXME: DELETE ME, DEVELOPMENT TOOL
 // Press 't' to invoke createGame()
 document.onkeyup = function () {
   var e = e || window.event; // For IE to cover IEs window event-object
@@ -53,3 +54,6 @@ document.onkeyup = function () {
     return false;
   }
 };
+
+// FIXME: DELETE ME, DEVELOPMENT TOOL
+createGame();

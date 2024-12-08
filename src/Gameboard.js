@@ -3,11 +3,12 @@
 export default class Gameboard {
   #grid;
   #allShips;
+  static #gridSize = 10;
 
   static #buildGrid() {
     const gridArray = [];
-    const numRows = 10;
-    const numCols = 10;
+    const numRows = Gameboard.#gridSize;
+    const numCols = Gameboard.#gridSize;
 
     Array.from({ length: numRows }, () => {
       const currentRow = [];
@@ -40,8 +41,9 @@ export default class Gameboard {
 
   *#getNextCell(ship, coords, orientation) {
     const grid = this.getGrid();
+    const len = ship.getLength();
 
-    for (let i = 0; i < ship.length; i += 1) {
+    for (let i = 0; i < len; i += 1) {
       if (orientation === 'vertical') {
         yield grid[coords[0] + i]?.[coords[1]]; // Use optional chaining operator (?.) to try to access next hypothetical cell
       } else if (orientation === 'horizontal') {
@@ -54,11 +56,11 @@ export default class Gameboard {
   #validateCell(cell, ship) {
     if (cell === undefined) {
       throw new RangeError(
-        `Cannot place "${ship.name}" here because it is out of bounds.`,
+        `Cannot place "${ship.getName()}" here because it is out of bounds.`,
       );
     } else if (cell.ship !== 'none') {
       throw new Error(
-        `Cannot place "${ship.name}" here because it is occupied by "${cell.ship.name}".`,
+        `Cannot place "${ship.getName()}" here because it is occupied by "${cell.ship.name}".`,
       );
     }
   }
@@ -85,14 +87,11 @@ export default class Gameboard {
 
   // Try to place a ship and intercept errors
   safePlaceShip(ship, coords, orientation) {
-    const gridDeepClone = JSON.parse(JSON.stringify(this.#grid));
-
     try {
       this.#validatePlacement(ship, coords, orientation);
       this.#placeShip(ship, coords, orientation);
     } catch ({ name, message }) {
       console.log(`${name}: ${message}`);
-      this.#grid = gridDeepClone; // Revert grid when error thrown
     }
   }
 
@@ -101,9 +100,9 @@ export default class Gameboard {
   }
 
   randCoordinates() {
-    const side = 10;
-    const x = Math.floor(Math.random() * side);
-    const y = Math.floor(Math.random() * side);
+    const size = Gameboard.#gridSize;
+    const x = Math.floor(Math.random() * size);
+    const y = Math.floor(Math.random() * size);
     return [x, y];
   }
 
@@ -116,6 +115,7 @@ export default class Gameboard {
   placeAllShipsRandomly(shipSet) {
     let numShipsAdded;
     let success;
+    let tries = 0;
 
     shipSet.forEach((ship, index) => {
       do {
@@ -125,6 +125,10 @@ export default class Gameboard {
 
         numShipsAdded = this.getAllShips().length;
         success = numShipsAdded === index + 1;
+
+        tries += 1;
+        if (tries > 1000)
+          throw new Error('Oops! Tried too many times to place ship!'); // Prevent infinite loop
       } while (!success); // Loop again if ship couldn't be placed
     });
   }
