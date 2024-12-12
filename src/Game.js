@@ -24,17 +24,21 @@ export default class Game {
     return new Gameboard(shipSet);
   }
 
-  static createPlayer() {
+  static createPlayer(name) {
     const gameboard = Game.createGameboard();
-    return new Player(gameboard);
+    return new Player(name, gameboard);
   }
 
   constructor(player1, player2) {
-    player1 = player1 !== undefined ? player1 : Game.createPlayer();
-    player2 = player2 !== undefined ? player2 : Game.createPlayer();
+    player1 = player1 !== undefined ? player1 : Game.createPlayer('player1');
+    player2 = player2 !== undefined ? player2 : Game.createPlayer('player2');
 
     this.#player1 = player1;
     this.#player2 = player2;
+  }
+
+  getPlayers() {
+    return [this.#player1, this.#player2];
   }
 
   getPlayer1() {
@@ -43,5 +47,13 @@ export default class Game {
 
   getPlayer2() {
     return this.#player2;
+  }
+
+  getOppositePlayer(player) {
+    if (!(player instanceof Player)) {
+      throw new TypeError('Error: Expected an instance of the Player class.');
+    }
+
+    return player === this.#player1 ? this.#player2 : this.#player1;
   }
 }

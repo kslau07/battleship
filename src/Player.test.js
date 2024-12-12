@@ -10,17 +10,16 @@ describe('Player class', () => {
     expect(Player).toBeDefined();
   });
 
-  let playerInstance;
+  let p1Instance;
 
   beforeEach(() => {
-    // Gameboard.mockClear(); // Reset mocks with mockClear / clearAllMocks
     const gameboardInstance = new Gameboard();
-    playerInstance = new Player(gameboardInstance);
+    p1Instance = new Player('player1', gameboardInstance);
   });
 
   describe('getGameboard method', () => {
     it('returns a gameboard instance', () => {
-      const gbInstance = playerInstance.getGameboard();
+      const gbInstance = p1Instance.getGameboard();
       expect(gbInstance instanceof Gameboard).toBe(true);
     });
   });

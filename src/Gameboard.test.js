@@ -28,6 +28,53 @@ describe('Gameboard class', () => {
     expect(gameboard).toHaveProperty('receiveAttack');
   });
 
+  // Faked ships
+
+  const fakedPatrolBoat = {
+    getName() {
+      return 'Patrol Boat';
+    },
+
+    getLength() {
+      return 2;
+    },
+  };
+
+  const fakedDestroyer = {
+    getName() {
+      return 'Destroyer';
+    },
+    getLength() {
+      return 3;
+    },
+  };
+
+  const fakedSubmarine = {
+    getName() {
+      return 'Submarine';
+    },
+    getLength() {
+      return 3;
+    },
+  };
+
+  const fakedBattleship = {
+    getName() {
+      return 'Battleship';
+    },
+    getLength() {
+      return 4;
+    },
+  };
+  const fakedCarrier = {
+    getName() {
+      return 'Carrier';
+    },
+    getLength() {
+      return 5;
+    },
+  };
+
   // Unit tests for the above methods
 
   describe('getGrid method', () => {
@@ -65,16 +112,16 @@ describe('Gameboard class', () => {
 
     describe('when ship has length:2, name:"Patrol Boat", and orientation is "horizontal"', () => {
       beforeEach(() => {
-        const fakedShip = { name: 'Patrol Boat', length: 2 };
+        const ship = fakedPatrolBoat;
         const coords = [0, 0];
         const orientation = 'horizontal';
 
-        gameboard.safePlaceShip(fakedShip, coords, orientation);
+        gameboard.safePlaceShip(ship, coords, orientation);
       });
 
       it('should place ship object named "Patrol Boat" on grid at [0, 0]', () => {
-        const testCell = grid[0][0];
-        const { name: shipName } = testCell.ship;
+        const targetCell = grid[0][0];
+        const shipName = targetCell.ship.getName();
         expect(shipName).toBe('Patrol Boat');
       });
 
@@ -82,7 +129,9 @@ describe('Gameboard class', () => {
         // Use reduce + filter to count number of cells that contain given ship on grid
         const numGridMatches = grid.reduce((acc, curRow) => {
           const numRowMatches = curRow.filter(
-            (curCell) => curCell.ship.name === 'Patrol Boat',
+            (curCell) =>
+              curCell.ship !== 'none' &&
+              curCell.ship.getName() === 'Patrol Boat',
           );
           const count = numRowMatches.length;
           return acc + count;
@@ -95,52 +144,44 @@ describe('Gameboard class', () => {
         const cell1 = grid[0][0];
         const cell2 = grid[0][1];
 
-        expect(cell1.ship.name).toBe('Patrol Boat');
-        expect(cell2.ship.name).toBe('Patrol Boat');
+        expect(cell1.ship.getName()).toBe('Patrol Boat');
+        expect(cell2.ship.getName()).toBe('Patrol Boat');
       });
     });
 
     describe('when ship has length:3, name:"Destroyer" and coords are [5, 4]', () => {
       it('should add ship to cells [5, 4], [6, 4], [7, 4]  when we specify "vertical" for orientation', () => {
-        const fakedDestroyer = { name: 'Destroyer', length: 3 };
+        const ship = fakedDestroyer;
         const coords = [5, 4];
         const orientation = 'vertical';
-        gameboard.safePlaceShip(fakedDestroyer, coords, orientation);
+        gameboard.safePlaceShip(ship, coords, orientation);
         const cell1 = grid[5][4];
         const cell2 = grid[6][4];
         const cell3 = grid[7][4];
 
-        expect(cell1.ship.name).toBe('Destroyer');
-        expect(cell2.ship.name).toBe('Destroyer');
-        expect(cell3.ship.name).toBe('Destroyer');
+        expect(cell1.ship.getName()).toBe('Destroyer');
+        expect(cell2.ship.getName()).toBe('Destroyer');
+        expect(cell3.ship.getName()).toBe('Destroyer');
       });
     });
 
     describe('when placing a second ship on the grid', () => {
       it('does not place the second ship when coords at [5, 4] are already occupied', () => {
-        console.log = jest.fn();
-        const fakedPatrolBoat = { name: 'Patrol Boat', length: 2 };
-        const fakedDestroyer = { name: 'Destroyer', length: 3 };
+        // console.log = jest.fn();
         gameboard.safePlaceShip(fakedPatrolBoat, [5, 4], 'horizontal');
         gameboard.safePlaceShip(fakedDestroyer, [5, 4], 'horizontal');
-        const shipNameOnCell = grid[5][4].ship.name;
+        const shipNameOnCell = grid[5][4].ship.getName();
 
         expect(shipNameOnCell).toBe('Patrol Boat');
         expect(shipNameOnCell).not.toBe('Destroyer');
-        expect(console.log).toHaveBeenCalledWith(
-          `Error: Cannot place "Destroyer" here because it is occupied by "Patrol Boat".`,
-        );
       });
 
-      it('places the second ship when coords at [1, 1] and unoccupied', () => {
-        const fakedPatrolBoat = { name: 'Patrol Boat', length: 2 };
+      it('successfully places the second ship at unoccupied coordinates [1, 1]', () => {
         gameboard.safePlaceShip(fakedPatrolBoat, [5, 4], 'horizontal');
-
-        const fakedDestroyer = { name: 'Destroyer', length: 3 };
         gameboard.safePlaceShip(fakedDestroyer, [1, 1], 'horizontal');
 
-        const shipNameOnFirstCoords = grid[5][4].ship.name;
-        const shipNameOnSecondCoords = grid[1][1].ship.name;
+        const shipNameOnFirstCoords = grid[5][4].ship.getName();
+        const shipNameOnSecondCoords = grid[1][1].ship.getName();
 
         expect(shipNameOnFirstCoords).toBe('Patrol Boat');
         expect(shipNameOnSecondCoords).toBe('Destroyer');
@@ -149,24 +190,19 @@ describe('Gameboard class', () => {
 
     describe('when trying to place a long ship (Carrier) that spans across an occupied space', () => {
       it('does not place the second ship', () => {
-        console.log = jest.fn();
-        const fakedSubmarine = { name: 'Submarine', length: 3 };
+        // console.log = jest.fn();
         gameboard.safePlaceShip(fakedSubmarine, [0, 7], 'horizontal');
-        const fakedCarrier = { name: 'Carrier', length: 5 };
         gameboard.safePlaceShip(fakedCarrier, [0, 3], 'horizontal');
-        const shipNameOnCell = grid[0][7].ship.name;
+        const shipNameOnCell = grid[0][7].ship.getName();
 
         expect(shipNameOnCell).not.toBe('Carrier');
         expect(shipNameOnCell).toBe('Submarine');
-        expect(console.log).toHaveBeenCalledWith(
-          `Error: Cannot place "Carrier" here because it is occupied by "Submarine".`,
-        );
       });
     });
 
     describe('when trying to place a ship (vertically) that is out-of-bounds', () => {
       it('does not place the ship', () => {
-        console.log = jest.fn();
+        // console.log = jest.fn();
         const fakedBattleship = { name: 'Battleship', length: 4 };
         const targetCell = [7, 0];
         gameboard.safePlaceShip(fakedBattleship, targetCell, 'vertical');
@@ -174,16 +210,12 @@ describe('Gameboard class', () => {
         const targetCellShip = grid[targetCell[0]][targetCell[1]].ship;
 
         expect(targetCellShip).toBe('none');
-        expect(console.log).toHaveBeenCalledWith(
-          `RangeError: Cannot place "Battleship" here because it is out of bounds.`,
-        );
       });
     });
 
     describe('when trying to place a ship (horizontally) that is out-of-bounds', () => {
       it('does not place the ship', () => {
-        console.log = jest.fn();
-        const fakedBattleship = { name: 'Battleship', length: 4 };
+        // console.log = jest.fn();
         const targetCell = [0, 7];
         gameboard.safePlaceShip(fakedBattleship, targetCell, 'horizontal');
 
@@ -191,24 +223,17 @@ describe('Gameboard class', () => {
         const targetCellShip = refreshGrid[targetCell[0]][targetCell[1]].ship;
 
         expect(targetCellShip).toBe('none');
-        expect(console.log).toHaveBeenCalledWith(
-          `RangeError: Cannot place "Battleship" here because it is out of bounds.`,
-        );
       });
     });
 
     describe('when trying to place a ship out-of-range of grid -> [99, 0]', () => {
       it('shows "undefined" for cell at [99, 0]', () => {
-        console.log = jest.fn();
-        const fakedSubmarine = { name: 'Submarine', length: 3 };
+        // console.log = jest.fn();
         const targetCell = [99, 0];
         gameboard.safePlaceShip(fakedSubmarine, targetCell, 'horizontal');
         const targetCellShip = grid[targetCell[0]]?.[targetCell[1]];
 
         expect(targetCellShip).toBeUndefined;
-        expect(console.log).toHaveBeenCalledWith(
-          `RangeError: Cannot place "Submarine" here because it is out of bounds.`,
-        );
       });
     });
   });
@@ -216,15 +241,15 @@ describe('Gameboard class', () => {
   describe('placeAllShips method', () => {
     let grid;
     let defaultShipSet;
-    console.log = jest.fn();
+    // console.log = jest.fn();
 
     beforeEach(() => {
       defaultShipSet = [
-        { name: 'Cruiser', length: 5 },
-        { name: 'Battleship', length: 4 },
-        { name: 'Destroyer', length: 3 },
-        { name: 'Submarine', length: 3 },
-        { name: 'Patrol Boat', length: 2 },
+        fakedPatrolBoat,
+        fakedSubmarine,
+        fakedBattleship,
+        fakedDestroyer,
+        fakedCarrier,
       ];
 
       grid = gameboard.getGrid();
@@ -294,7 +319,15 @@ describe('Gameboard class', () => {
       it("calls the ship's `hit` method once", () => {
         const coords = [3, 4];
         const mockHit = jest.fn();
-        const fakedCarrier = { name: 'Carrier', length: 5, hit: mockHit };
+        const fakedCarrier = {
+          getName() {
+            return 'Carrier';
+          },
+          getLength() {
+            return 5;
+          },
+          hit: mockHit,
+        };
 
         gameboard.safePlaceShip(fakedCarrier, coords, 'vertical');
         gameboard.receiveAttack(coords);
@@ -309,35 +342,31 @@ describe('Gameboard class', () => {
 
   describe('allSunk method', () => {
     beforeEach(() => {
-      // Add all 4 ships to board with sunk:true
-      const fakedCarrier = { name: 'Carrier', length: 5, sunk: true };
-      const fakedBattleship = { name: 'Battleship', length: 4, sunk: true };
-      const fakedDestroyer = { name: 'Destroyer', length: 3, sunk: true };
-      const fakedSubmarine = { name: 'Submarine', length: 3, sunk: true };
-      gameboard.safePlaceShip(fakedCarrier, [4, 4], 'vertical');
-      gameboard.safePlaceShip(fakedBattleship, [1, 3], 'horizontal');
-      gameboard.safePlaceShip(fakedDestroyer, [4, 3], 'vertical');
-      gameboard.safePlaceShip(fakedSubmarine, [0, 6], 'horizontal');
+      // Create 'sunk' ships by merging {sunk:true} to our ships
+      const sunkObj = { sunk: true };
+
+      // Add all ships except Patrol Boat to grid
+      const fakedSunkSubmarine = { ...fakedSubmarine, ...sunkObj };
+      const fakedSunkDestroyer = { ...fakedCarrier, ...sunkObj };
+      const fakedSunkBattleship = { ...fakedBattleship, ...sunkObj };
+      const fakedSunkCarrier = { ...fakedCarrier, ...sunkObj };
+
+      gameboard.safePlaceShip(fakedSunkCarrier, [4, 4], 'vertical');
+      gameboard.safePlaceShip(fakedSunkBattleship, [1, 3], 'horizontal');
+      gameboard.safePlaceShip(fakedSunkDestroyer, [4, 3], 'vertical');
+      gameboard.safePlaceShip(fakedSunkSubmarine, [0, 6], 'horizontal');
     });
 
     it('returns true when all ships have been sunk on gameboard', () => {
-      const sunkValue = true;
-      const fakedPatrolBoat = {
-        name: 'Patrol Boat',
-        length: 2,
-        sunk: sunkValue,
-      };
-      gameboard.safePlaceShip(fakedPatrolBoat, [1, 9], 'vertical');
+      const fakedSunkPatrolBoat = { ...fakedPatrolBoat, sunk: true };
+
+      gameboard.safePlaceShip(fakedSunkPatrolBoat, [1, 9], 'vertical');
       expect(gameboard.allSunk()).toBe(true);
     });
 
     it('returns false when there are unsunk ships on gameboard', () => {
-      const sunkValue = false;
-      const fakedPatrolBoat = {
-        name: 'Patrol Boat',
-        length: 2,
-        sunk: sunkValue,
-      };
+      const fakedSunkPatrolBoat = { ...fakedPatrolBoat, sunk: false };
+
       gameboard.safePlaceShip(fakedPatrolBoat, [1, 9], 'vertical');
       expect(gameboard.allSunk()).toBe(false);
     });

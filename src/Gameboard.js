@@ -5,19 +5,36 @@ export default class Gameboard {
   #allShips;
   static #gridSize = 10;
 
+  static #createCell() {
+    let attacked = false;
+    return {
+      attack() {
+        attacked = true;
+      },
+      isAttacked() {
+        return attacked;
+      },
+      ship: 'none',
+      coords: { rowIndex: undefined, columnIndex: undefined },
+    };
+  }
+
   static #buildGrid() {
     const gridArray = [];
     const numRows = Gameboard.#gridSize;
     const numCols = Gameboard.#gridSize;
 
-    Array.from({ length: numRows }, () => {
-      const currentRow = [];
-      Array.from({ length: numCols }, () => {
-        const newCell = { attacked: false, ship: 'none' };
-        currentRow.push(newCell);
-      });
-      gridArray.push(currentRow);
-    });
+    const maxIndex = Gameboard.#gridSize;
+    for (let rowIdx = 0; rowIdx < maxIndex; rowIdx += 1) {
+      const curRow = [];
+      for (let colIdx = 0; colIdx < maxIndex; colIdx += 1) {
+        const newCell = Gameboard.#createCell();
+        newCell.coords.rowIndex = rowIdx;
+        newCell.coords.columnIndex = colIdx;
+        curRow.push(newCell);
+      }
+      gridArray.push(curRow);
+    }
 
     return gridArray;
   }
@@ -60,7 +77,7 @@ export default class Gameboard {
       );
     } else if (cell.ship !== 'none') {
       throw new Error(
-        `Cannot place "${ship.getName()}" here because it is occupied by "${cell.ship.name}".`,
+        `Cannot place "${ship.getName()}" here because it is occupied by "${cell.ship.getName()}".`,
       );
     }
   }
