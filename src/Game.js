@@ -7,12 +7,14 @@ import Ship from './Ship.js';
 export default class Game {
   #player1;
   #player2;
+  #curPlayer;
 
   static defaultShipSet = [
-    { name: 'Cruiser', length: 5 },
-    { name: 'Battleship', length: 4 },
-    { name: 'Destroyer', length: 3 },
-    { name: 'Submarine', length: 3 },
+    // FIXME: UNCOMMENT BELOW
+    // { name: 'Cruiser', length: 5 },
+    // { name: 'Battleship', length: 4 },
+    // { name: 'Destroyer', length: 3 },
+    // { name: 'Submarine', length: 3 },
     { name: 'Patrol Boat', length: 2 },
   ];
 
@@ -35,6 +37,8 @@ export default class Game {
 
     this.#player1 = player1;
     this.#player2 = player2;
+    const randPlayer = [player1, player2][Math.floor(Math.random() * 2)];
+    this.#curPlayer = randPlayer;
   }
 
   getPlayers() {
@@ -49,11 +53,11 @@ export default class Game {
     return this.#player2;
   }
 
-  getOppositePlayer(player) {
-    if (!(player instanceof Player)) {
-      throw new TypeError('Error: Expected an instance of the Player class.');
-    }
+  getCurPlayer() {
+    return this.#curPlayer;
+  }
 
-    return player === this.#player1 ? this.#player2 : this.#player1;
+  getNotCurPlayer() {
+    return this.#curPlayer === this.#player1 ? this.#player2 : this.#player1;
   }
 }

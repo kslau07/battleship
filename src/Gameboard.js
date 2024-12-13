@@ -153,20 +153,21 @@ export default class Gameboard {
   receiveAttack(coords) {
     const grid = this.getGrid();
     const targetCell = grid[coords[0]][coords[1]];
-    const { attacked } = targetCell;
+    const isAttacked = targetCell.isAttacked();
 
-    if (attacked === true) {
+    if (isAttacked === true) {
       throw new Error('You have already attacked this cell!');
     }
+
+    targetCell.attack();
 
     if (targetCell.ship !== 'none') {
       targetCell.ship.hit();
     }
-
-    targetCell.attacked = true;
   }
 
   allSunk() {
+    console.log('hello from allSunk'); // FIXME: DELETE ME
     const ships = this.getAllShips();
     return ships.every((ship) => ship.sunk === true);
   }

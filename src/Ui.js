@@ -4,106 +4,90 @@ import './global.css';
 import './style.css';
 import Game from './Game';
 
-const createOwnCell = (cellObj) => {
+const createBaseGrid = () => {
+  const grid = document.createElement('div');
+  const gridSize = 10;
+
+  for (let rowIdx = 0; rowIdx < gridSize; rowIdx += 1) {
+    for (let colIdx = 0; colIdx < gridSize; colIdx += 1) {
+      const cellContainer = document.createElement('div');
+      cellContainer.classList.add('cell-container', `cc-${rowIdx}-${colIdx}`);
+      grid.appendChild(cellContainer);
+    }
+  }
+
+  grid.classList.add('grid');
+  return grid;
+};
+
+const createGameGrids = (gameObj) => {
+  const gridContainers = document.querySelectorAll('.grid-container');
+
+  gridContainers.forEach((container) => {
+    const baseGrid = createBaseGrid();
+    container.appendChild(baseGrid);
+  });
+};
+
+const createOwnCell = (cellCtr, cellObj) => {
   const cellDiv = document.createElement('div');
-  cellDiv.className = 'cell own';
+  cellDiv.classList.add('cell', 'own');
   cellDiv.textContent = cellObj.ship === 'none' ? '' : cellObj.ship.getName();
-  return cellDiv;
+  cellCtr.appendChild(cellDiv);
 };
 
-const attackAndUpdateCell = (gameObj, playerObj, cellObj, cellBtn) => {
-  cellObj.attack();
+// TODO: own-grid will eventually have to display hits/misses from other player
 
-  if (cellObj.isAttacked() === true && cellObj.ship === 'none') {
-    cellBtn.textContent = 'miss';
-  } else if (cellObj.isAttacked() === true && cellObj.ship !== 'none') {
-    cellBtn.textContent = 'hit!';
-    cellBtn.style.background = 'red';
-  }
+const redrawOwnGrid = (gameObj) => {
+  const cellObjects = gameObj.getCurPlayer().getGameboard().getGrid().flat();
+  const ownGridElem = document.querySelector('.grid-container.own')
+    .childNodes[0];
 
-  cellBtn.disabled = true;
-
-  // TODO: Check end of game
-};
-
-const createEnemyCell = (gameObj, playerObj, cellObj) => {
-  const cellBtn = document.createElement('button');
-  cellBtn.className = `cell cell-${cellObj.rowIndex}-${cellObj.columnIndex}`;
-  cellBtn.textContent = '';
-  cellBtn.addEventListener('click', () => {
-    attackAndUpdateCell(gameObj, playerObj, cellObj, cellBtn);
-  });
-  return cellBtn;
-};
-
-const createCellElement = (gameObj, playerObj, side, cellObj) => {
-  let cellEl;
-
-  if (side === 'own') {
-    cellEl = createOwnCell(cellObj);
-  } else if (side === 'enemy') {
-    cellEl = createEnemyCell(gameObj, playerObj, cellObj);
-  }
-
-  return cellEl;
-};
-
-const createRowElement = (gameObj, playerObj, side, rowObj) => {
-  const rowEl = document.createElement('div');
-  rowEl.classList.add('row');
-
-  rowObj.forEach((cellObj) => {
-    const cellEl = createCellElement(gameObj, playerObj, side, cellObj);
-    // cellEl.classList.add(`column-${columnIndex}`);// FIXME: ADD COORDS INFO AS CLASS
-    rowEl.appendChild(cellEl);
-  });
-  return rowEl;
-};
-
-const createGridElement = (gameObj, playerObj, side) => {
-  const playerGrid = playerObj.getGameboard().getGrid();
-  const gridEl = document.createElement('div');
-  gridEl.className = 'grid';
-
-  playerGrid.forEach((rowObj, rowIndex) => {
-    const rowEl = createRowElement(gameObj, playerObj, side, rowObj);
-    rowEl.classList.add(`row-${rowIndex}`);
-
-    gridEl.appendChild(rowEl);
-  });
-
-  return gridEl;
-};
-
-const populateGameboard = (gameObj, playerObj, side) => {
-  const gridContainer = document.getElementById(
-    `${playerObj.getName()}-${side}-grid`,
+  const ownCellContainers = ownGridElem.childNodes;
+  ownCellContainers.forEach((cellCtr, i) =>
+    createOwnCell(cellCtr, cellObjects[i]),
   );
-
-  let gridElement;
-  if (side === 'own') {
-    gridElement = createGridElement(gameObj, playerObj, side);
-  } else if (side === 'enemy') {
-    const enemyObj = gameObj.getOppositePlayer(playerObj);
-    gridElement = createGridElement(gameObj, enemyObj, side);
-  }
-
-  gridContainer.appendChild(gridElement);
 };
 
-const populateGrids = (gameObj) => {
-  const players = gameObj.getPlayers();
-  players.forEach((player) => {
-    populateGameboard(gameObj, player, 'own');
-    populateGameboard(gameObj, player, 'enemy');
-  });
+const createGuessCell = (cellCtr, cellObj) => {
+  const cellBtn = document.createElement('button');
+  cellBtn.classList.add('cell', 'guess');
+
+  // cellBtn.textContent = cellObj.ship === 'none' ? '' : cellObj.ship.getName();
+  cellCtr.appendChild(cellBtn);
+};
+
+const redrawGuessGrid = (gameObj) => {
+  const cellObjects = gameObj.getNotCurPlayer().getGameboard().getGrid().flat();
+  const guessGridElem = document.querySelector('.grid-container.guess')
+    .childNodes[0];
+
+  const guessCellContainers = guessGridElem.childNodes;
+  guessCellContainers.forEach((cellCtr, i) =>
+    createGuessCell(cellCtr, cellObjects[i]),
+  );
+};
+
+const populateGameGrids = (gameObj) => {
+  redrawOwnGrid(gameObj);
+  redrawGuessGrid(gameObj);
+
+  // const gridContainers = document.querySelectorAll('.grid-container');
+  //
+  // let grids = [];
+  // gridContainers.forEach((gridCtr) => {
+  //   grids.push(gridCtr.childNodes[0]);
+  // });
+  //
+  // grids.forEach((grid) => {
+  //   console.log(grid.childNodes);
+  // });
 };
 
 const createGame = () => {
-  const game = new Game();
-  const player1 = game.getPlayer1();
-  const player2 = game.getPlayer2();
-  populateGrids(game);
+  const gameObj = new Game();
+  createGameGrids();
+  populateGameGrids(gameObj);
 };
 
 const createGameButton = document.querySelector('#new-game-button');
@@ -119,4 +103,4 @@ document.onkeyup = function () {
   }
 };
 
-// createGame(); // FIXME: DELETE ME, DEVELOPMENT TOOL
+createGame(); // FIXME: DELETE ME, DEVELOPMENT TOOL

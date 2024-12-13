@@ -1,25 +1,42 @@
 /* style.css */
 
 body {
-  --cell: 50px;
+  --cell-size: 30px;
+  --gap: 0.125rem;
+  --gameboard-margin: 1rem;
+  --grid-size: 10;
+}
+
+.grid-container {
+  border: 5px solid navy;
+  width: max-content;
+  margin: var(--gameboard-margin);
 }
 
 .grid {
-  border: 2px solid black;
-  width: max-content;
+  display: grid;
+  grid-template-rows: repeat(var(--grid-size), var(--cell-size));
+  grid-template-columns: repeat(var(--grid-size), var(--cell-size));
+  gap: var(--gap);
 }
 
 .row {
-  /* height: var(--cell); */
-  /* width: 100%; */
+  display: grid;
+  grid-auto-flow: column;
+  gap: var(--gap);
   border: 2px solid white;
   background: lightGrey;
 }
 
+.cell-container {
+  height: var(--cell-size);
+  width: var(--cell-size);
+  /* background: red; */
+}
+
 .cell {
-  height: var(--cell);
-  width: var(--cell);
-  display: inline-block;
-  border: 2px solid white;
+  font: 0.5rem 'Serif';
+  /* display: inline-block; */
+  /* border: 2px solid white; */
   background: lightBlue;
 }
