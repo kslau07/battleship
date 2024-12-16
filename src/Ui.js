@@ -4,6 +4,17 @@ import './global.css';
 import './style.css';
 import Game from './Game';
 
+const endTurn = (gameObj) => {
+  gameObj.endTurn();
+  const isGameOver = gameObj.isGameOver();
+
+  if (isGameOver === true) {
+    console.log('Game over!');
+  } else {
+    redrawGameGrids(gameObj);
+  }
+};
+
 const createBaseGrid = () => {
   const grid = document.createElement('div');
   const gridSize = 10;
@@ -36,7 +47,11 @@ const createOwnCell = (cellCtr, cellObj) => {
   cellCtr.appendChild(cellDiv);
 };
 
-// TODO: own-grid will eventually have to display hits/misses from other player
+const removeChildNodes = (parentEl) => {
+  while (parentEl.firstChild) {
+    parentEl.removeChild(parentEl.firstChild);
+  }
+};
 
 const redrawOwnGrid = (gameObj) => {
   const cellObjects = gameObj.getCurPlayer().getGameboard().getGrid().flat();
@@ -44,31 +59,74 @@ const redrawOwnGrid = (gameObj) => {
     .childNodes[0];
 
   const ownCellContainers = ownGridElem.childNodes;
-  ownCellContainers.forEach((cellCtr, i) =>
-    createOwnCell(cellCtr, cellObjects[i]),
-  );
+  ownCellContainers.forEach((cellCtr, i) => {
+    removeChildNodes(cellCtr);
+    createOwnCell(cellCtr, cellObjects[i]);
+  });
 };
 
-const createGuessCell = (cellCtr, cellObj) => {
-  const cellBtn = document.createElement('button');
-  cellBtn.classList.add('cell', 'guess');
+// FIXME: DELETE BELOW, TESTING ONLY
+const revealShip = (cellObj) => {
+  let content;
+  if (cellObj.ship !== 'none') {
+    content = '?';
+  } else {
+    content = '.';
+  }
+  return content;
+};
 
-  // cellBtn.textContent = cellObj.ship === 'none' ? '' : cellObj.ship.getName();
+const redrawCell = (cellBtn, cellObj) => {
+  cellBtn.textContent = '';
+  const isAttacked = cellObj.isAttacked();
+
+  let content;
+  if (isAttacked === false) {
+    // FIXME: DELETE BELOW, TESTING ONLY
+    content = revealShip(cellObj);
+    // content = '-';
+  } else if (isAttacked === true && cellObj.ship === 'none') {
+    content = 'miss';
+  } else {
+    content = 'hit!';
+  }
+
+  cellBtn.textContent = content;
+};
+
+const attackCellAndEndTurn = (gameObj, coords, cellBtn, cellObj) => {
+  const curGuessBoard = gameObj.getCurEnemy().getGameboard();
+  curGuessBoard.receiveAttack(coords);
+  redrawCell(cellBtn, cellObj);
+  endTurn(gameObj);
+};
+
+const createGuessCell = (gameObj, cellCtr, cellObj) => {
+  const cellBtn = document.createElement('button');
+  // const coords = `${cellObj.coords.rowIndex}-${cellObj.coords.columnIndex}`;
+  const coords = [cellObj.coords.rowIndex, cellObj.coords.columnIndex];
+  cellBtn.classList.add('cell', 'guess', `cell-${coords[0]}-${coords[1]}`);
+  cellBtn.addEventListener('click', () => {
+    attackCellAndEndTurn(gameObj, coords, cellBtn, cellObj);
+  });
+
+  redrawCell(cellBtn, cellObj);
   cellCtr.appendChild(cellBtn);
 };
 
 const redrawGuessGrid = (gameObj) => {
-  const cellObjects = gameObj.getNotCurPlayer().getGameboard().getGrid().flat();
+  const cellObjects = gameObj.getCurEnemy().getGameboard().getGrid().flat();
   const guessGridElem = document.querySelector('.grid-container.guess')
     .childNodes[0];
 
   const guessCellContainers = guessGridElem.childNodes;
-  guessCellContainers.forEach((cellCtr, i) =>
-    createGuessCell(cellCtr, cellObjects[i]),
-  );
+  guessCellContainers.forEach((cellCtr, i) => {
+    removeChildNodes(cellCtr);
+    createGuessCell(gameObj, cellCtr, cellObjects[i]);
+  });
 };
 
-const populateGameGrids = (gameObj) => {
+const redrawGameGrids = (gameObj) => {
   redrawOwnGrid(gameObj);
   redrawGuessGrid(gameObj);
 
@@ -87,7 +145,7 @@ const populateGameGrids = (gameObj) => {
 const createGame = () => {
   const gameObj = new Game();
   createGameGrids();
-  populateGameGrids(gameObj);
+  redrawGameGrids(gameObj);
 };
 
 const createGameButton = document.querySelector('#new-game-button');

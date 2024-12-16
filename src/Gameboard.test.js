@@ -289,11 +289,11 @@ describe('Gameboard class', () => {
 
     it("it accepts `coords` and changes a cell's attacked property to true", () => {
       const targetCell = grid[0][0];
-      expect(targetCell.attacked).toBe(false);
+      expect(targetCell.isAttacked()).toBe(false);
       const coords = [0, 0];
 
       gameboard.receiveAttack(coords);
-      expect(targetCell.attacked).toBe(true);
+      expect(targetCell.isAttacked()).toBe(true);
     });
 
     it('does not raise an error when a cell is attacked the first time', () => {
@@ -343,7 +343,11 @@ describe('Gameboard class', () => {
   describe('allSunk method', () => {
     beforeEach(() => {
       // Create 'sunk' ships by merging {sunk:true} to our ships
-      const sunkObj = { sunk: true };
+      const sunkObj = {
+        isSunk() {
+          return true;
+        },
+      };
 
       // Add all ships except Patrol Boat to grid
       const fakedSunkSubmarine = { ...fakedSubmarine, ...sunkObj };
@@ -358,16 +362,26 @@ describe('Gameboard class', () => {
     });
 
     it('returns true when all ships have been sunk on gameboard', () => {
-      const fakedSunkPatrolBoat = { ...fakedPatrolBoat, sunk: true };
+      const fakedSunkPatrolBoat = {
+        ...fakedPatrolBoat,
+        isSunk() {
+          return true;
+        },
+      };
 
       gameboard.safePlaceShip(fakedSunkPatrolBoat, [1, 9], 'vertical');
       expect(gameboard.allSunk()).toBe(true);
     });
 
     it('returns false when there are unsunk ships on gameboard', () => {
-      const fakedSunkPatrolBoat = { ...fakedPatrolBoat, sunk: false };
+      const fakedSunkPatrolBoat = {
+        ...fakedPatrolBoat,
+        isSunk() {
+          return false;
+        },
+      };
 
-      gameboard.safePlaceShip(fakedPatrolBoat, [1, 9], 'vertical');
+      gameboard.safePlaceShip(fakedSunkPatrolBoat, [1, 9], 'vertical');
       expect(gameboard.allSunk()).toBe(false);
     });
   });

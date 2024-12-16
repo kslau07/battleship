@@ -167,8 +167,7 @@ export default class Gameboard {
   }
 
   allSunk() {
-    console.log('hello from allSunk'); // FIXME: DELETE ME
     const ships = this.getAllShips();
-    return ships.every((ship) => ship.sunk === true);
+    return ships.every((ship) => ship.isSunk() === true);
   }
 }
