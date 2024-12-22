@@ -5,6 +5,8 @@ body {
   --gap: 0.125rem;
   --gameboard-margin: 1rem;
   --grid-size: 10;
+  --color-cell-own: hsl(100, 75%, 87%);
+  --color-cell-guess: hsl(0, 75%, 87%);
 }
 
 .grid-container {
@@ -20,14 +22,6 @@ body {
   gap: var(--gap);
 }
 
-.row {
-  display: grid;
-  grid-auto-flow: column;
-  gap: var(--gap);
-  border: 2px solid white;
-  background: lightGrey;
-}
-
 .cell-container {
   height: var(--cell-size);
   width: var(--cell-size);
@@ -35,8 +29,27 @@ body {
 }
 
 .cell {
+  height: 100%;
+  width: 100%;
   font: 0.5rem 'Serif';
-  /* display: inline-block; */
-  /* border: 2px solid white; */
-  background: lightBlue;
+  /* background: navy; */
+  /* background: red; */
+  /* outline: 1px solid red; */
+}
+
+.cell.own {
+  /* outline: 1px solid red; */
+  background: var(--color-cell-own);
+}
+
+.cell.guess {
+  border: none;
+  /* height: var(--cell-size); */
+  /* width: var(--cell-size); */
+  background: var(--color-cell-guess);
+  cursor: pointer;
+}
+
+.cell.guess:hover {
+  filter: hue-rotate(90deg);
 }
