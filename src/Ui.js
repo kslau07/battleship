@@ -11,6 +11,8 @@ const endTurn = (gameObj) => {
   if (isGameOver === true) {
     console.log('Game over!');
   } else {
+    console.log('not gameover!'); // FIXME: DELETE ME
+
     redrawGameGrids(gameObj);
   }
 };
@@ -85,10 +87,15 @@ const redrawCell = (cellBtn, cellObj) => {
     // FIXME: DELETE BELOW, TESTING ONLY
     content = revealShip(cellObj);
     // content = '-';
-  } else if (isAttacked === true && cellObj.ship === 'none') {
-    content = 'miss';
-  } else {
-    content = 'hit!';
+  } else if (isAttacked === true) {
+    cellBtn.classList.add('attacked');
+    cellBtn.disabled = true;
+
+    if (cellObj.ship === 'none') {
+      content = 'miss';
+    } else {
+      content = 'hit!';
+    }
   }
 
   cellBtn.textContent = content;
@@ -103,9 +110,9 @@ const attackCellAndEndTurn = (gameObj, coords, cellBtn, cellObj) => {
 
 const createGuessCell = (gameObj, cellCtr, cellObj) => {
   const cellBtn = document.createElement('button');
-  // const coords = `${cellObj.coords.rowIndex}-${cellObj.coords.columnIndex}`;
   const coords = [cellObj.coords.rowIndex, cellObj.coords.columnIndex];
   cellBtn.classList.add('cell', 'guess', `cell-${coords[0]}-${coords[1]}`);
+
   cellBtn.addEventListener('click', () => {
     attackCellAndEndTurn(gameObj, coords, cellBtn, cellObj);
   });
@@ -129,23 +136,70 @@ const redrawGuessGrid = (gameObj) => {
 const redrawGameGrids = (gameObj) => {
   redrawOwnGrid(gameObj);
   redrawGuessGrid(gameObj);
+};
 
-  // const gridContainers = document.querySelectorAll('.grid-container');
-  //
-  // let grids = [];
-  // gridContainers.forEach((gridCtr) => {
-  //   grids.push(gridCtr.childNodes[0]);
-  // });
-  //
-  // grids.forEach((grid) => {
-  //   console.log(grid.childNodes);
-  // });
+const showOverlay = () => {
+  const overlay = document.getElementById('overlay');
+  overlay.style.display = 'block';
+};
+
+// User inputs names and can begin game
+const nextMenu = (gameOptions, clone) => {
+  const overlay = document.getElementById('overlay');
+  const namingScreen = clone.querySelector('#load-screen-naming');
+  namingScreen.style.display = 'block';
+  overlay.appendChild(namingScreen);
+
+  const btnBeginGame = namingScreen.querySelector('#btn-begin-game');
+  btnBeginGame.addEventListener('click', () => {
+    const p1Name = namingScreen.querySelector('#input-player1-name').value;
+    const p2Name = namingScreen.querySelector('#input-player2-name').value;
+    gameOptions.player1Name = p1Name;
+    gameOptions.player2Name = p2Name;
+    console.log(`gameOptions:`, gameOptions);
+  });
+};
+
+// User chooses opponent type and advances to next menu
+const showMenu = (gameOpts) => {
+  const overlay = document.getElementById('overlay');
+  const template = document.getElementById('load-screen-template');
+  const clone = template.content.cloneNode(true);
+  const selectionScreen = clone.querySelector('#load-screen-selection');
+  selectionScreen.style.display = 'block';
+  overlay.appendChild(selectionScreen);
+
+  const buttons = selectionScreen.querySelectorAll('button');
+  buttons.forEach((button) => {
+    button.addEventListener('click', function () {
+      gameOpts.opponentType = this.value;
+      overlay.removeChild(selectionScreen);
+      nextMenu(gameOpts, clone);
+    });
+  });
+};
+
+const loadMenu = (gameOpts) => {
+  showOverlay();
+  showMenu(gameOpts);
 };
 
 const createGame = () => {
-  const gameObj = new Game();
-  createGameGrids();
-  redrawGameGrids(gameObj);
+  const gameOpts = {};
+  gameOpts.opponentType = 'human';
+  gameOpts.player1Name = null;
+  gameOpts.player2Name = null;
+
+  loadMenu(gameOpts);
+  // console.log(`Step 2:`, userInputs);
+  // const gameObj = new Game();
+
+  // TODO: Just retrieve our inputs from the load screen for now.
+  // TODO: Below will be loaded with game type and names from user inputs from load screen
+
+  // gameObj.createNewMatch();
+  // createGameGrids();
+  // redrawGameGrids(gameObj);
 };
 
 const createGameButton = document.querySelector('#new-game-button');
@@ -161,4 +215,4 @@ document.onkeyup = function () {
   }
 };
 
-createGame(); // FIXME: DELETE ME, DEVELOPMENT TOOL
+createGame();

@@ -1,12 +1,38 @@
 /* style.css */
 
 body {
+  --menu-text-color: white;
+  --menu-bg-color: gray;
+  --menu-max-width: 500px;
   --cell-size: 30px;
   --gap: 0.125rem;
   --gameboard-margin: 1rem;
   --grid-size: 10;
   --color-cell-own: hsl(100, 75%, 87%);
   --color-cell-guess: hsl(0, 75%, 87%);
+}
+
+#overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.load-screen-container {
+  color: var(--menu-text-color);
+  background: var(--menu-bg-color);
+  display: none;
+  width: 85%;
+  max-width: var(--menu-max-width);
+  margin: 0 auto;
+}
+
+.btn-select-opponent {
+  cursor: pointer;
 }
 
 .grid-container {
@@ -47,9 +73,13 @@ body {
   /* height: var(--cell-size); */
   /* width: var(--cell-size); */
   background: var(--color-cell-guess);
-  cursor: pointer;
+  cursor: crosshair;
 }
 
 .cell.guess:hover {
   filter: hue-rotate(90deg);
+}
+
+.cell.guess.attacked {
+  cursor: not-allowed;
 }

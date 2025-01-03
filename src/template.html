@@ -13,6 +13,38 @@
   <body>
     <header id="header">Welcome to Battleship!</header>
     <main>
+      <div id="overlay"></div>
+      <template id="load-screen-template">
+        <div id="load-screen-selection" class="load-screen-container">
+          <h1>Welcome to Battleship!</h1>
+          <h2>Select opponent:</h2>
+          <button class="btn-select-opponent" value="human">Human</button>
+          <button class="btn-select-opponent" value="computer">Computer</button>
+        </div>
+        <div id="load-screen-naming" class="load-screen-container">
+          <h2>Enter player names:</h2>
+
+          <!-- TODO: MAKE SURE LABEL AND INPUT ARE ACCESSIBLE -->
+
+          <div>
+            <input
+              name=""
+              type="text"
+              id="input-player1-name"
+              value="Player One"
+            />
+          </div>
+          <div>
+            <input
+              name=""
+              type="text"
+              id="input-player2-name"
+              value="Player Two"
+            />
+          </div>
+          <button id="btn-begin-game">Begin game!</button>
+        </div>
+      </template>
       <button id="new-game-button">New Game</button>
       <h2>Your ships</h2>
       <div class="grid-container own" id="own-grid-container"></div>

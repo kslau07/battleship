@@ -15,7 +15,11 @@ export default class Game {
     // { name: 'Cruiser', length: 5 },
     // { name: 'Battleship', length: 4 },
     // { name: 'Destroyer', length: 3 },
-    { name: 'Submarine', length: 3 },
+    // { name: 'Submarine', length: 3 },
+    // { name: 'Patrol Boat', length: 2 },
+
+    // FIXME: DELETE BELOW
+    // { name: 'Submarine', length: 3 },
     { name: 'Patrol Boat', length: 2 },
   ];
 
@@ -41,14 +45,16 @@ export default class Game {
   }
 
   createNewMatch(randomStartingPlayer = true) {
+    this.#gameOver = false;
+
     if (randomStartingPlayer === true) {
-      const randPlayer = [player1, player2][Math.floor(Math.random() * 2)];
+      const randPlayer = [this.#player1, this.#player2][
+        Math.floor(Math.random() * 2)
+      ];
       this.#curPlayer = randPlayer;
     } else {
       this.#curPlayer = this.#player1;
     }
-
-    this.#gameOver = false;
   }
 
   getPlayers() {
@@ -76,7 +82,7 @@ export default class Game {
     return false;
   }
 
-  #hasReachedEndGame() {
+  #checkGameEndConditions() {
     const allSunk = this.getCurEnemy().getGameboard().allSunk();
     const tied = this.#isTied();
 
@@ -88,10 +94,10 @@ export default class Game {
   }
 
   endTurn() {
-    const endNow = this.#hasReachedEndGame();
+    const isEndOfGame = this.#checkGameEndConditions();
 
-    if (endNow === true) {
-      this.#endGame;
+    if (isEndOfGame === true) {
+      this.#endGame();
     }
 
     this.#switchCurPlayer();
