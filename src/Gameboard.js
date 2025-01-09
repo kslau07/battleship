@@ -1,8 +1,10 @@
 // Gameboard.js
 
+import Ship from './Ship.js';
+
 export default class Gameboard {
   #grid;
-  #allShips;
+  #placedShips;
   static #gridSize = 10;
 
   static #createCell() {
@@ -69,19 +71,17 @@ export default class Gameboard {
 
   constructor(shipSet = Gameboard.createDefaultShips()) {
     this.#grid = Gameboard.#buildGrid();
-    this.#allShips = []; // Ships are added by placeShip()
+    this.#placedShips = []; // placeShips populates this array
 
-    if (shipSet !== undefined) {
-      this.placeAllShips(shipSet);
-    }
+    this.placeShips(shipSet);
   }
 
   getGrid() {
     return this.#grid;
   }
 
-  getAllShips() {
-    return this.#allShips;
+  getPlacedShips() {
+    return this.#placedShips;
   }
 
   *#getNextCell(ship, coords, orientation) {
@@ -126,8 +126,6 @@ export default class Gameboard {
     for (let nextCell of generator) {
       nextCell.ship = ship;
     }
-
-    this.#allShips.push(ship);
   }
 
   // Try to place a ship and intercept errors
@@ -138,10 +136,12 @@ export default class Gameboard {
     } catch ({ name, message }) {
       console.log(`${name}: ${message}`);
     }
+
+    this.#placedShips.push(ship);
   }
 
-  placeAllShips(shipSet) {
-    this.placeAllShipsRandomly(shipSet);
+  placeShips(shipSet) {
+    this.placeShipsRandomly(shipSet);
   }
 
   randCoordinates() {
@@ -157,7 +157,7 @@ export default class Gameboard {
   }
 
   // Given an array of ship objects, place each ship randomly using a do-while loop
-  placeAllShipsRandomly(shipSet) {
+  placeShipsRandomly(shipSet) {
     let numShipsAdded;
     let success;
     let tries = 0;
@@ -168,7 +168,7 @@ export default class Gameboard {
         const randOrient = this.randOrientation();
         this.safePlaceShip(ship, randCoords, randOrient);
 
-        numShipsAdded = this.getAllShips().length;
+        numShipsAdded = this.getPlacedShips().length;
         success = numShipsAdded === index + 1;
 
         tries += 1;
@@ -195,7 +195,7 @@ export default class Gameboard {
   }
 
   allSunk() {
-    const ships = this.getAllShips();
+    const ships = this.getPlacedShips();
     return ships.every((ship) => ship.isSunk() === true);
   }
 }

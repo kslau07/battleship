@@ -143,7 +143,28 @@ const showOverlay = () => {
   overlay.style.display = 'block';
 };
 
-// User inputs names and can begin game
+const createGame = (gameOptions) => {
+  const { opponentType, player1Name, player2Name } = gameOptions;
+
+  // TODO: Add option to play against computer
+  //   Player - constructor(name, computer = false, gameboard = Player.createGameboard()) {
+  const p1Instance = Game.createPlayer(player1Name);
+  const p2Instance = Game.createPlayer(player2Name);
+  const gameObj = new Game(p1Instance, p2Instance);
+
+  // TODO: After we get the boards to render on the screen correctly, create and push our various commits
+
+  createGameGrids();
+  redrawGameGrids(gameObj);
+};
+
+// Hide overlay which contains menu
+const hideMenu = () => {
+  const overlay = document.getElementById('overlay');
+  overlay.style.display = 'none';
+};
+
+// User inputs names and begins game
 const nextMenu = (gameOptions, clone) => {
   const overlay = document.getElementById('overlay');
   const namingScreen = clone.querySelector('#load-screen-naming');
@@ -156,7 +177,8 @@ const nextMenu = (gameOptions, clone) => {
     const p2Name = namingScreen.querySelector('#input-player2-name').value;
     gameOptions.player1Name = p1Name;
     gameOptions.player2Name = p2Name;
-    console.log(`gameOptions:`, gameOptions);
+    createGame(gameOptions);
+    hideMenu(clone);
   });
 };
 
