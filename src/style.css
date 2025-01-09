@@ -35,6 +35,10 @@ body {
   cursor: pointer;
 }
 
+#btn-begin-game {
+  cursor: pointer;
+}
+
 .grid-container {
   border: 5px solid navy;
   width: max-content;

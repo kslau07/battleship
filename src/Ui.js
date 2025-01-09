@@ -179,40 +179,27 @@ const showMenu = (gameOpts) => {
   });
 };
 
-const loadMenu = (gameOpts) => {
-  showOverlay();
-  showMenu(gameOpts);
-};
-
-const createGame = () => {
+const loadMenu = () => {
   const gameOpts = {};
   gameOpts.opponentType = 'human';
   gameOpts.player1Name = null;
   gameOpts.player2Name = null;
 
-  loadMenu(gameOpts);
-  // console.log(`Step 2:`, userInputs);
-  // const gameObj = new Game();
-
-  // TODO: Just retrieve our inputs from the load screen for now.
-  // TODO: Below will be loaded with game type and names from user inputs from load screen
-
-  // gameObj.createNewMatch();
-  // createGameGrids();
-  // redrawGameGrids(gameObj);
+  showOverlay();
+  showMenu(gameOpts);
 };
 
-const createGameButton = document.querySelector('#new-game-button');
-createGameButton.addEventListener('click', createGame);
+// const createGameButton = document.querySelector('#new-game-button');
+// createGameButton.addEventListener('click', createGame);
 
-document.onkeyup = function () {
-  // FIXME: DELETE ME, DEVELOPMENT TOOL
-  // Press 't' to invoke createGame()
-  var e = e || window.event; // For IE to cover IEs window event-object
-  if (e.which == 84) {
-    createGame();
-    return false;
-  }
-};
+// document.onkeyup = function () {
+//   // FIXME: DELETE ME, DEVELOPMENT TOOL
+//   // Press 't' to invoke createGame()
+//   var e = e || window.event; // For IE to cover IEs window event-object
+//   if (e.which == 84) {
+//     createGame();
+//     return false;
+//   }
+// };
 
-createGame();
+loadMenu();

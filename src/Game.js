@@ -1,8 +1,6 @@
 // Game.js
 
-import Gameboard from './Gameboard.js';
 import Player from './Player.js';
-import Ship from './Ship.js';
 
 export default class Game {
   #player1;
@@ -10,30 +8,8 @@ export default class Game {
   #curPlayer;
   #gameOver;
 
-  static defaultShipSet = [
-    // FIXME: UNCOMMENT BELOW
-    // { name: 'Cruiser', length: 5 },
-    // { name: 'Battleship', length: 4 },
-    // { name: 'Destroyer', length: 3 },
-    // { name: 'Submarine', length: 3 },
-    // { name: 'Patrol Boat', length: 2 },
-
-    // FIXME: DELETE BELOW
-    // { name: 'Submarine', length: 3 },
-    { name: 'Patrol Boat', length: 2 },
-  ];
-
-  static createGameboard() {
-    const shipSet = [];
-    Game.defaultShipSet.forEach((ship) =>
-      shipSet.push(new Ship(ship.name, ship.length)),
-    );
-    return new Gameboard(shipSet);
-  }
-
   static createPlayer(name) {
-    const gameboard = Game.createGameboard();
-    return new Player(name, gameboard);
+    return new Player(name);
   }
 
   constructor(player1, player2) {

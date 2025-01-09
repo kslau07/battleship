@@ -39,7 +39,35 @@ export default class Gameboard {
     return gridArray;
   }
 
-  constructor(shipSet) {
+  static createShip(name, length) {
+    return new Ship(name, length);
+  }
+
+  static createDefaultShips() {
+    const createdShips = [];
+    const defaultShips = [
+      // FIXME: UNCOMMENT BELOW
+      // { name: 'Cruiser', length: 5 },
+      // { name: 'Battleship', length: 4 },
+      // { name: 'Destroyer', length: 3 },
+      // { name: 'Submarine', length: 3 },
+      // { name: 'Patrol Boat', length: 2 },
+
+      // FIXME: DELETE BELOW
+      { name: 'Submarine', length: 3 },
+      { name: 'Patrol Boat', length: 2 },
+    ];
+
+    defaultShips.forEach((ship) => {
+      const { name, length } = ship;
+      const shipInstance = Gameboard.createShip(name, length);
+      createdShips.push(shipInstance);
+    });
+
+    return createdShips;
+  }
+
+  constructor(shipSet = Gameboard.createDefaultShips()) {
     this.#grid = Gameboard.#buildGrid();
     this.#allShips = []; // Ships are added by placeShip()
 
