@@ -25,10 +25,10 @@ export default class Game {
     this.createNewMatch();
   }
 
-  createNewMatch(randomStartingPlayer = true) {
+  createNewMatch(randomizeStartingPlayer = true) {
     this.#gameOver = false;
 
-    if (randomStartingPlayer === true) {
+    if (randomizeStartingPlayer === true) {
       const randPlayer = [this.#player1, this.#player2][
         Math.floor(Math.random() * 2)
       ];
