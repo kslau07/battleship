@@ -12,12 +12,17 @@ export default class Game {
     return new Player(name);
   }
 
-  constructor(player1, player2) {
-    player1 = player1 !== undefined ? player1 : Game.createPlayer('player1');
-    player2 = player2 !== undefined ? player2 : Game.createPlayer('player2');
-
+  constructor(
+    player1 = Game.createPlayer('Player One'),
+    player2 = Game.createPlayer('Player Two'),
+    newMatch = true,
+  ) {
     this.#player1 = player1;
     this.#player2 = player2;
+
+    if (newMatch === false) return;
+
+    this.createNewMatch();
   }
 
   createNewMatch(randomStartingPlayer = true) {
