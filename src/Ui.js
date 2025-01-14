@@ -1,5 +1,6 @@
 // Ui.js
 
+import './reset.css';
 import './global.css';
 import './style.css';
 import Game from './Game';
@@ -138,90 +139,56 @@ const redrawGameGrids = (gameObj) => {
   redrawGuessGrid(gameObj);
 };
 
-const showOverlay = () => {
-  const overlay = document.getElementById('overlay');
-  overlay.style.display = 'block';
-};
-
 const createGame = (gameOptions) => {
   const { opponentType, player1Name, player2Name } = gameOptions;
-
-  // TODO: Add option to play against computer
-  //   Player - constructor(name, computer = false, gameboard = Player.createGameboard()) {
   const p1Instance = Game.createPlayer(player1Name);
   const p2Instance = Game.createPlayer(player2Name);
   const gameObj = new Game(p1Instance, p2Instance);
-
-  // TODO: After we get the boards to render on the screen correctly, create and push our various commits
 
   createGameGrids();
   redrawGameGrids(gameObj);
 };
 
-// Hide overlay which contains menu
-const hideMenu = () => {
-  const overlay = document.getElementById('overlay');
-  overlay.style.display = 'none';
-};
+const populateSelectionScreen = (gameOpts) => {};
 
-// User inputs names and begins game
-const nextMenu = (gameOptions, clone) => {
-  const overlay = document.getElementById('overlay');
-  const namingScreen = clone.querySelector('#load-screen-naming');
-  namingScreen.style.display = 'block';
-  overlay.appendChild(namingScreen);
+const createHexPattern = (menuFrag) => {
+  const template = document.querySelector('.hex-pattern-template');
+  const hexFrag = template.content.cloneNode(true);
+  const hexPatternCtr = hexFrag.querySelector('.hex-pattern-container');
 
-  const btnBeginGame = namingScreen.querySelector('#btn-begin-game');
-  btnBeginGame.addEventListener('click', () => {
-    const p1Name = namingScreen.querySelector('#input-player1-name').value;
-    const p2Name = namingScreen.querySelector('#input-player2-name').value;
-    gameOptions.player1Name = p1Name;
-    gameOptions.player2Name = p2Name;
-    createGame(gameOptions);
-    hideMenu(clone);
-  });
-};
+  // Add several .hex-column-container to create honeycomb pattern
+  for (let i = 0; i < 20; i += 1) {
+    const clone = hexFrag
+      .querySelector('.hex-column-container')
+      .cloneNode(true);
+    hexPatternCtr.appendChild(clone);
 
-// User chooses opponent type and advances to next menu
-const showMenu = (gameOpts) => {
-  const overlay = document.getElementById('overlay');
-  const template = document.getElementById('load-screen-template');
-  const clone = template.content.cloneNode(true);
-  const selectionScreen = clone.querySelector('#load-screen-selection');
-  selectionScreen.style.display = 'block';
-  overlay.appendChild(selectionScreen);
+    const leftOffset = 43;
+    const bottomOffset = -22;
 
-  const buttons = selectionScreen.querySelectorAll('button');
-  buttons.forEach((button) => {
-    button.addEventListener('click', function () {
-      gameOpts.opponentType = this.value;
-      overlay.removeChild(selectionScreen);
-      nextMenu(gameOpts, clone);
-    });
-  });
+    clone.style.left = `${(i + 1) * leftOffset - 22}px`;
+
+    if (i % 2 === 0) {
+      clone.style.bottom = `${bottomOffset}px`;
+    }
+  }
+
+  const menuCtr = menuFrag.querySelector('.menu-container');
+  menuCtr.appendChild(hexPatternCtr);
 };
 
 const loadMenu = () => {
-  const gameOpts = {};
-  gameOpts.opponentType = 'human';
-  gameOpts.player1Name = null;
-  gameOpts.player2Name = null;
+  const template = document.querySelector('.menu-template');
+  const menuFrag = template.content.cloneNode(true);
+  createHexPattern(menuFrag);
+  const body = document.querySelector('body');
+  body.appendChild(menuFrag);
 
-  showOverlay();
-  showMenu(gameOpts);
+  // const gameOpts = {};
+  // gameOpts.opponentType = 'human';
+  // gameOpts.player1Name = null;
+  // gameOpts.player2Name = null;
+  // populateSelectionScreen(gameOpts);
 };
-
-// const createGameButton = document.querySelector('#new-game-button');
-// createGameButton.addEventListener('click', createGame);
-
-// document.onkeyup = function () {
-//   // FIXME: DELETE ME, DEVELOPMENT TOOL
-//   // Press 't' to invoke createGame()
-//   var e = e || window.event; // For IE to cover IEs window event-object
-//   if (e.which == 84) {
-//     createGame();
-//     return false;
-//   }
-// };
 
 loadMenu();

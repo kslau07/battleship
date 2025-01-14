@@ -11,46 +11,71 @@
     />
   </head>
   <body>
-    <header id="header">Welcome to Battleship!</header>
+    <header class="header"></header>
     <main>
-      <div id="overlay"></div>
-      <template id="load-screen-template">
-        <div id="load-screen-selection" class="load-screen-container">
-          <h1>Welcome to Battleship!</h1>
-          <h2>Select opponent:</h2>
-          <button class="btn-select-opponent" value="human">Human</button>
-          <button class="btn-select-opponent" value="computer">Computer</button>
-        </div>
-        <div id="load-screen-naming" class="load-screen-container">
-          <h2>Enter player names:</h2>
+      <template class="menu-template">
+        <div class="overlay">
+          <div class="menu-container">
+            <div class="menu-selection">
+              <h2 class="menu__pretitle">WELCOME TO</h2>
+              <h1 class="menu__title">BATTLESHIP</h1>
+              <div class="menu-selection-opponent-container">
+                <h2 class="menu-selection-opponent__title">SELECT OPPONENT:</h2>
+                <button class="menu-selection-opponent__button" value="human">
+                  HUMAN
+                </button>
+                <button class="menu-selection-opponent__button" value="computer">
+                  COMPUTER
+                </button>
+              </div>
+            </div>
+            <div class="menu-naming">
+              <h2>Enter player names:</h2>
 
-          <!-- TODO: MAKE SURE LABEL AND INPUT ARE ACCESSIBLE -->
+              <!-- TODO: MAKE SURE LABEL AND INPUT ARE ACCESSIBLE -->
 
-          <div>
-            <input
-              name=""
-              type="text"
-              id="input-player1-name"
-              value="Player One"
-            />
+              <div>
+                <input
+                  name=""
+                  type="text"
+                  class="input-player1-name"
+                  value="Player One"
+                />
+              </div>
+              <div>
+                <input
+                  name=""
+                  type="text"
+                  class="input-player2-name"
+                  value="Player Two"
+                />
+              </div>
+              <button class="btn-begin-game">Begin game!</button>
+            </div>
           </div>
-          <div>
-            <input
-              name=""
-              type="text"
-              id="input-player2-name"
-              value="Player Two"
-            />
-          </div>
-          <button id="btn-begin-game">Begin game!</button>
         </div>
       </template>
-      <!-- <button id="new-game-button">New Game</button> -->
+      <template class="hex-pattern-template">
+        <div class="hex-pattern-container">
+          <div class="hex-column-container">
+            <div class="hex"></div>
+            <div class="hex"></div>
+            <div class="hex"></div>
+            <div class="hex"></div>
+            <div class="hex"></div>
+            <div class="hex"></div>
+            <div class="hex"></div>
+            <div class="hex"></div>
+            <div class="hex"></div>
+          </div>
+        </div>
+      </template>
+      <!-- <button class="new-game-button">New Game</button> -->
       <h2>Your ships</h2>
-      <div class="grid-container own" id="own-grid-container"></div>
+      <div class="grid-container own" class="own-grid-container"></div>
       <h2>Find the enemy's ships!</h2>
-      <div class="grid-container guess" id="enemy-grid-container"></div>
+      <div class="grid-container guess" class="enemy-grid-container"></div>
     </main>
-    <footer id="footer"></footer>
+    <footer class="footer"></footer>
   </body>
 </html>
