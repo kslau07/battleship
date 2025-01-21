@@ -151,44 +151,102 @@ const createGame = (gameOptions) => {
 
 const populateSelectionScreen = (gameOpts) => {};
 
-const createHexPattern = (menuFrag) => {
-  const template = document.querySelector('.hex-pattern-template');
-  const hexFrag = template.content.cloneNode(true);
-  const hexPatternCtr = hexFrag.querySelector('.hex-pattern-container');
+// const createHexPattern = (menuFrag) => {
+//   const template = document.querySelector('.hex-pattern-template');
+//   const hexFrag = template.content.cloneNode(true);
+//   const hexPatternCtr = hexFrag.querySelector('.hex-pattern-container');
+//
+//   // Add several .hex-column-container to create honeycomb pattern
+//   for (let i = 0; i < 20; i += 1) {
+//     const clone = hexFrag
+//       .querySelector('.hex-column-container')
+//       .cloneNode(true);
+//     hexPatternCtr.appendChild(clone);
+//
+//     const leftOffset = 43;
+//     const bottomOffset = -22;
+//
+//     clone.style.left = `${(i + 1) * leftOffset - 22}px`;
+//
+//     if (i % 2 === 0) {
+//       clone.style.bottom = `${bottomOffset}px`;
+//     }
+//   }
+//
+//   const menuCtr = menuFrag.querySelector('.menu-container');
+//   menuCtr.appendChild(hexPatternCtr);
+// };
 
-  // Add several .hex-column-container to create honeycomb pattern
-  for (let i = 0; i < 20; i += 1) {
-    const clone = hexFrag
-      .querySelector('.hex-column-container')
-      .cloneNode(true);
-    hexPatternCtr.appendChild(clone);
+function nextMenu(gameOpts) {
+  const overlay = document.querySelector('.overlay');
+  const selectionMenu = overlay.querySelector('.menu-selection-container');
+  const namingMenu = overlay.querySelector('.menu-naming-container');
+  // const hexPatternCtr = overlay.querySelector('.hex-pattern-container');
+  // hexPatternCtr.style.display = 'none';
+  selectionMenu.style.display = 'none';
+  namingMenu.style.display = 'grid';
+}
 
-    const leftOffset = 43;
-    const bottomOffset = -22;
+const setupButtons = (gameOpts) => {
+  const overlay = document.querySelector('.overlay');
 
-    clone.style.left = `${(i + 1) * leftOffset - 22}px`;
+  const selectOpponentbuttons = overlay.querySelectorAll(
+    '.menu-selection-opponent__button',
+  );
 
-    if (i % 2 === 0) {
-      clone.style.bottom = `${bottomOffset}px`;
-    }
-  }
+  selectOpponentbuttons.forEach((btn) => {
+    // TODO: Figure out how to bind `this` to our function call.
+    //       Either use: `bind`, `call` or `apply`
 
-  const menuCtr = menuFrag.querySelector('.menu-container');
-  menuCtr.appendChild(hexPatternCtr);
+    btn.addEventListener('click', nextMenu.bind(btn, gameOpts));
+  });
 };
 
-const loadMenu = () => {
-  const template = document.querySelector('.menu-template');
-  const menuFrag = template.content.cloneNode(true);
-  createHexPattern(menuFrag);
-  const body = document.querySelector('body');
-  body.appendChild(menuFrag);
+const populateSelectOpponent = (gameInstance) => {
+  const mainDisplay = document.querySelector('.main-display');
+  const template = document.querySelector(
+    '.template_menu_select_opponent',
+  ).content;
+  const selectOpponentDiv = template.querySelector('.menu_select_opponent');
 
-  // const gameOpts = {};
-  // gameOpts.opponentType = 'human';
-  // gameOpts.player1Name = null;
-  // gameOpts.player2Name = null;
-  // populateSelectionScreen(gameOpts);
+  const buttons = template.querySelectorAll('.menu__button--opponent');
+  buttons.forEach((button) => {
+    button.addEventListener(
+      'click',
+      populateInputNames.bind(button, gameInstance),
+    );
+  });
+
+  mainDisplay.replaceChildren(selectOpponentDiv);
+};
+
+function populateInputNames(gameInstance) {
+  const mainDisplay = document.querySelector('.main-display');
+  const buttons = mainDisplay.querySelector('.menu_select_opponent_buttons');
+  const template = document.querySelector('.template_menu_input_names').content;
+  const inputNames = template.querySelector('.menu_input_names');
+  // Add event-listener to next button
+  buttons.replaceChildren(inputNames);
+}
+
+const loadMenu = () => {
+  // * Instantiate Game. The instance will be used to keep track of our user's preferences, game score, etc.
+  const gameInstance = new Game();
+
+  populateSelectOpponent(gameInstance);
+
+  // console.log(game);
+  // const template = document.querySelector('.menu-template');
+  // const menuFrag = template.content.cloneNode(true);
+  // createHexPattern(menuFrag);
+  // const gameOpts = {
+  //   opponentType: 'human',
+  //   player1Name: null,
+  //   player2Name: null,
+  // };
+  // const body = document.querySelector('body');
+  // body.appendChild(menuFrag);
+  // setupButtons(gameOpts);
 };
 
 loadMenu();

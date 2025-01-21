@@ -19,10 +19,6 @@ export default class Game {
   ) {
     this.#player1 = player1;
     this.#player2 = player2;
-
-    if (newMatch === false) return;
-
-    this.createNewMatch();
   }
 
   createNewMatch(randomizeStartingPlayer = true) {
@@ -40,6 +36,14 @@ export default class Game {
 
   getPlayers() {
     return [this.#player1, this.#player2];
+  }
+
+  getPlayer1() {
+    return this.#player1;
+  }
+
+  getPlayer2() {
+    return this.#player2;
   }
 
   getCurPlayer() {

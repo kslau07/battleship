@@ -71,9 +71,7 @@ export default class Gameboard {
 
   constructor(shipSet = Gameboard.createDefaultShips()) {
     this.#grid = Gameboard.#buildGrid();
-    this.#placedShips = []; // placeShips populates this array
-
-    this.placeShips(shipSet);
+    this.#placedShips = []; // Ship placement happens manually OR with placeShipsRandomly()
   }
 
   getGrid() {
@@ -140,9 +138,9 @@ export default class Gameboard {
     this.#placedShips.push(ship);
   }
 
-  placeShips(shipSet) {
-    this.placeShipsRandomly(shipSet);
-  }
+  // placeShips(shipSet) {
+  //   this.placeShipsRandomly(shipSet);
+  // }
 
   randCoordinates() {
     const size = Gameboard.#gridSize;

@@ -12,49 +12,60 @@
   </head>
   <body>
     <header class="header"></header>
-    <main>
-      <template class="menu-template">
-        <div class="overlay">
-          <div class="menu-container">
-            <div class="menu-selection">
-              <h2 class="menu__pretitle">WELCOME TO</h2>
-              <h1 class="menu__title">BATTLESHIP</h1>
-              <div class="menu-selection-opponent-container">
-                <h2 class="menu-selection-opponent__title">SELECT OPPONENT:</h2>
-                <button class="menu-selection-opponent__button" value="human">
-                  HUMAN
-                </button>
-                <button class="menu-selection-opponent__button" value="computer">
-                  COMPUTER
-                </button>
-              </div>
-            </div>
-            <div class="menu-naming">
-              <h2>Enter player names:</h2>
-
-              <!-- TODO: MAKE SURE LABEL AND INPUT ARE ACCESSIBLE -->
-
-              <div>
-                <input
-                  name=""
-                  type="text"
-                  class="input-player1-name"
-                  value="Player One"
-                />
-              </div>
-              <div>
-                <input
-                  name=""
-                  type="text"
-                  class="input-player2-name"
-                  value="Player Two"
-                />
-              </div>
-              <button class="btn-begin-game">Begin game!</button>
-            </div>
+    <main class="main">
+      <div class="main-display"></div>
+      <template class="template_menu_select_opponent">
+        <div class="menu menu_select_opponent">
+          <div class="menu__header">
+            <h2 class="menu__pretitle">WELCOME TO</h2>
+            <h1 class="menu__title">BATTLESHIP</h1>
+          </div>
+          <div class="menu_select_opponent_buttons">
+            <h2 class="menu_select_opponent_buttons__header">
+              SELECT OPPONENT:
+            </h2>
+            <button class="menu__button menu__button--opponent" value="human">
+              HUMAN
+            </button>
+            <button
+              class="menu__button menu__button--opponent"
+              value="computer"
+            >
+              COMPUTER
+            </button>
           </div>
         </div>
       </template>
+      <template class="template_menu_input_names">
+        <div class="menu menu_input_names">
+          <h2 class="menu_input_names__header">Enter players' names:</h2>
+          <div>
+            <label for="name-player1">Player 1: </label>
+            <input
+              type="text"
+              name="name-player1"
+              id="name-player1"
+              class="menu__text-input"
+              value="Player One"
+            />
+          </div>
+          <div>
+            <label for="name-player2">Player 2: </label>
+            <input
+              type="text"
+              name="name-player2"
+              id="name-player2"
+              class="menu__text-input"
+              value="Player Two"
+            />
+          </div>
+        </div>
+      </template>
+      <!-- <template class="template--game-placeships-player1"></template> -->
+      <!-- <template class="template--game-placeships-player2"></template> -->
+      <!-- <template class="template--game-take-turn-player1"></template> -->
+      <!-- <template class="template--game-take-turn-player2"></template> -->
+
       <template class="hex-pattern-template">
         <div class="hex-pattern-container">
           <div class="hex-column-container">
@@ -71,10 +82,10 @@
         </div>
       </template>
       <!-- <button class="new-game-button">New Game</button> -->
-      <h2>Your ships</h2>
-      <div class="grid-container own" class="own-grid-container"></div>
-      <h2>Find the enemy's ships!</h2>
-      <div class="grid-container guess" class="enemy-grid-container"></div>
+      <!-- <h2>Your ships</h2> -->
+      <!-- <div class="grid-container own" class="own-grid-container"></div> -->
+      <!-- <h2>Find the enemy's ships!</h2> -->
+      <!-- <div class="grid-container guess" class="enemy-grid-container"></div> -->
     </main>
     <footer class="footer"></footer>
   </body>

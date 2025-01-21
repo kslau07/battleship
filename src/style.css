@@ -23,10 +23,9 @@
 
 body {
   /* Menu */
+  --main-bg: linear-gradient(45deg, hsl(214, 94%, 14%), hsl(214, 94%, 43%));
   --menu-text-color: white;
-  /* --menu-bg-color: white; */
   --menu-bg-color: hsla(225, 85%, 5%, 1);
-  --overlay-color: hsla(225, 85%, 9%, 1);
 
   /* Game grids */
   --cell-size: 30px;
@@ -40,7 +39,7 @@ body {
   --primary-color: hsl(214, 89%, 50%);
   --primary-color-rot1: hsl(274, 89%, 50%);
 
-  --secondary-color: hsl(45, 89%, 50%);
+  --secondary-color: hsl(33, 89%, 41%);
 
   /* Spacing */
   --space-md: 1rem;
@@ -52,50 +51,25 @@ body {
   /* body properties */
   font: 1rem 'Oswald';
   letter-spacing: 0.25rem;
+}
+
+.main {
+  background: var(--main-bg);
   display: grid;
   place-content: center;
   min-height: 100vh;
 }
 
-.overlay {
-  background: var(--overlay-color);
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  min-height: 100vh;
-  display: grid;
-  place-content: center;
-
-  /* border: 3px solid white; */
-}
-
-.menu-container {
+.main-display {
   background: var(--menu-bg-color);
-
   position: relative;
-  /* max-width: var(--menu-max-width); */
   margin: 0 auto;
-
   border: 1px solid var(--primary-color);
   border-radius: var(--border-radius);
-
-  /* border-image: linear-gradient(to right, #3acfd5 0%, #3a4ed5 100%) 1; */
-  /* border-radius: 5px; /\* this doesn't work *\/ */
-  /* border-width: 4px; */
-  /* border-style: solid; */
-  /* padding: 5px; */
-}
-
-.menu-selection {
   padding: 3rem;
-  /* color: white; */
-  /* mix-blend-mode: multiply; */
-  display: grid;
 }
 
-.menu-selection > * {
-  /* outline: 2px dashed green; */
+.menu {
 }
 
 .menu__pretitle {
@@ -107,6 +81,8 @@ body {
 }
 
 .menu__title {
+  margin: 0;
+  padding: 0;
   font: 10rem 'Anton';
 
   background-image: linear-gradient(
@@ -118,76 +94,100 @@ body {
   transform: perspective(1000px) rotate3D(1, 0, 0, 20deg);
 }
 
-.menu-selection-opponent-container {
-  /* font: 3rem 'Oswald'; */
+.menu_select_opponent_buttons {
   font-size: 1.25rem;
   z-index: 1;
-  color: hsl(42, 100%, 60%);
-
   display: grid;
   gap: var(--space-md);
   justify-content: center;
-
-  /* border: 3px solid red; */
 }
 
-.menu-selection-opponent-container > * {
-  /* border: 3px solid #0f0; */
-}
-
-.menu-selection-opponent__title {
+.menu_select_opponent_buttons__header {
+  color: LightGray;
   text-align: center;
 }
 
-.menu-selection-opponent__button {
+.menu__button {
   letter-spacing: 0.125rem;
-  /* font-weight: 800; */
-  /* font-style: bold; */
-  /* width: 1000px; */
   padding: 0.5rem 10rem;
+  border: none;
   border-radius: var(--border-radius);
-  /* color: navy; */
-  background: hsl(42, 92%, 42%);
-  /* background: gray; */
+  background: var(--secondary-color);
   cursor: pointer;
+  transition: transform 150ms;
 }
 
-.menu-selection-opponent__button:hover {
-  outline: 3px solid green;
+.menu__button:hover {
+  transform: scale(1.06);
+  outline: 3px solid white;
+}
+
+.menu__button:focus {
+  outline: 3px dashed chartreuse;
+  outline-offset: 3px;
 }
 
 .hex-pattern-container {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1));
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0),
-    rgba(0, 0, 0, 0.45)
-  );
-}
-
-.hex-column-container {
-  position: absolute;
-  left: -22px;
-  bottom: 0px;
-}
-
-.hex {
-  background: #000;
-  height: 40px;
-  aspect-ratio: 1 / cos(30deg);
-  clip-path: polygon(50% -50%, 100% 50%, 50% 150%, 0 50%);
-  margin-top: 6px;
-  /* border: 3px dashed lime; */
-}
-
-.menu-naming {
+  /* FIXME: DELETE ME BELOW */
   display: none;
+  /* background: white; */
+
+  position: absolute;
+  /* outline: 3px dashed white; */
+
+  top: 0;
+  /* height: 100%; */
+  /* width: 100%; */
+  /* overflow: hidden; */
+
+  /* mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1)); */
+  /* -webkit-mask-image: linear-gradient( */
+  /*   to bottom, */
+  /*   rgba(0, 0, 0, 0), */
+  /*   rgba(0, 0, 0, 0.45) */
+  /* ); */
+}
+
+/* .hex-column-container { */
+/*   position: absolute; */
+/*   left: -22px; */
+/*   bottom: 0px; */
+/* } */
+/*  */
+/* .hex { */
+/*   background: white; */
+/*   /\* background: #000; *\/ */
+/*   height: 40px; */
+/*   aspect-ratio: 1 / cos(30deg); */
+/*   clip-path: polygon(50% -50%, 100% 50%, 50% 150%, 0 50%); */
+/*   margin-top: 6px; */
+/*   /\* border: 3px dashed lime; *\/ */
+/* } */
+
+.menu_input_names {
+  display: grid;
+  justify-content: center;
+  justify-items: center;
+  gap: 0.75rem;
+
+  /* FIXME: DELETE ME BELOW */
+  /* outline: 3px dotted lime; */
+}
+
+.menu-naming__input {
+  /* background: green; */
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.75rem;
+}
+
+.menu-naming__button {
+  letter-spacing: 0.125rem;
+  padding: 0.5rem 10rem;
+  border: none;
+  border-radius: var(--border-radius);
+  background: Chartreuse;
+  cursor: pointer;
 }
 
 .grid-container {
@@ -238,5 +238,3 @@ body {
 .cell.guess.attacked {
   cursor: not-allowed;
 }
-
-/* test */
