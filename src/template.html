@@ -15,7 +15,7 @@
     <main class="main">
       <div class="main-display"></div>
       <template class="template_menu_select_opponent">
-        <div class="menu menu_select_opponent">
+        <div class="menu_select_opponent">
           <div class="menu__header">
             <h2 class="menu__pretitle">WELCOME TO</h2>
             <h1 class="menu__title">BATTLESHIP</h1>
@@ -37,27 +37,38 @@
         </div>
       </template>
       <template class="template_menu_input_names">
-        <div class="menu menu_input_names">
-          <h2 class="menu_input_names__header">Enter players' names:</h2>
-          <div>
-            <label for="name-player1">Player 1: </label>
-            <input
-              type="text"
-              name="name-player1"
-              id="name-player1"
-              class="menu__text-input"
-              value="Player One"
-            />
+        <div class="menu_input_names">
+          <div class="menu__header">
+            <h2 class="menu__pretitle">WELCOME TO</h2>
+            <h1 class="menu__title">BATTLESHIP</h1>
           </div>
-          <div>
-            <label for="name-player2">Player 2: </label>
-            <input
-              type="text"
-              name="name-player2"
-              id="name-player2"
-              class="menu__text-input"
-              value="Player Two"
-            />
+          <div class="menu_input_names__fields">
+            <h2 class="menu_input_names__header">Enter players' names:</h2>
+            <div class="menu_input_names__field-group">
+              <label for="name-player1" class="menu_input_names__label"
+                >Player 1:
+              </label>
+              <input
+                type="text"
+                name="name-player1"
+                id="name-player1"
+                class="menu_input_names__text-input menu_input_names__text-input--player1"
+                value="Player One"
+              />
+            </div>
+            <div class="menu_input_names__field-group">
+              <label for="name-player2" class="menu_input_names__label"
+                >Player 2:
+              </label>
+              <input
+                type="text"
+                name="name-player2"
+                id="name-player2"
+                class="menu_input_names__text-input menu_input_names__text-input--player2"
+                value="Player Two"
+              />
+            </div>
+            <button class="menu__button menu__button--next">NEXT</button>
           </div>
         </div>
       </template>

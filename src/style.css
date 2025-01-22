@@ -72,6 +72,9 @@ body {
 .menu {
 }
 
+.menu__header {
+}
+
 .menu__pretitle {
   font: Bold 3rem 'Wall Poet';
   letter-spacing: 0.5rem;
@@ -120,6 +123,7 @@ body {
 .menu__button:hover {
   transform: scale(1.06);
   outline: 3px solid white;
+  outline-offset: 3px;
 }
 
 .menu__button:focus {
@@ -165,29 +169,35 @@ body {
 /* } */
 
 .menu_input_names {
+}
+
+.menu_input_names__fields {
+  /* TODO: Make item's width rwd
+           We can set a min-max, aim for min of 320px */
+  color: LightGray;
   display: grid;
   justify-content: center;
   justify-items: center;
-  gap: 0.75rem;
-
-  /* FIXME: DELETE ME BELOW */
-  /* outline: 3px dotted lime; */
+  gap: 2rem;
 }
 
-.menu-naming__input {
+.menu_input_names__fields > * {
+  /* outline: 2px dashed lime; */
+}
+
+.menu_input_names__label {
+}
+
+.menu_input_names__text-input {
   /* background: green; */
+  /* width: 100%; */
   padding: 0.5rem 1rem;
   border: none;
-  border-radius: 0.75rem;
+  border-radius: 0.25rem;
 }
 
-.menu-naming__button {
-  letter-spacing: 0.125rem;
-  padding: 0.5rem 10rem;
-  border: none;
-  border-radius: var(--border-radius);
+.menu__button--next {
   background: Chartreuse;
-  cursor: pointer;
 }
 
 .grid-container {

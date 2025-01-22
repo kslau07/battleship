@@ -177,30 +177,27 @@ const populateSelectionScreen = (gameOpts) => {};
 //   menuCtr.appendChild(hexPatternCtr);
 // };
 
-function nextMenu(gameOpts) {
-  const overlay = document.querySelector('.overlay');
-  const selectionMenu = overlay.querySelector('.menu-selection-container');
-  const namingMenu = overlay.querySelector('.menu-naming-container');
-  // const hexPatternCtr = overlay.querySelector('.hex-pattern-container');
-  // hexPatternCtr.style.display = 'none';
-  selectionMenu.style.display = 'none';
-  namingMenu.style.display = 'grid';
-}
-
-const setupButtons = (gameOpts) => {
-  const overlay = document.querySelector('.overlay');
-
-  const selectOpponentbuttons = overlay.querySelectorAll(
-    '.menu-selection-opponent__button',
-  );
-
-  selectOpponentbuttons.forEach((btn) => {
-    // TODO: Figure out how to bind `this` to our function call.
-    //       Either use: `bind`, `call` or `apply`
-
-    btn.addEventListener('click', nextMenu.bind(btn, gameOpts));
-  });
-};
+// function nextMenu(gameOpts) {
+//   const overlay = document.querySelector('.overlay');
+//   const selectionMenu = overlay.querySelector('.menu-selection-container');
+//   const namingMenu = overlay.querySelector('.menu-naming-container');
+//   // const hexPatternCtr = overlay.querySelector('.hex-pattern-container');
+//   // hexPatternCtr.style.display = 'none';
+//   selectionMenu.style.display = 'none';
+//   namingMenu.style.display = 'grid';
+// }
+//
+// const setupButtons = (gameOpts) => {
+//   const overlay = document.querySelector('.overlay');
+//
+//   const selectOpponentbuttons = overlay.querySelectorAll(
+//     '.menu-selection-opponent__button',
+//   );
+//
+//   selectOpponentbuttons.forEach((btn) => {
+//     btn.addEventListener('click', nextMenu.bind(btn, gameOpts));
+//   });
+// };
 
 const populateSelectOpponent = (gameInstance) => {
   const mainDisplay = document.querySelector('.main-display');
@@ -222,31 +219,31 @@ const populateSelectOpponent = (gameInstance) => {
 
 function populateInputNames(gameInstance) {
   const mainDisplay = document.querySelector('.main-display');
-  const buttons = mainDisplay.querySelector('.menu_select_opponent_buttons');
   const template = document.querySelector('.template_menu_input_names').content;
-  const inputNames = template.querySelector('.menu_input_names');
-  // Add event-listener to next button
-  buttons.replaceChildren(inputNames);
+  const inputNamesDiv = template.querySelector('.menu_input_names');
+  const nextButton = inputNamesDiv.querySelector('.menu__button--next');
+  const player1Input = inputNamesDiv.querySelector(
+    '.menu_input_names__text-input--player1',
+  );
+  const player2Input = inputNamesDiv.querySelector(
+    '.menu_input_names__text-input--player2',
+  );
+
+  nextButton.addEventListener('click', () => {
+    gameInstance.getPlayer1().setName(player1Input.value);
+    gameInstance.getPlayer2().setName(player2Input.value);
+    populatePlaceShips(gameInstance);
+  });
+  mainDisplay.replaceChildren(inputNamesDiv);
+}
+
+function populatePlaceShips(gameInstance) {
+  console.log(gameInstance);
 }
 
 const loadMenu = () => {
-  // * Instantiate Game. The instance will be used to keep track of our user's preferences, game score, etc.
   const gameInstance = new Game();
-
   populateSelectOpponent(gameInstance);
-
-  // console.log(game);
-  // const template = document.querySelector('.menu-template');
-  // const menuFrag = template.content.cloneNode(true);
-  // createHexPattern(menuFrag);
-  // const gameOpts = {
-  //   opponentType: 'human',
-  //   player1Name: null,
-  //   player2Name: null,
-  // };
-  // const body = document.querySelector('body');
-  // body.appendChild(menuFrag);
-  // setupButtons(gameOpts);
 };
 
 loadMenu();
