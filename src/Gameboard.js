@@ -4,6 +4,7 @@ import Ship from './Ship.js';
 
 export default class Gameboard {
   #grid;
+  #createdShips;
   #placedShips;
   static #gridSize = 10;
 
@@ -49,15 +50,15 @@ export default class Gameboard {
     const createdShips = [];
     const defaultShips = [
       // FIXME: UNCOMMENT BELOW
-      // { name: 'Cruiser', length: 5 },
-      // { name: 'Battleship', length: 4 },
-      // { name: 'Destroyer', length: 3 },
-      // { name: 'Submarine', length: 3 },
-      // { name: 'Patrol Boat', length: 2 },
-
-      // FIXME: DELETE BELOW
+      { name: 'Cruiser', length: 5 },
+      { name: 'Battleship', length: 4 },
+      { name: 'Destroyer', length: 3 },
       { name: 'Submarine', length: 3 },
       { name: 'Patrol Boat', length: 2 },
+
+      // FIXME: DELETE BELOW
+      // { name: 'Submarine', length: 3 },
+      // { name: 'Patrol Boat', length: 2 },
     ];
 
     defaultShips.forEach((ship) => {
@@ -71,11 +72,16 @@ export default class Gameboard {
 
   constructor(shipSet = Gameboard.createDefaultShips()) {
     this.#grid = Gameboard.#buildGrid();
+    this.#createdShips = shipSet;
     this.#placedShips = []; // Ship placement happens manually OR with placeShipsRandomly()
   }
 
   getGrid() {
     return this.#grid;
+  }
+
+  getCreatedShips() {
+    return this.#createdShips;
   }
 
   getPlacedShips() {
@@ -138,10 +144,6 @@ export default class Gameboard {
     this.#placedShips.push(ship);
   }
 
-  // placeShips(shipSet) {
-  //   this.placeShipsRandomly(shipSet);
-  // }
-
   randCoordinates() {
     const size = Gameboard.#gridSize;
     const x = Math.floor(Math.random() * size);
@@ -155,7 +157,7 @@ export default class Gameboard {
   }
 
   // Given an array of ship objects, place each ship randomly using a do-while loop
-  placeShipsRandomly(shipSet) {
+  placeShipsRandomly(shipSet = this.#createdShips) {
     let numShipsAdded;
     let success;
     let tries = 0;

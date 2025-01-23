@@ -21,6 +21,15 @@ export default class Game {
     this.#player2 = player2;
   }
 
+  // Facade pattern to abstact away excessive method chaining
+  placeShipForPlayer(player) {
+    player.getGameboard().safePlaceShip();
+  }
+
+  placeShipsRandomlyForPlayer(player) {
+    player.getGameboard().placeShipsRandomly();
+  }
+
   createNewMatch(randomizeStartingPlayer = true) {
     this.#gameOver = false;
 

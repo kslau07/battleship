@@ -18,15 +18,16 @@ const endTurn = (gameObj) => {
   }
 };
 
-const createBaseGrid = () => {
+// Each grid column will contain 10 cells
+const createGridColumns = () => {
   const grid = document.createElement('div');
   const gridSize = 10;
 
   for (let rowIdx = 0; rowIdx < gridSize; rowIdx += 1) {
     for (let colIdx = 0; colIdx < gridSize; colIdx += 1) {
-      const cellContainer = document.createElement('div');
-      cellContainer.classList.add('cell-container', `cc-${rowIdx}-${colIdx}`);
-      grid.appendChild(cellContainer);
+      const cell = document.createElement('div');
+      cell.classList.add('cell', `cc-${rowIdx}-${colIdx}`);
+      grid.appendChild(cell);
     }
   }
 
@@ -35,11 +36,13 @@ const createBaseGrid = () => {
 };
 
 const createGameGrids = (gameObj) => {
-  const gridContainers = document.querySelectorAll('.grid-container');
+  // TODO: Retrieve grids from templates
+  // const gridContainers = document.querySelectorAll('.grid-container');
+  const gameGrids = document.querySelectorAll('.game-grid');
 
-  gridContainers.forEach((container) => {
-    const baseGrid = createBaseGrid();
-    container.appendChild(baseGrid);
+  gameGrids.forEach((grid) => {
+    const gridColumns = createGridColumns();
+    grid.appendChild(gridColumns);
   });
 };
 
@@ -140,16 +143,14 @@ const redrawGameGrids = (gameObj) => {
 };
 
 const createGame = (gameOptions) => {
-  const { opponentType, player1Name, player2Name } = gameOptions;
-  const p1Instance = Game.createPlayer(player1Name);
-  const p2Instance = Game.createPlayer(player2Name);
-  const gameObj = new Game(p1Instance, p2Instance);
+  // const { opponentType, player1Name, player2Name } = gameOptions;
+  // const p1Instance = Game.createPlayer(player1Name);
+  // const p2Instance = Game.createPlayer(player2Name);
+  // const gameObj = new Game(p1Instance, p2Instance);
 
   createGameGrids();
   redrawGameGrids(gameObj);
 };
-
-const populateSelectionScreen = (gameOpts) => {};
 
 // const createHexPattern = (menuFrag) => {
 //   const template = document.querySelector('.hex-pattern-template');
@@ -177,27 +178,44 @@ const populateSelectionScreen = (gameOpts) => {};
 //   menuCtr.appendChild(hexPatternCtr);
 // };
 
-// function nextMenu(gameOpts) {
-//   const overlay = document.querySelector('.overlay');
-//   const selectionMenu = overlay.querySelector('.menu-selection-container');
-//   const namingMenu = overlay.querySelector('.menu-naming-container');
-//   // const hexPatternCtr = overlay.querySelector('.hex-pattern-container');
-//   // hexPatternCtr.style.display = 'none';
-//   selectionMenu.style.display = 'none';
-//   namingMenu.style.display = 'grid';
-// }
-//
-// const setupButtons = (gameOpts) => {
-//   const overlay = document.querySelector('.overlay');
-//
-//   const selectOpponentbuttons = overlay.querySelectorAll(
-//     '.menu-selection-opponent__button',
-//   );
-//
-//   selectOpponentbuttons.forEach((btn) => {
-//     btn.addEventListener('click', nextMenu.bind(btn, gameOpts));
-//   });
-// };
+function populatePlacementGrid() {
+  const placementGrid = placeShipsDiv.querySelector('.placement__grid');
+}
+
+function populatePlacementBank() {
+  const placementBank = placeShipsDiv.querySelector('.placement__bank');
+}
+
+function populatePlaceShips(gameInstance) {
+  // gameInstance.placeShipsRandomlyForPlayer(gameInstance.getPlayer2());
+  const mainDisplay = document.querySelector('.main-display');
+  const template = document.querySelector('.template-placement').content;
+  const placeShipsDiv = template.querySelector('.placement');
+
+  mainDisplay.replaceChildren(placeShipsDiv);
+  populatePlacementGrid();
+  populatePlacementBank();
+}
+
+function populateInputNames(gameInstance) {
+  const mainDisplay = document.querySelector('.main-display');
+  const template = document.querySelector('.template_menu_input_names').content;
+  const inputNamesDiv = template.querySelector('.menu_input_names');
+  const continueButton = inputNamesDiv.querySelector('.menu__button--continue');
+  const player1Input = inputNamesDiv.querySelector(
+    '.menu__text-input--player1',
+  );
+  const player2Input = inputNamesDiv.querySelector(
+    '.menu__text-input--player2',
+  );
+
+  continueButton.addEventListener('click', () => {
+    gameInstance.getPlayer1().setName(player1Input.value);
+    gameInstance.getPlayer2().setName(player2Input.value);
+    populatePlaceShips(gameInstance);
+  });
+  mainDisplay.replaceChildren(inputNamesDiv);
+}
 
 const populateSelectOpponent = (gameInstance) => {
   const mainDisplay = document.querySelector('.main-display');
@@ -217,33 +235,16 @@ const populateSelectOpponent = (gameInstance) => {
   mainDisplay.replaceChildren(selectOpponentDiv);
 };
 
-function populateInputNames(gameInstance) {
-  const mainDisplay = document.querySelector('.main-display');
-  const template = document.querySelector('.template_menu_input_names').content;
-  const inputNamesDiv = template.querySelector('.menu_input_names');
-  const nextButton = inputNamesDiv.querySelector('.menu__button--next');
-  const player1Input = inputNamesDiv.querySelector(
-    '.menu_input_names__text-input--player1',
-  );
-  const player2Input = inputNamesDiv.querySelector(
-    '.menu_input_names__text-input--player2',
-  );
-
-  nextButton.addEventListener('click', () => {
-    gameInstance.getPlayer1().setName(player1Input.value);
-    gameInstance.getPlayer2().setName(player2Input.value);
-    populatePlaceShips(gameInstance);
-  });
-  mainDisplay.replaceChildren(inputNamesDiv);
-}
-
-function populatePlaceShips(gameInstance) {
-  console.log(gameInstance);
-}
-
 const loadMenu = () => {
   const gameInstance = new Game();
   populateSelectOpponent(gameInstance);
 };
 
-loadMenu();
+loadMenu(); // TODO: UNCOMMENT THIS LINE LATER
+
+// TODO: DELETE ME - DEV ONLY
+const testPopPlaceShips = () => {
+  const gameInstance = new Game();
+  populatePlaceShips(gameInstance);
+};
+// testPopPlaceShips();

@@ -21,6 +21,7 @@
   /* font-style: Bold; */
 }
 
+/* TODO: MOVE CUSTOM CSS PROPERTIES TO GLOBALS.CSS LATER */
 body {
   /* Menu */
   --main-bg: linear-gradient(45deg, hsl(214, 94%, 14%), hsl(214, 94%, 43%));
@@ -35,21 +36,29 @@ body {
   --color-cell-own: hsl(100, 75%, 87%);
   --color-cell-guess: hsl(0, 75%, 87%);
 
+  /* Fonts */
+  --responsive-text-sm: calc(0.5rem + 2vw);
+  --responsive-text-md: calc(0.75rem + 3vw);
+
   /* Colors */
+  --black: black;
+  --white: white;
+  --text-color-1: LightGray;
   --primary-color: hsl(214, 89%, 50%);
   --primary-color-rot1: hsl(274, 89%, 50%);
-
-  --secondary-color: hsl(33, 89%, 41%);
+  --secondary-color: hsl(142, 89%, 41%);
 
   /* Spacing */
   --space-md: 1rem;
   --space-lg: 1.5rem;
+  --space-xl: 2rem;
 
   /* Border */
   --border-radius: 7px;
 
   /* body properties */
-  font: 1rem 'Oswald';
+  font: 1.25rem 'Oswald';
+  color: var(--text-color-1);
   letter-spacing: 0.25rem;
 }
 
@@ -69,24 +78,22 @@ body {
   padding: 3rem;
 }
 
-.menu {
-}
-
 .menu__header {
+  text-align: center;
 }
 
 .menu__pretitle {
-  font: Bold 3rem 'Wall Poet';
+  font: Bold var(--responsive-text-md) 'Wall Poet';
   letter-spacing: 0.5rem;
-  text-shadow: 0px 0px 5px white;
-  color: black;
-  text-align: center;
+  text-shadow: 1px 1px 7px var(--secondary-color);
+  color: var(--black);
+  /* text-align: center; */
 }
 
 .menu__title {
   margin: 0;
   padding: 0;
-  font: 10rem 'Anton';
+  font: 15vw 'Anton';
 
   background-image: linear-gradient(
     var(--primary-color),
@@ -97,7 +104,8 @@ body {
   transform: perspective(1000px) rotate3D(1, 0, 0, 20deg);
 }
 
-.menu_select_opponent_buttons {
+.menu__body {
+  text-align: center;
   font-size: 1.25rem;
   z-index: 1;
   display: grid;
@@ -105,29 +113,36 @@ body {
   justify-content: center;
 }
 
-.menu_select_opponent_buttons__header {
-  color: LightGray;
+.menu__body--select_opponent {
+  grid-template-columns: minmax(100px, 75%);
+}
+
+.menu__body-header {
   text-align: center;
+  font-size: var(--responsive-text-sm);
 }
 
 .menu__button {
+  font-size: var(--responsive-text-sm);
   letter-spacing: 0.125rem;
-  padding: 0.5rem 10rem;
-  border: none;
+  width: 100%;
+  padding-block: calc(0.125rem + 0.5vw);
+  border: 2px solid var(--secondary-color);
+  color: var(--secondary-color);
   border-radius: var(--border-radius);
-  background: var(--secondary-color);
+  background: transparent;
   cursor: pointer;
   transition: transform 150ms;
 }
 
 .menu__button:hover {
+  color: var(--black);
+  background: var(--secondary-color);
   transform: scale(1.06);
-  outline: 3px solid white;
-  outline-offset: 3px;
 }
 
 .menu__button:focus {
-  outline: 3px dashed chartreuse;
+  outline: 3px dashed white;
   outline-offset: 3px;
 }
 
@@ -168,83 +183,134 @@ body {
 /*   /\* border: 3px dashed lime; *\/ */
 /* } */
 
-.menu_input_names {
-}
-
-.menu_input_names__fields {
-  /* TODO: Make item's width rwd
-           We can set a min-max, aim for min of 320px */
-  color: LightGray;
-  display: grid;
-  justify-content: center;
-  justify-items: center;
+.menu__body--input_names {
+  grid-template-columns: minmax(500px, 75%);
   gap: 2rem;
 }
 
-.menu_input_names__fields > * {
-  /* outline: 2px dashed lime; */
+.menu__body--input_names > * {
+  /* outline: 3px solid lime; */
 }
 
-.menu_input_names__label {
+.menu__field-group {
+  /* TODO: Make item's width rwd
+           We can set a min-max, aim for min of 320px */
+  /* color: var(--text-color-1); */
+  display: grid;
+  grid-auto-flow: column;
+  /* justify-content: center; */
+  /* justify-items: center; */
+  gap: var(--space-xl);
 }
 
-.menu_input_names__text-input {
+.menu__label {
+  font-size: var(--responsive-text-sm);
+  color: var(--white);
+}
+
+.menu__text-input {
   /* background: green; */
   /* width: 100%; */
+  /* letter-spacing: 0.125rem; */
+  color: var(--primary-color);
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 0.25rem;
 }
 
-.menu__button--next {
-  background: Chartreuse;
-}
+/* .menu__button--next { */
+/*   background: Chartreuse; */
+/* } */
 
-.grid-container {
-  border: 5px solid navy;
-  width: max-content;
-  margin: var(--gameboard-margin);
-}
-
-.grid {
+.placement {
+  color: var(--primary-color);
   display: grid;
-  grid-template-rows: repeat(var(--grid-size), var(--cell-size));
-  grid-template-columns: repeat(var(--grid-size), var(--cell-size));
-  gap: var(--gap);
+  gap: var(--space-xl);
+  grid-template-columns: minmax(1px, 900px);
 }
 
-.cell-container {
-  height: var(--cell-size);
-  width: var(--cell-size);
-  /* background: red; */
+.placement > * {
+  outline: 3px dashed lime;
 }
 
-.cell {
-  height: 100%;
-  width: 100%;
-  font: 0.5rem 'Serif';
-  /* background: navy; */
-  /* background: red; */
-  /* outline: 1px solid red; */
+.placement__header {
+  text-align: center;
+  background: lightblue;
+  /* width: 250px; */
+  /* height: 250px; */
 }
 
-.cell.own {
-  /* outline: 1px solid red; */
-  background: var(--color-cell-own);
+.placement__body {
+  display: grid;
+  gap: var(--space-md);
+  background: royalblue;
+  /* width: 250px; */
+  /* height: 250px; */
 }
 
-.cell.guess {
-  border: none;
-  /* height: var(--cell-size); */
-  /* width: var(--cell-size); */
-  background: var(--color-cell-guess);
-  cursor: crosshair;
+.placement__grid {
+  background: pink;
+  /* width: 250px; */
+  /* height: 250px; */
 }
 
-.cell.guess:hover {
-  filter: hue-rotate(90deg);
+.placement__bank {
+  background: magenta;
+  /* width: 250px; */
+  /* height: 250px; */
 }
 
-.cell.guess.attacked {
-  cursor: not-allowed;
+.menu__button--accept-placement {
+  /* max-width: 500px; */
+  /* width: 100px; */
 }
+
+/*  */
+/* .grid-container { */
+/*   border: 5px solid navy; */
+/*   width: max-content; */
+/*   margin: var(--gameboard-margin); */
+/* } */
+/*  */
+/* .grid { */
+/*   display: grid; */
+/*   grid-template-rows: repeat(var(--grid-size), var(--cell-size)); */
+/*   grid-template-columns: repeat(var(--grid-size), var(--cell-size)); */
+/*   gap: var(--gap); */
+/* } */
+/*  */
+/* .cell-container { */
+/*   height: var(--cell-size); */
+/*   width: var(--cell-size); */
+/*   /\* background: red; *\/ */
+/* } */
+/*  */
+/* .cell { */
+/*   height: 100%; */
+/*   width: 100%; */
+/*   font: 0.5rem 'Serif'; */
+/*   /\* background: navy; *\/ */
+/*   /\* background: red; *\/ */
+/*   /\* outline: 1px solid red; *\/ */
+/* } */
+/*  */
+/* .cell.own { */
+/*   /\* outline: 1px solid red; *\/ */
+/*   background: var(--color-cell-own); */
+/* } */
+/*  */
+/* .cell.guess { */
+/*   border: none; */
+/*   /\* height: var(--cell-size); *\/ */
+/*   /\* width: var(--cell-size); *\/ */
+/*   background: var(--color-cell-guess); */
+/*   cursor: crosshair; */
+/* } */
+/*  */
+/* .cell.guess:hover { */
+/*   filter: hue-rotate(90deg); */
+/* } */
+/*  */
+/* .cell.guess.attacked { */
+/*   cursor: not-allowed; */
+/* } */

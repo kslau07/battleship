@@ -14,16 +14,15 @@
     <header class="header"></header>
     <main class="main">
       <div class="main-display"></div>
+
       <template class="template_menu_select_opponent">
         <div class="menu_select_opponent">
           <div class="menu__header">
             <h2 class="menu__pretitle">WELCOME TO</h2>
             <h1 class="menu__title">BATTLESHIP</h1>
           </div>
-          <div class="menu_select_opponent_buttons">
-            <h2 class="menu_select_opponent_buttons__header">
-              SELECT OPPONENT:
-            </h2>
+          <div class="menu__body menu__body--select_opponent">
+            <h2 class="menu__body-header">SELECT OPPONENT:</h2>
             <button class="menu__button menu__button--opponent" value="human">
               HUMAN
             </button>
@@ -36,46 +35,70 @@
           </div>
         </div>
       </template>
+
       <template class="template_menu_input_names">
         <div class="menu_input_names">
           <div class="menu__header">
             <h2 class="menu__pretitle">WELCOME TO</h2>
             <h1 class="menu__title">BATTLESHIP</h1>
           </div>
-          <div class="menu_input_names__fields">
-            <h2 class="menu_input_names__header">Enter players' names:</h2>
-            <div class="menu_input_names__field-group">
-              <label for="name-player1" class="menu_input_names__label"
-                >Player 1:
-              </label>
+          <div class="menu__body menu__body--input_names">
+            <h2 class="menu__body-header">Enter players' names:</h2>
+            <div class="menu__field-group">
+              <label for="name-player1" class="menu__label">Player 1: </label>
               <input
                 type="text"
                 name="name-player1"
                 id="name-player1"
-                class="menu_input_names__text-input menu_input_names__text-input--player1"
+                class="menu__text-input menu__text-input--player1"
                 value="Player One"
               />
             </div>
-            <div class="menu_input_names__field-group">
-              <label for="name-player2" class="menu_input_names__label"
-                >Player 2:
-              </label>
+            <div class="menu__field-group">
+              <label for="name-player2" class="menu__label">Player 2: </label>
               <input
                 type="text"
                 name="name-player2"
                 id="name-player2"
-                class="menu_input_names__text-input menu_input_names__text-input--player2"
+                class="menu__text-input menu__text-input--player2"
                 value="Player Two"
               />
             </div>
-            <button class="menu__button menu__button--next">NEXT</button>
+            <button class="menu__button menu__button--continue">
+              CONTINUE
+            </button>
           </div>
         </div>
       </template>
-      <!-- <template class="template--game-placeships-player1"></template> -->
-      <!-- <template class="template--game-placeships-player2"></template> -->
-      <!-- <template class="template--game-take-turn-player1"></template> -->
-      <!-- <template class="template--game-take-turn-player2"></template> -->
+
+      <template class="template-placement">
+        <div class="placement">
+          <div class="placement__header">NAME-GOES-HERE PLACE YOUR SHIPS:</div>
+          <div class="placement__body">
+            <div class="placement__grid">grid</div>
+            <div class="placement__bank">ships-bank</div>
+          </div>
+          <button class="menu__button menu__button--accept-placement">
+            CONTINUE
+          </button>
+        </div>
+      </template>
+
+      <template class="template-current-turn">
+        <div class="current-turn__header"></div>
+        <div class="current-turn__grid-group">
+          <div
+            class="current-turn__grid current-turn__grid--current-player"
+          ></div>
+          <div
+            class="current-turn__grid current-turn__grid--current-enemy"
+          ></div>
+        </div>
+      </template>
+
+      <template class="template-game-over">
+        <div class="game-over"></div>
+      </template>
 
       <template class="hex-pattern-template">
         <div class="hex-pattern-container">
@@ -92,11 +115,6 @@
           </div>
         </div>
       </template>
-      <!-- <button class="new-game-button">New Game</button> -->
-      <!-- <h2>Your ships</h2> -->
-      <!-- <div class="grid-container own" class="own-grid-container"></div> -->
-      <!-- <h2>Find the enemy's ships!</h2> -->
-      <!-- <div class="grid-container guess" class="enemy-grid-container"></div> -->
     </main>
     <footer class="footer"></footer>
   </body>
