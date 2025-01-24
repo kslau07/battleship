@@ -26,7 +26,7 @@ const createGridColumns = () => {
   for (let rowIdx = 0; rowIdx < gridSize; rowIdx += 1) {
     for (let colIdx = 0; colIdx < gridSize; colIdx += 1) {
       const cell = document.createElement('div');
-      cell.classList.add('cell', `cc-${rowIdx}-${colIdx}`);
+      cell.classList.add('cell', `cell-${rowIdx}-${colIdx}`);
       grid.appendChild(cell);
     }
   }
@@ -38,7 +38,7 @@ const createGridColumns = () => {
 const createGameGrids = (gameObj) => {
   // TODO: Retrieve grids from templates
   // const gridContainers = document.querySelectorAll('.grid-container');
-  const gameGrids = document.querySelectorAll('.game-grid');
+  // const gameGrids = document.querySelectorAll('.game-grid');
 
   gameGrids.forEach((grid) => {
     const gridColumns = createGridColumns();
@@ -178,13 +178,54 @@ const createGame = (gameOptions) => {
 //   menuCtr.appendChild(hexPatternCtr);
 // };
 
-function populatePlacementGrid() {
-  const placementGrid = placeShipsDiv.querySelector('.placement__grid');
-}
+const addAxisMarker = (cell) => {
+  const className = cell.className.split(' ')[1];
+  const row = className.split('-')[1];
+  const column = className.split('-')[2];
+  cell.classList.add('axis-marker');
 
-function populatePlacementBank() {
-  const placementBank = placeShipsDiv.querySelector('.placement__bank');
-}
+  if (row === '0' && column === '0') return;
+
+  let marker;
+  if (row === '0') {
+    marker = column;
+  } else if (column === '0') {
+    const keycode = Number(row) + 65;
+    marker = String.fromCharCode(keycode);
+  }
+
+  const axisMarkerText = document.createElement('span');
+  axisMarkerText.textContent = marker;
+  axisMarkerText.classList.add('axis-marker-text');
+  cell.appendChild(axisMarkerText);
+};
+
+const createGrid = (gridContainer) => {
+  const totalRows = 11; // NOTE: 1 extra row/cell for axis labels for UI
+  const cellsPerRow = 11;
+
+  for (let i = 0; i < totalRows; i += 1) {
+    const column = document.createElement('div');
+    column.classList.add('column', `column-${i}`);
+    gridContainer.appendChild(column);
+
+    for (let j = 0; j < cellsPerRow; j += 1) {
+      const cell = document.createElement('div');
+      cell.classList.add('cell', `cell-${i}-${j}`);
+      column.appendChild(cell);
+      addAxisMarker(cell);
+    }
+  }
+};
+
+const populatePlacementGrid = () => {
+  const placementGrid = document.querySelector('.placement__grid');
+  createGrid(placementGrid);
+};
+
+const populatePlacementBank = () => {
+  const placementBank = document.querySelector('.placement__bank');
+};
 
 function populatePlaceShips(gameInstance) {
   // gameInstance.placeShipsRandomlyForPlayer(gameInstance.getPlayer2());
@@ -240,11 +281,11 @@ const loadMenu = () => {
   populateSelectOpponent(gameInstance);
 };
 
-loadMenu(); // TODO: UNCOMMENT THIS LINE LATER
+// loadMenu(); // TODO: UNCOMMENT THIS LINE LATER
 
 // TODO: DELETE ME - DEV ONLY
 const testPopPlaceShips = () => {
   const gameInstance = new Game();
   populatePlaceShips(gameInstance);
 };
-// testPopPlaceShips();
+testPopPlaceShips();

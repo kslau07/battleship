@@ -29,7 +29,7 @@ body {
   --menu-bg-color: hsla(225, 85%, 5%, 1);
 
   /* Game grids */
-  --cell-size: 30px;
+  /* --cell-size: minmax(1px, 1fr); */
   --gap: 0.125rem;
   --gameboard-margin: 1rem;
   --grid-size: 10;
@@ -222,6 +222,7 @@ body {
 /*   background: Chartreuse; */
 /* } */
 
+/* NOTE: THIS GRID CONTAINER SIMPLY CREATES 3 ROWS, NOTHING ELSE */
 .placement {
   color: var(--primary-color);
   display: grid;
@@ -230,7 +231,7 @@ body {
 }
 
 .placement > * {
-  outline: 3px dashed lime;
+  /* outline: 3px dashed lime; */
 }
 
 .placement__header {
@@ -240,29 +241,71 @@ body {
   /* height: 250px; */
 }
 
+/* NOTE: THIS GRID CONTAINER HAS A MEDIA-QUERY! */
+/*       THIS GRID CONTAINER 2 ROWS WHEN NARROW */
+/*       THIS GRID CONTAINER 2 COLUMNS WHEN WIDE */
 .placement__body {
   display: grid;
+  grid-auto-flow: row;
+  /* grid-template-rows: 1fr 1px; */
   gap: var(--space-md);
-  background: royalblue;
+  background: navy;
+
+  justify-items: center;
+  /* overflow: hidden; */
   /* width: 250px; */
   /* height: 250px; */
 }
 
 .placement__grid {
-  background: pink;
-  /* width: 250px; */
-  /* height: 250px; */
+  /* background: linear-gradient(45deg, teal, turquoise); */
+
+  background: radial-gradient(
+    circle,
+    hsl(185, 75%, 45%, 1) 0%,
+    hsl(170, 75%, 40%, 1) 35%,
+    hsl(165, 75%, 25%, 1) 100%
+  );
+
+  display: grid;
+  width: 80%;
+  /* height: 500px; */
+  aspect-ratio: 1;
+  /* grid-template-rows: repeat(10, 1fr); */
+  /* grid-template-columns: repeat(10, 1fr); */
 }
 
 .placement__bank {
   background: magenta;
-  /* width: 250px; */
-  /* height: 250px; */
 }
 
 .menu__button--accept-placement {
   /* max-width: 500px; */
   /* width: 100px; */
+}
+
+.column {
+  /* outline: 3px dotted orange; */
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+}
+
+.cell {
+  /* background: navy; */
+  /* outline: 2px solid turquoise; */
+  border: 2px solid hsla(185, 100%, 75%, 0.75);
+}
+
+.axis-marker {
+  display: grid;
+  place-content: center;
+}
+
+.axis-marker-text {
+  mix-blend-mode: lighten;
+  color: LightGray;
+  opacity: 0.75;
+  font: italic 1.5rem 'Wall Poet';
 }
 
 /*  */
@@ -314,3 +357,12 @@ body {
 /* .cell.guess.attacked { */
 /*   cursor: not-allowed; */
 /* } */
+
+@media screen and (min-width: 900px) {
+  .placement__body {
+    grid-auto-flow: column;
+    /* grid-template-rows: 500px; */
+
+    grid-template-columns: 1fr auto;
+  }
+}
