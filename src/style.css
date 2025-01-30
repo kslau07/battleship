@@ -252,7 +252,7 @@ body {
   background: navy;
 
   justify-items: center;
-  /* overflow: hidden; */
+  overflow: hidden;
   /* width: 250px; */
   /* height: 250px; */
 }
@@ -262,9 +262,9 @@ body {
 
   background: radial-gradient(
     circle,
-    hsl(185, 75%, 45%, 1) 0%,
-    hsl(170, 75%, 40%, 1) 35%,
-    hsl(165, 75%, 25%, 1) 100%
+    hsl(185, 75%, 55%) 0%,
+    hsl(179, 75%, 45%) 35%,
+    hsl(169, 75%, 35%) 100%
   );
 
   display: grid;
@@ -276,7 +276,22 @@ body {
 }
 
 .placement__bank {
-  background: magenta;
+  background: Gray;
+}
+
+.ship {
+  cursor: grab;
+}
+
+.dragging {
+  opacity: 0.25;
+  /* transform: opacity(50%); */
+  /* visibility: hidden; */
+}
+
+.dropping {
+  outline: 3px dashed green;
+  background: #000;
 }
 
 .menu__button--accept-placement {
@@ -294,6 +309,7 @@ body {
   /* background: navy; */
   /* outline: 2px solid turquoise; */
   border: 2px solid hsla(185, 100%, 75%, 0.75);
+  box-shadow: -3px 3px 3px hsla(0, 75%, 1%, 0.15);
 }
 
 .axis-marker {
@@ -302,10 +318,12 @@ body {
 }
 
 .axis-marker-text {
-  mix-blend-mode: lighten;
-  color: LightGray;
-  opacity: 0.75;
+  color: hsla(185, 100%, 75%, 0.75);
+
+  /* opacity: 0.65; */
   font: italic 1.5rem 'Wall Poet';
+  text-shadow: hsla(0, 75%, 1%, 0.15)-3px 3px;
+  /* text-shadow: hsla(150, 75%, 75%, 0.35) -3px 3px; */
 }
 
 /*  */

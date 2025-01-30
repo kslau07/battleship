@@ -15,6 +15,14 @@
     <main class="main">
       <div class="main-display"></div>
 
+      <template class="template-player1-ship-images">
+        <div class="player1-ship-images"></div>
+      </template>
+
+      <template class="template-player2-ship-images">
+        <div class="player2-ship-images"></div>
+      </template>
+
       <template class="template_menu_select_opponent">
         <div class="menu_select_opponent">
           <div class="menu__header">
@@ -76,8 +84,15 @@
           <div class="placement__header">NAME-GOES-HERE PLACE YOUR SHIPS:</div>
           <div class="placement__body">
             <div class="placement__grid"></div>
-            <div class="placement__bank">ships-bank</div>
+            <div class="placement__bank">
+              <div class="placement__bank-header">Ships:</div>
+              <div class="placement__bank-body"></div>
+              <button class="placement__bank-button">Random</button>
+              <button class="placement__bank-button">Rotate</button>
+              <button class="placement__bank-button">Reset</button>
+            </div>
           </div>
+
           <button class="menu__button menu__button--accept-placement">
             CONTINUE
           </button>

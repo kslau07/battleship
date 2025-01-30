@@ -4,6 +4,7 @@ import './reset.css';
 import './global.css';
 import './style.css';
 import Game from './Game';
+import { addDragAndDropHandlers } from './DragAndDrop';
 
 const endTurn = (gameObj) => {
   gameObj.endTurn();
@@ -184,13 +185,11 @@ const addAxisMarker = (cell) => {
   const column = className.split('-')[2];
   cell.classList.add('axis-marker');
 
-  if (row === '0' && column === '0') return;
-
   let marker;
   if (row === '0') {
     marker = column;
   } else if (column === '0') {
-    const keycode = Number(row) + 65;
+    const keycode = Number(row) + 64;
     marker = String.fromCharCode(keycode);
   }
 
@@ -201,7 +200,7 @@ const addAxisMarker = (cell) => {
 };
 
 const createGrid = (gridContainer) => {
-  const totalRows = 11; // NOTE: 1 extra row/cell for axis labels for UI
+  const totalRows = 11; // NOTE: 1 extra row & col for axis markers
   const cellsPerRow = 11;
 
   for (let i = 0; i < totalRows; i += 1) {
@@ -223,19 +222,24 @@ const populatePlacementGrid = () => {
   createGrid(placementGrid);
 };
 
-const populatePlacementBank = () => {
-  const placementBank = document.querySelector('.placement__bank');
+// TODO: MUST UTILIZE CURRENT-PLAYER LATER
+const populatePlacementBank = (gameInstance) => {
+  const template = document.querySelector(
+    '.template-player1-ship-images',
+  ).content;
+  const images = template.querySelector('.player1-ship-images');
+  const placementBankBody = document.querySelector('.placement__bank-body');
+  placementBankBody.appendChild(images);
 };
 
 function populatePlaceShips(gameInstance) {
-  // gameInstance.placeShipsRandomlyForPlayer(gameInstance.getPlayer2());
   const mainDisplay = document.querySelector('.main-display');
   const template = document.querySelector('.template-placement').content;
   const placeShipsDiv = template.querySelector('.placement');
 
   mainDisplay.replaceChildren(placeShipsDiv);
   populatePlacementGrid();
-  populatePlacementBank();
+  populatePlacementBank(gameInstance);
 }
 
 function populateInputNames(gameInstance) {
@@ -276,16 +280,47 @@ const populateSelectOpponent = (gameInstance) => {
   mainDisplay.replaceChildren(selectOpponentDiv);
 };
 
-const loadMenu = () => {
-  const gameInstance = new Game();
-  populateSelectOpponent(gameInstance);
+// Import ship images and append ship images to template for later use
+const createShipImages = (playerNum) => {
+  const shipSvgs = require.context('./assets/images/ships/', false);
+  const getSvg = (fname) => shipSvgs(`./${fname}`);
+  const partialFileNames = [
+    'Battleship',
+    'Carrier',
+    'Destroyer',
+    'Patrol_Boat',
+    'Submarine',
+  ];
+
+  partialFileNames.forEach((fname) => {
+    const template = document.querySelector(
+      `.template-player${playerNum}-ship-images`,
+    ).content;
+    const container = template.querySelector(`.player${playerNum}-ship-images`);
+    const image = getSvg(`${fname}-Player${playerNum}.svg`);
+    const img = document.createElement('img');
+    img.classList.add('ship');
+    img.src = image;
+    img.dataset.id = `player${playerNum}-${fname}`;
+    container.appendChild(img);
+  });
 };
 
-// loadMenu(); // TODO: UNCOMMENT THIS LINE LATER
+const initialize = () => {
+  [1, 2].forEach(createShipImages);
+  const gameInstance = new Game();
+  populateSelectOpponent(gameInstance);
+  addDragAndDropHandlers();
+};
+
+// initialize(); // TODO: UNCOMMENT THIS LINE LATER
 
 // TODO: DELETE ME - DEV ONLY
+
 const testPopPlaceShips = () => {
+  [1, 2].forEach(createShipImages);
   const gameInstance = new Game();
   populatePlaceShips(gameInstance);
+  addDragAndDropHandlers();
 };
 testPopPlaceShips();
