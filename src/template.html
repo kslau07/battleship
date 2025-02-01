@@ -13,124 +13,124 @@
   <body>
     <header class="header"></header>
     <main class="main">
-      <div class="main-display"></div>
-
-      <template class="template-player1-ship-images">
-        <div class="player1-ship-images"></div>
-      </template>
-
-      <template class="template-player2-ship-images">
-        <div class="player2-ship-images"></div>
-      </template>
-
-      <template class="template_menu_select_opponent">
-        <div class="menu_select_opponent">
-          <div class="menu__header">
-            <h2 class="menu__pretitle">WELCOME TO</h2>
-            <h1 class="menu__title">BATTLESHIP</h1>
-          </div>
-          <div class="menu__body menu__body--select_opponent">
-            <h2 class="menu__body-header">SELECT OPPONENT:</h2>
-            <button class="menu__button menu__button--opponent" value="human">
-              HUMAN
-            </button>
-            <button
-              class="menu__button menu__button--opponent"
-              value="computer"
-            >
-              COMPUTER
-            </button>
-          </div>
-        </div>
-      </template>
-
-      <template class="template_menu_input_names">
-        <div class="menu_input_names">
-          <div class="menu__header">
-            <h2 class="menu__pretitle">WELCOME TO</h2>
-            <h1 class="menu__title">BATTLESHIP</h1>
-          </div>
-          <div class="menu__body menu__body--input_names">
-            <h2 class="menu__body-header">Enter players' names:</h2>
-            <div class="menu__field-group">
-              <label for="name-player1" class="menu__label">Player 1: </label>
-              <input
-                type="text"
-                name="name-player1"
-                id="name-player1"
-                class="menu__text-input menu__text-input--player1"
-                value="Player One"
-              />
-            </div>
-            <div class="menu__field-group">
-              <label for="name-player2" class="menu__label">Player 2: </label>
-              <input
-                type="text"
-                name="name-player2"
-                id="name-player2"
-                class="menu__text-input menu__text-input--player2"
-                value="Player Two"
-              />
-            </div>
-            <button class="menu__button menu__button--continue">
-              CONTINUE
-            </button>
-          </div>
-        </div>
-      </template>
-
-      <template class="template-placement">
-        <div class="placement">
-          <div class="placement__header">NAME-GOES-HERE PLACE YOUR SHIPS:</div>
-          <div class="placement__body">
-            <div class="placement__grid"></div>
-            <div class="placement__bank">
-              <div class="placement__bank-header">Ships:</div>
-              <div class="placement__bank-body"></div>
-              <button class="placement__bank-button">Random</button>
-              <button class="placement__bank-button">Rotate</button>
-              <button class="placement__bank-button">Reset</button>
-            </div>
-          </div>
-
-          <button class="menu__button menu__button--accept-placement">
-            CONTINUE
-          </button>
-        </div>
-      </template>
-
-      <template class="template-current-turn">
-        <div class="current-turn__header"></div>
-        <div class="current-turn__grid-group">
-          <div
-            class="current-turn__grid current-turn__grid--current-player"
-          ></div>
-          <div
-            class="current-turn__grid current-turn__grid--current-enemy"
-          ></div>
-        </div>
-      </template>
-
-      <template class="template-game-over">
-        <div class="game-over"></div>
-      </template>
-
-      <template class="hex-pattern-template">
-        <div class="hex-pattern-container">
-          <div class="hex-column-container">
-            <div class="hex"></div>
-            <div class="hex"></div>
-            <div class="hex"></div>
-            <div class="hex"></div>
-            <div class="hex"></div>
-            <div class="hex"></div>
-            <div class="hex"></div>
-            <div class="hex"></div>
-            <div class="hex"></div>
-          </div>
-        </div>
-      </template>
+      <section class="main-display"></section>
     </main>
     <footer class="footer"></footer>
+
+    <template class="template-ships--player1">
+      <div class="ships ships--player1"></div>
+    </template>
+
+    <template class="template-ships--player2">
+      <div class="ships ships--player2"></div>
+    </template>
+
+    <template class="template_menu_select_opponent">
+      <section class="menu_select_opponent">
+        <header class="menu__header">
+          <p class="menu__pretitle">WELCOME TO</p>
+          <h1 class="menu__title">BATTLESHIP</h1>
+        </header>
+        <section class="menu__body menu__body--select_opponent">
+          <h2 class="menu__body-header">SELECT OPPONENT:</h2>
+          <button class="menu__button menu__button--opponent" value="human">
+            HUMAN
+          </button>
+          <button class="menu__button menu__button--opponent" value="computer">
+            COMPUTER
+          </button>
+        </section>
+      </section>
+    </template>
+
+    <template class="template_menu_input_names">
+      <section class="menu_input_names">
+        <header class="menu__header">
+          <p class="menu__pretitle">WELCOME TO</p>
+          <h1 class="menu__title">BATTLESHIP</h1>
+        </header>
+        <section class="menu__body menu__body--input_names">
+          <h2 class="menu__body-header">Enter players' names:</h2>
+          <div class="menu__field-group">
+            <label for="name-player1" class="menu__label">Player 1: </label>
+            <input
+              type="text"
+              name="name-player1"
+              id="name-player1"
+              class="menu__text-input menu__text-input--player1"
+              value="Player One"
+            />
+          </div>
+          <div class="menu__field-group">
+            <label for="name-player2" class="menu__label">Player 2: </label>
+            <input
+              type="text"
+              name="name-player2"
+              id="name-player2"
+              class="menu__text-input menu__text-input--player2"
+              value="Player Two"
+            />
+          </div>
+          <button class="menu__button menu__button--continue">CONTINUE</button>
+        </section>
+      </section>
+    </template>
+
+    <template class="template-placement">
+      <section class="placement">
+        <header class="placement__header">
+          <p class="placement__player-heading">
+            <span class="player-name">change me</span>
+          </p>
+          <h2 class="placement__instructions">Place your ships!</h2>
+        </header>
+        <div class="placement__body">
+          <div class="placement__buttons">
+            <button class="placement__button">Randomize</button>
+            <button class="placement__button">Reset</button>
+          </div>
+          <div class="placement__grid"></div>
+          <div class="placement__bank">
+            <button class="placement__button">↻ Rotate ships</button>
+            <h3 class="placement__bank-heading">Ships remaining:</h3>
+            <div class="placement__bank-body"></div>
+          </div>
+        </div>
+
+        <button class="menu__button menu__button--accept-placement">
+          CONTINUE
+        </button>
+      </section>
+    </template>
+
+    <template class="template-current-turn">
+      <div class="current-turn__header"></div>
+      <div class="current-turn__grid-group">
+        <div
+          class="current-turn__grid current-turn__grid--current-player"
+        ></div>
+        <div class="current-turn__grid current-turn__grid--current-enemy"></div>
+      </div>
+    </template>
+
+    <template class="template-game-over">
+      <div class="game-over"></div>
+    </template>
+
+    <template class="hex-pattern-template">
+      <div class="hex-pattern-container">
+        <div class="hex-column-container">
+          <div class="hex"></div>
+          <div class="hex"></div>
+          <div class="hex"></div>
+          <div class="hex"></div>
+          <div class="hex"></div>
+          <div class="hex"></div>
+          <div class="hex"></div>
+          <div class="hex"></div>
+          <div class="hex"></div>
+        </div>
+      </div>
+    </template>
   </body>
 </html>

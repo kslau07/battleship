@@ -20,21 +20,22 @@ const endTurn = (gameObj) => {
 };
 
 // Each grid column will contain 10 cells
-const createGridColumns = () => {
-  const grid = document.createElement('div');
-  const gridSize = 10;
-
-  for (let rowIdx = 0; rowIdx < gridSize; rowIdx += 1) {
-    for (let colIdx = 0; colIdx < gridSize; colIdx += 1) {
-      const cell = document.createElement('div');
-      cell.classList.add('cell', `cell-${rowIdx}-${colIdx}`);
-      grid.appendChild(cell);
-    }
-  }
-
-  grid.classList.add('grid');
-  return grid;
-};
+// const createGridColumns = () => {
+//   const grid = document.createElement('div');
+//   const gridSize = 10;
+//
+//   for (let rowIdx = 0; rowIdx < gridSize; rowIdx += 1) {
+//     for (let colIdx = 0; colIdx < gridSize; colIdx += 1) {
+//       const cell = document.createElement('div');
+//       cell.classList.add('cell');
+//       cell.dataset.id = `cell-${rowIdx}-{colIdx}`;
+//       grid.appendChild(cell);
+//     }
+//   }
+//
+//   grid.classList.add('grid');
+//   return grid;
+// };
 
 const createGameGrids = (gameObj) => {
   // TODO: Retrieve grids from templates
@@ -180,11 +181,12 @@ const createGame = (gameOptions) => {
 // };
 
 const addAxisMarker = (cell) => {
-  const className = cell.className.split(' ')[1];
-  const row = className.split('-')[1];
-  const column = className.split('-')[2];
-  cell.classList.add('axis-marker');
+  const row = cell.dataset.row;
+  const column = cell.dataset.column;
 
+  if (row !== '0' && column !== '0') return; // No marker needed
+
+  cell.classList.add('axis-marker');
   let marker;
   if (row === '0') {
     marker = column;
@@ -203,15 +205,19 @@ const createGrid = (gridContainer) => {
   const totalRows = 11; // NOTE: 1 extra row & col for axis markers
   const cellsPerRow = 11;
 
+  // Create row elems
   for (let i = 0; i < totalRows; i += 1) {
-    const column = document.createElement('div');
-    column.classList.add('column', `column-${i}`);
-    gridContainer.appendChild(column);
+    const row = document.createElement('div');
+    row.classList.add('row', `row-${i}`);
+    gridContainer.appendChild(row);
 
+    // Create cells, child elems of each row
     for (let j = 0; j < cellsPerRow; j += 1) {
       const cell = document.createElement('div');
-      cell.classList.add('cell', `cell-${i}-${j}`);
-      column.appendChild(cell);
+      cell.classList.add('cell');
+      cell.dataset.row = `${i}`;
+      cell.dataset.column = `${j}`;
+      row.appendChild(cell);
       addAxisMarker(cell);
     }
   }
@@ -222,12 +228,10 @@ const populatePlacementGrid = () => {
   createGrid(placementGrid);
 };
 
-// TODO: MUST UTILIZE CURRENT-PLAYER LATER
 const populatePlacementBank = (gameInstance) => {
-  const template = document.querySelector(
-    '.template-player1-ship-images',
-  ).content;
-  const images = template.querySelector('.player1-ship-images');
+  // TODO: Append the current player's bank, use gameInstance to find current player
+  const template = document.querySelector('.template-ships--player1').content;
+  const images = template.querySelector('.ships--player1');
   const placementBankBody = document.querySelector('.placement__bank-body');
   placementBankBody.appendChild(images);
 };
@@ -235,11 +239,14 @@ const populatePlacementBank = (gameInstance) => {
 function populatePlaceShips(gameInstance) {
   const mainDisplay = document.querySelector('.main-display');
   const template = document.querySelector('.template-placement').content;
-  const placeShipsDiv = template.querySelector('.placement');
+  const placementDiv = template.querySelector('.placement');
+  const playerNameSpan = placementDiv.querySelector('.player-name');
 
-  mainDisplay.replaceChildren(placeShipsDiv);
+  playerNameSpan.textContent = gameInstance.getPlayer1().getName(); // NOTE: WILL NEED TO GET BOTH PLAYERS HERE
+  mainDisplay.replaceChildren(placementDiv);
   populatePlacementGrid();
   populatePlacementBank(gameInstance);
+  addDragAndDropHandlers();
 }
 
 function populateInputNames(gameInstance) {
@@ -280,47 +287,45 @@ const populateSelectOpponent = (gameInstance) => {
   mainDisplay.replaceChildren(selectOpponentDiv);
 };
 
-// Import ship images and append ship images to template for later use
-const createShipImages = (playerNum) => {
+// Import ship images and append ship elements to template for later use
+const createShipElements = (playerNum) => {
   const shipSvgs = require.context('./assets/images/ships/', false);
   const getSvg = (fname) => shipSvgs(`./${fname}`);
   const partialFileNames = [
     'Battleship',
     'Carrier',
     'Destroyer',
-    'Patrol_Boat',
+    'PatrolBoat',
     'Submarine',
   ];
 
   partialFileNames.forEach((fname) => {
     const template = document.querySelector(
-      `.template-player${playerNum}-ship-images`,
+      `.template-ships--player${playerNum}`,
     ).content;
-    const container = template.querySelector(`.player${playerNum}-ship-images`);
+    const container = template.querySelector(`.ships--player${playerNum}`);
     const image = getSvg(`${fname}-Player${playerNum}.svg`);
     const img = document.createElement('img');
     img.classList.add('ship');
     img.src = image;
-    img.dataset.id = `player${playerNum}-${fname}`;
+    img.dataset.player = `player${playerNum}`;
+    img.dataset.ship = `${fname}`;
     container.appendChild(img);
   });
 };
 
 const initialize = () => {
-  [1, 2].forEach(createShipImages);
+  [1, 2].forEach(createShipElements);
   const gameInstance = new Game();
   populateSelectOpponent(gameInstance);
-  addDragAndDropHandlers();
 };
 
-// initialize(); // TODO: UNCOMMENT THIS LINE LATER
+initialize(); // TODO: UNCOMMENT THIS LINE LATER
 
 // TODO: DELETE ME - DEV ONLY
-
 const testPopPlaceShips = () => {
-  [1, 2].forEach(createShipImages);
+  [1, 2].forEach(createShipElements);
   const gameInstance = new Game();
   populatePlaceShips(gameInstance);
-  addDragAndDropHandlers();
 };
-testPopPlaceShips();
+// testPopPlaceShips();

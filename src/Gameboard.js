@@ -54,7 +54,7 @@ export default class Gameboard {
       { name: 'Battleship', length: 4 },
       { name: 'Destroyer', length: 3 },
       { name: 'Submarine', length: 3 },
-      { name: 'Patrol Boat', length: 2 },
+      { name: 'PatrolBoat', length: 2 },
 
       // FIXME: DELETE BELOW
       // { name: 'Submarine', length: 3 },
