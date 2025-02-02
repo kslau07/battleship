@@ -36,6 +36,7 @@ body {
   --color-cell-guess: hsl(0, 75%, 87%);
 
   /* Fonts */
+  --rwd-text-xs: calc(0.25rem + 2vw);
   --rwd-text-sm: calc(0.5rem + 2vw);
   --rwd-text-md: calc(0.75rem + 3vw);
 
@@ -64,7 +65,7 @@ body {
 
 .main {
   display: grid;
-  place-items: center;
+  align-items: center;
   min-height: 100vh;
 }
 
@@ -112,7 +113,6 @@ body {
 .menu__button {
   font-size: var(--rwd-text-sm);
   letter-spacing: 0.125rem;
-  width: 100%;
   padding-block: calc(0.125rem + 1vw);
   border: 2px solid var(--secondary-color);
   color: var(--secondary-color);
@@ -137,11 +137,13 @@ body {
   display: grid;
   grid-auto-flow: column;
   align-items: center;
+  /* justify-items: center; */
 }
 
 .menu__label {
   font-size: var(--rwd-text-sm);
   color: var(--white);
+  justify-self: center;
 }
 
 .menu__text-input {
@@ -160,32 +162,37 @@ body {
 
 .placement__header {
   text-align: center;
-  /* background: lightblue; */
+}
+
+.placement__player-heading {
+  font-size: var(--rwd-text-sm);
+}
+
+.placement__instructions {
+  font-size: var(--rwd-text-md);
 }
 
 .placement__body {
   display: grid;
   gap: var(--space-md);
+
   grid-template-areas:
     'p_btns'
     'p_grid'
     'p_bank';
-  /* background: navy; */
 }
 
 .placement__buttons {
   grid-area: p_btns;
   display: grid;
   grid-auto-flow: column;
+  gap: var(--space-md);
   height: max-content;
-  gap: 1rem;
-  align-self: center;
 }
 
 .placement__button {
   font-size: var(--rwd-text-sm);
   letter-spacing: 0.125rem;
-  width: 100%;
   padding-block: calc(0.125rem + 1vw);
   border: 2px solid var(--secondary-color);
   color: var(--secondary-color);
@@ -203,13 +210,86 @@ body {
     hsl(179, 75%, 45%) 35%,
     hsl(169, 75%, 35%) 100%
   );
+
+  display: grid;
+  grid-template-rows: repeat(11, 1fr);
+}
+
+.row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: repeat(11, 1fr);
+}
+
+.cell {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 2px solid hsla(185, 100%, 75%, 0.75);
+  box-shadow: -3px 3px 3px hsla(0, 75%, 1%, 0.15);
+}
+
+.axis-marker {
+  position: relative;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.axis-marker-text {
+  position: absolute;
+  color: hsla(185, 100%, 75%, 0.75);
+  font-family: 'Wall Poet';
+  font-style: italic;
+  font-size: var(--rwd-text-sm);
+  text-shadow: hsla(0, 75%, 1%, 0.15)-3px 3px;
+  pointer-events: none;
 }
 
 .placement__bank {
   grid-area: p_bank;
+  background: hsla(0, 0%, 0%, 0.25);
+}
+
+.placement__bank-body {
+}
+
+.ships {
+  --cell-size: 8vw;
+  display: grid;
+  gap: var(--space-md) 0;
+  /* grid-auto-flow: row; */
+  grid-template-rows: repeat(3, var(--cell-size));
+  grid-template-columns: repeat(10, var(--cell-size));
 }
 
 .ship {
+  width: 100%;
+  height: 100%;
+}
+
+.ship[data-ship='Carrier'] {
+  grid-area: 1 / 1 / span 1 / span 5;
+  cursor: grab;
+}
+
+.ship[data-ship='Battleship'] {
+  grid-area: 2 / 1 / span 1 / span 4;
+  cursor: grab;
+}
+
+.ship[data-ship='Destroyer'] {
+  grid-area: 3 / 1 / span 1 / span 3;
+
+  cursor: grab;
+}
+
+.ship[data-ship='Submarine'] {
+  grid-area: 2 / 6 / span 1 / span 3;
+  cursor: grab;
+}
+
+.ship[data-ship='PatrolBoat'] {
+  grid-area: 1 / 7 / span 1 / span 2;
   cursor: grab;
 }
 
@@ -222,36 +302,48 @@ body {
   background: #000;
 }
 
-.row {
-  display: grid;
-  grid-template-columns: repeat(11, 1fr);
-}
-
-.cell {
-  border: 2px solid hsla(185, 100%, 75%, 0.75);
-  box-shadow: -3px 3px 3px hsla(0, 75%, 1%, 0.15);
-}
-
-.axis-marker {
-  display: grid;
-  place-content: center;
-  pointer-events: none;
-}
-
-.axis-marker-text {
-  color: hsla(185, 100%, 75%, 0.75);
-
-  /* opacity: 0.65; */
-  font: italic 1.5rem 'Wall Poet';
-  text-shadow: hsla(0, 75%, 1%, 0.15)-3px 3px;
-  /* text-shadow: hsla(150, 75%, 75%, 0.35) -3px 3px; */
-  pointer-events: none;
+@media screen and (min-width: 500px) {
+  body {
+    margin-inline: var(--space-md);
+  }
 }
 
 @media screen and (min-width: 900px) {
   .placement__body {
+    grid-template-columns: 11fr 5fr; /*11 cells-wide for grid, 5 cells-wide for bank*/
     grid-template-areas:
       'p_btns p_bank'
       'p_grid p_bank';
+  }
+
+  .ships {
+    --cell-size: 5vw;
+    grid-template-rows: repeat(5, var(--cell-size));
+    grid-template-columns: repeat(5, var(--cell-size));
+  }
+
+  .ship[data-ship='Carrier'] {
+    grid-area: 1 / span 5;
+    cursor: grab;
+  }
+
+  .ship[data-ship='Battleship'] {
+    grid-area: 2 / span 4;
+    cursor: grab;
+  }
+
+  .ship[data-ship='Destroyer'] {
+    grid-area: 3 / span 3;
+    cursor: grab;
+  }
+
+  .ship[data-ship='Submarine'] {
+    grid-area: 4 / span 3;
+    cursor: grab;
+  }
+
+  .ship[data-ship='PatrolBoat'] {
+    grid-area: 5 / span 2;
+    cursor: grab;
   }
 }

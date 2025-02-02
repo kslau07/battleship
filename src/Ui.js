@@ -208,7 +208,8 @@ const createGrid = (gridContainer) => {
   // Create row elems
   for (let i = 0; i < totalRows; i += 1) {
     const row = document.createElement('div');
-    row.classList.add('row', `row-${i}`);
+    row.classList.add('row');
+    row.dataset.row = `${i}`;
     gridContainer.appendChild(row);
 
     // Create cells, child elems of each row
@@ -292,11 +293,11 @@ const createShipElements = (playerNum) => {
   const shipSvgs = require.context('./assets/images/ships/', false);
   const getSvg = (fname) => shipSvgs(`./${fname}`);
   const partialFileNames = [
-    'Battleship',
     'Carrier',
+    'Battleship',
     'Destroyer',
-    'PatrolBoat',
     'Submarine',
+    'PatrolBoat',
   ];
 
   partialFileNames.forEach((fname) => {
@@ -320,7 +321,7 @@ const initialize = () => {
   populateSelectOpponent(gameInstance);
 };
 
-initialize(); // TODO: UNCOMMENT THIS LINE LATER
+// initialize(); // TODO: UNCOMMENT THIS LINE LATER
 
 // TODO: DELETE ME - DEV ONLY
 const testPopPlaceShips = () => {
@@ -328,4 +329,4 @@ const testPopPlaceShips = () => {
   const gameInstance = new Game();
   populatePlaceShips(gameInstance);
 };
-// testPopPlaceShips();
+testPopPlaceShips();
