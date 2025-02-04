@@ -6,18 +6,18 @@ import './style.css';
 import Game from './Game';
 import { addDragAndDropHandlers } from './DragAndDrop';
 
-const endTurn = (gameObj) => {
-  gameObj.endTurn();
-  const isGameOver = gameObj.isGameOver();
-
-  if (isGameOver === true) {
-    console.log('Game over!');
-  } else {
-    console.log('not gameover!'); // FIXME: DELETE ME
-
-    redrawGameGrids(gameObj);
-  }
-};
+// const endTurn = (gameObj) => {
+//   gameObj.endTurn();
+//   const isGameOver = gameObj.isGameOver();
+//
+//   if (isGameOver === true) {
+//     console.log('Game over!');
+//   } else {
+//     console.log('not gameover!'); // FIXME: DELETE ME
+//
+//     redrawGameGrids(gameObj);
+//   }
+// };
 
 // Each grid column will contain 10 cells
 // const createGridColumns = () => {
@@ -37,112 +37,112 @@ const endTurn = (gameObj) => {
 //   return grid;
 // };
 
-const createGameGrids = (gameObj) => {
-  // TODO: Retrieve grids from templates
-  // const gridContainers = document.querySelectorAll('.grid-container');
-  // const gameGrids = document.querySelectorAll('.game-grid');
+// const createGameGrids = (gameObj) => {
+//   // TODO: Retrieve grids from templates
+//   // const gridContainers = document.querySelectorAll('.grid-container');
+//   // const gameGrids = document.querySelectorAll('.game-grid');
+//
+//   gameGrids.forEach((grid) => {
+//     const gridColumns = createGridColumns();
+//     grid.appendChild(gridColumns);
+//   });
+// };
 
-  gameGrids.forEach((grid) => {
-    const gridColumns = createGridColumns();
-    grid.appendChild(gridColumns);
-  });
-};
+// const createOwnCell = (cellCtr, cellObj) => {
+//   const cellDiv = document.createElement('div');
+//   cellDiv.classList.add('cell', 'own');
+//   cellDiv.textContent = cellObj.ship === 'none' ? '' : cellObj.ship.getName();
+//   cellCtr.appendChild(cellDiv);
+// };
+//
+// const removeChildNodes = (parentEl) => {
+//   while (parentEl.firstChild) {
+//     parentEl.removeChild(parentEl.firstChild);
+//   }
+// };
 
-const createOwnCell = (cellCtr, cellObj) => {
-  const cellDiv = document.createElement('div');
-  cellDiv.classList.add('cell', 'own');
-  cellDiv.textContent = cellObj.ship === 'none' ? '' : cellObj.ship.getName();
-  cellCtr.appendChild(cellDiv);
-};
+// const redrawOwnGrid = (gameObj) => {
+//   const cellObjects = gameObj.getCurPlayer().getGameboard().getGrid().flat();
+//   const ownGridElem = document.querySelector('.grid-container.own')
+//     .childNodes[0];
+//
+//   const ownCellContainers = ownGridElem.childNodes;
+//   ownCellContainers.forEach((cellCtr, i) => {
+//     removeChildNodes(cellCtr);
+//     createOwnCell(cellCtr, cellObjects[i]);
+//   });
+// };
 
-const removeChildNodes = (parentEl) => {
-  while (parentEl.firstChild) {
-    parentEl.removeChild(parentEl.firstChild);
-  }
-};
+// // FIXME: DELETE BELOW, TESTING ONLY
+// const revealShip = (cellObj) => {
+//   let content;
+//   if (cellObj.ship !== 'none') {
+//     content = '?';
+//   } else {
+//     content = '.';
+//   }
+//   return content;
+// };
 
-const redrawOwnGrid = (gameObj) => {
-  const cellObjects = gameObj.getCurPlayer().getGameboard().getGrid().flat();
-  const ownGridElem = document.querySelector('.grid-container.own')
-    .childNodes[0];
+// const redrawCell = (cellBtn, cellObj) => {
+//   cellBtn.textContent = '';
+//   const isAttacked = cellObj.isAttacked();
+//
+//   let content;
+//   if (isAttacked === false) {
+//     // FIXME: DELETE BELOW, TESTING ONLY
+//     content = revealShip(cellObj);
+//     // content = '-';
+//   } else if (isAttacked === true) {
+//     cellBtn.classList.add('attacked');
+//     cellBtn.disabled = true;
+//
+//     if (cellObj.ship === 'none') {
+//       content = 'miss';
+//     } else {
+//       content = 'hit!';
+//     }
+//   }
+//
+//   cellBtn.textContent = content;
+// };
 
-  const ownCellContainers = ownGridElem.childNodes;
-  ownCellContainers.forEach((cellCtr, i) => {
-    removeChildNodes(cellCtr);
-    createOwnCell(cellCtr, cellObjects[i]);
-  });
-};
+// const attackCellAndEndTurn = (gameObj, coords, cellBtn, cellObj) => {
+//   const curGuessBoard = gameObj.getCurEnemy().getGameboard();
+//   curGuessBoard.receiveAttack(coords);
+//   redrawCell(cellBtn, cellObj);
+//   endTurn(gameObj);
+// };
 
-// FIXME: DELETE BELOW, TESTING ONLY
-const revealShip = (cellObj) => {
-  let content;
-  if (cellObj.ship !== 'none') {
-    content = '?';
-  } else {
-    content = '.';
-  }
-  return content;
-};
+// const createGuessCell = (gameObj, cellCtr, cellObj) => {
+//   const cellBtn = document.createElement('button');
+//   const coords = [cellObj.coords.rowIndex, cellObj.coords.columnIndex];
+//   cellBtn.classList.add('cell', 'guess', `cell-${coords[0]}-${coords[1]}`);
+//
+//   cellBtn.addEventListener('click', () => {
+//     attackCellAndEndTurn(gameObj, coords, cellBtn, cellObj);
+//   });
+//
+//   redrawCell(cellBtn, cellObj);
+//   cellCtr.appendChild(cellBtn);
+// };
+//
+// const redrawGuessGrid = (gameObj) => {
+//   const cellObjects = gameObj.getCurEnemy().getGameboard().getGrid().flat();
+//   const guessGridElem = document.querySelector('.grid-container.guess')
+//     .childNodes[0];
+//
+//   const guessCellContainers = guessGridElem.childNodes;
+//   guessCellContainers.forEach((cellCtr, i) => {
+//     removeChildNodes(cellCtr);
+//     createGuessCell(gameObj, cellCtr, cellObjects[i]);
+//   });
+// };
 
-const redrawCell = (cellBtn, cellObj) => {
-  cellBtn.textContent = '';
-  const isAttacked = cellObj.isAttacked();
-
-  let content;
-  if (isAttacked === false) {
-    // FIXME: DELETE BELOW, TESTING ONLY
-    content = revealShip(cellObj);
-    // content = '-';
-  } else if (isAttacked === true) {
-    cellBtn.classList.add('attacked');
-    cellBtn.disabled = true;
-
-    if (cellObj.ship === 'none') {
-      content = 'miss';
-    } else {
-      content = 'hit!';
-    }
-  }
-
-  cellBtn.textContent = content;
-};
-
-const attackCellAndEndTurn = (gameObj, coords, cellBtn, cellObj) => {
-  const curGuessBoard = gameObj.getCurEnemy().getGameboard();
-  curGuessBoard.receiveAttack(coords);
-  redrawCell(cellBtn, cellObj);
-  endTurn(gameObj);
-};
-
-const createGuessCell = (gameObj, cellCtr, cellObj) => {
-  const cellBtn = document.createElement('button');
-  const coords = [cellObj.coords.rowIndex, cellObj.coords.columnIndex];
-  cellBtn.classList.add('cell', 'guess', `cell-${coords[0]}-${coords[1]}`);
-
-  cellBtn.addEventListener('click', () => {
-    attackCellAndEndTurn(gameObj, coords, cellBtn, cellObj);
-  });
-
-  redrawCell(cellBtn, cellObj);
-  cellCtr.appendChild(cellBtn);
-};
-
-const redrawGuessGrid = (gameObj) => {
-  const cellObjects = gameObj.getCurEnemy().getGameboard().getGrid().flat();
-  const guessGridElem = document.querySelector('.grid-container.guess')
-    .childNodes[0];
-
-  const guessCellContainers = guessGridElem.childNodes;
-  guessCellContainers.forEach((cellCtr, i) => {
-    removeChildNodes(cellCtr);
-    createGuessCell(gameObj, cellCtr, cellObjects[i]);
-  });
-};
-
-const redrawGameGrids = (gameObj) => {
-  redrawOwnGrid(gameObj);
-  redrawGuessGrid(gameObj);
-};
+// const redrawGameGrids = (gameObj) => {
+//   redrawOwnGrid(gameObj);
+//   redrawGuessGrid(gameObj);
+// };
 
 const createGame = (gameOptions) => {
   // const { opponentType, player1Name, player2Name } = gameOptions;
@@ -237,6 +237,38 @@ const populatePlacementBank = (gameInstance) => {
   placementBankBody.appendChild(images);
 };
 
+// Add listener for "rotate", which toggles images between normal and rotated ships
+// HACK: This function may be too nested
+function setRotateButton() {
+  const rotateShipsBtn = this.querySelector('.placement__button--rotate-ships');
+
+  rotateShipsBtn.addEventListener('click', () => {
+    const ships = this.querySelector('.ships');
+    const rotatedState = ships.classList.contains('rotated');
+
+    this.querySelectorAll('.ship-wrapper').forEach((shipWrapper) => {
+      if (rotatedState === false) {
+        ships.classList.add('rotated');
+
+        // FIXME: DELETE ME
+        // shipWrapper.querySelector('.ship-rotated-image').style.display = 'none';
+
+        // FIXME: UNCOMMENT BELOW
+        shipWrapper.querySelector('.ship-rotated-image').style.display =
+          'block';
+
+        shipWrapper.querySelector('.ship-image').style.display = 'none';
+        shipWrapper.dataset.rotated = 'true';
+      } else {
+        ships.classList.remove('rotated');
+        shipWrapper.querySelector('.ship-rotated-image').style.display = 'none';
+        shipWrapper.querySelector('.ship-image').style.display = 'block';
+        shipWrapper.dataset.rotated = 'false';
+      }
+    });
+  });
+}
+
 function populatePlaceShips(gameInstance) {
   const mainDisplay = document.querySelector('.main-display');
   const template = document.querySelector('.template-placement').content;
@@ -247,6 +279,7 @@ function populatePlaceShips(gameInstance) {
   mainDisplay.replaceChildren(placementDiv);
   populatePlacementGrid();
   populatePlacementBank(gameInstance);
+  setRotateButton.apply(placementDiv);
   addDragAndDropHandlers();
 }
 
@@ -289,9 +322,14 @@ const populateSelectOpponent = (gameInstance) => {
 };
 
 // Import ship images and append ship elements to template for later use
-const createShipElements = (playerNum) => {
-  const shipSvgs = require.context('./assets/images/ships/', false);
-  const getSvg = (fname) => shipSvgs(`./${fname}`);
+const createShipImageElements = (playerNum) => {
+  const shipsSvgs = require.context('./assets/images/ships/', false);
+  const getShipSvg = (fname) => shipsSvgs(`./${fname}`);
+  const rotatedShipsSvgs = require.context(
+    './assets/images/rotated-ships/',
+    false,
+  ); // For rotated images
+  const getRotatedShipSvg = (fname) => rotatedShipsSvgs(`./${fname}`); // For rotated images
   const partialFileNames = [
     'Carrier',
     'Battleship',
@@ -304,19 +342,36 @@ const createShipElements = (playerNum) => {
     const template = document.querySelector(
       `.template-ships--player${playerNum}`,
     ).content;
-    const container = template.querySelector(`.ships--player${playerNum}`);
-    const image = getSvg(`${fname}-Player${playerNum}.svg`);
-    const img = document.createElement('img');
-    img.classList.add('ship');
-    img.src = image;
-    img.dataset.player = `player${playerNum}`;
-    img.dataset.ship = `${fname}`;
-    container.appendChild(img);
+
+    const ships = template.querySelector(`.ships--player${playerNum}`);
+    const shipWrapper = document.createElement('div');
+    shipWrapper.classList.add('ship-wrapper');
+    shipWrapper.dataset.player = `player${playerNum}`;
+    shipWrapper.dataset.ship = `${fname}`;
+    shipWrapper.dataset.rotated = 'false';
+
+    // Ships (non-rotated)
+    const shipSvg = getShipSvg(`${fname}-Player${playerNum}.svg`);
+    const shipElem = document.createElement('img');
+    shipElem.classList.add('ship-image');
+    shipElem.src = shipSvg;
+
+    // Rotated ships
+    const rotatedShipSvg = getRotatedShipSvg(
+      `${fname}-Player${playerNum}-rotated.svg`,
+    );
+    const rotatedShipElem = document.createElement('img');
+    rotatedShipElem.classList.add('ship-rotated-image');
+    rotatedShipElem.src = rotatedShipSvg;
+
+    shipWrapper.appendChild(shipElem);
+    shipWrapper.appendChild(rotatedShipElem);
+    ships.appendChild(shipWrapper);
   });
 };
 
 const initialize = () => {
-  [1, 2].forEach(createShipElements);
+  [1, 2].forEach(createShipImageElements);
   const gameInstance = new Game();
   populateSelectOpponent(gameInstance);
 };
@@ -325,7 +380,7 @@ const initialize = () => {
 
 // TODO: DELETE ME - DEV ONLY
 const testPopPlaceShips = () => {
-  [1, 2].forEach(createShipElements);
+  [1, 2].forEach(createShipImageElements);
   const gameInstance = new Game();
   populatePlaceShips(gameInstance);
 };

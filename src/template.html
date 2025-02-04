@@ -86,13 +86,21 @@
         </header>
         <div class="placement__body">
           <div class="placement__buttons">
-            <button class="placement__button">Randomize</button>
-            <button class="placement__button">Reset</button>
+            <button class="placement__button placement__button--randomize">
+              Randomize
+            </button>
+            <button class="placement__button placement__button--reset">
+              Reset
+            </button>
           </div>
           <div class="placement__grid"></div>
           <div class="placement__bank">
-            <button class="placement__button">↻ Rotate ships</button>
-            <h3 class="placement__bank-heading">Ships remaining:</h3>
+            <div class="placement__bank-header">
+              <button class="placement__button placement__button--rotate-ships">
+                ↻ Rotate ships
+              </button>
+              <h3 class="placement__bank-heading">Ships remaining:</h3>
+            </div>
             <div class="placement__bank-body"></div>
           </div>
         </div>
