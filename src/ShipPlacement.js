@@ -48,12 +48,39 @@ function createDragenterHandler(gameInstance) {
 }
 
 // Indicate on UI if ship placement is valid or invalid (show green or red cells)
-// Basic function works for rotated placement!
-function loopLength(length, startRow, startColumn) {
+// function indicatePlacementValidity(length, startRow, startColumn)
+function indicatePlacementValidity(shipLen, dropRow, dropColumn, rotatedState) {
+  console.log('hello zero');
+  console.log({ shipLen, dropRow, dropColumn, rotatedState });
+  const grid = document.querySelector('.placement__grid');
+  if (rotatedState === 'true') {
+    let startRow = dropRow - Math.floor(shipLen / 2);
+    startRow = startRow < 1 ? 1 : startRow;
+
+    for (let i = 0; i < shipLen; i += 1) {
+      const curRow = startRow + i;
+      const queryString = `.cell[data-row="${curRow}"][data-column="${dropColumn}"]`;
+      const curCell = grid.querySelector(queryString);
+      curCell.style.background = 'yellow';
+    }
+  } else if (rotatedState === 'false') {
+    let startColumn = dropColumn - Math.floor(shipLen / 2);
+    startColumn = startColumn < 1 ? 1 : startColumn;
+
+    for (let i = 0; i < shipLen; i += 1) {
+      const curColumn = startColumn + i;
+      const queryString = `.cell[data-row="${dropRow}"][data-column="${curColumn}"]`;
+      const curCell = grid.querySelector(queryString);
+      curCell.style.background = 'orange';
+    }
+  }
+}
+
+function indicatePlacementValidityRotated(length, startRow, startColumn) {
   for (let i = 0; i < length; i += 1) {
-    document.querySelector(
-      `.cell[data-row="${startRow + i}"][data-column="${startColumn}"]`,
-    ).style.background = 'red';
+    const queryString = `.cell[data-row="${startRow + i}"][data-column="${startColumn}"]`;
+    const targetCell = (document.querySelector(queryString).style.background =
+      'red');
   }
 }
 
@@ -61,41 +88,15 @@ function loopLength(length, startRow, startColumn) {
 function dragenterHandler(event, gameInstance) {
   event.target.classList.add('dropping');
   const draggedShipName = currentDrag.dataset.ship;
-
   const gb = gameInstance.getPlayer1().getGameboard();
-  const shipObj = gb
+  const shipLen = gb
     .getCreatedShips()
-    .find((shipObj) => shipObj.getName() === draggedShipName);
-  const shipLen = shipObj.getLength();
+    .find((shipObj) => shipObj.getName() === draggedShipName)
+    .getLength();
   const dropRow = event.currentTarget.dataset.row;
   const dropColumn = event.currentTarget.dataset.column;
-
-  // <div class="cell" data-row="1" data-column="10"></div>
-  // const dropCell = document.querySelector(
-  //   `.cell[data-row="${dropRow}"][data-column="${dropColumn}"]`,
-  // );
-
-  let rotated = true;
-  if (rotated === true) {
-    // run rotated code
-    let startRow = dropRow - Math.floor(shipLen / 2);
-    startRow = startRow < 1 ? 1 : startRow;
-    const startColumn = dropColumn;
-
-    // const startCell = (document.querySelector(
-    //   `.cell[data-row="${startRow}"][data-column="${dropColumn}"]`,
-    // ).style.background = 'red');
-    // TODO: Create helper function to loop through `length` times and change cell colors
-    // loopLength(shipLen, startRow, startColumn);
-    // console.log(shipLen, startRow, startColumn);
-
-    loopLength(shipLen, startRow, startColumn);
-  } else if (rotated === false) {
-    // run non-rotated code
-    // shipStartCell = document.querySelector(
-    //   `.cell[data-row="${dropRow - 2}"][data-column="${dropColumn}"]`,
-    // );
-  }
+  let rotatedState = currentDrag.dataset.rotated;
+  indicatePlacementValidity(shipLen, dropRow, dropColumn, rotatedState);
 }
 
 function dragleaveHandler(event) {

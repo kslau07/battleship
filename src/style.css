@@ -359,7 +359,7 @@ body {
 }
 
 .dropping {
-  background: Green;
+  /* background: Green; */
 }
 
 @media screen and (min-width: 500px) {
