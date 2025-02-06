@@ -4,7 +4,7 @@ import './reset.css';
 import './global.css';
 import './style.css';
 import Game from './Game';
-import { addDragAndDropHandlers } from './DragAndDrop';
+import { addDragAndDropHandlers } from './ShipPlacement';
 
 // const endTurn = (gameObj) => {
 //   gameObj.endTurn();
@@ -280,7 +280,7 @@ function populatePlaceShips(gameInstance) {
   populatePlacementGrid();
   populatePlacementBank(gameInstance);
   setRotateButton.apply(placementDiv);
-  addDragAndDropHandlers();
+  addDragAndDropHandlers(gameInstance);
 }
 
 function populateInputNames(gameInstance) {
@@ -346,7 +346,6 @@ const createShipImageElements = (playerNum) => {
     const ships = template.querySelector(`.ships--player${playerNum}`);
     const shipWrapper = document.createElement('div');
     shipWrapper.classList.add('ship-wrapper');
-    shipWrapper.dataset.player = `player${playerNum}`;
     shipWrapper.dataset.ship = `${fname}`;
     shipWrapper.dataset.rotated = 'false';
 
