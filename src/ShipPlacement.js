@@ -2,25 +2,33 @@
 // This module contains functions used during ship placement, and specifically uses the Drag and Drop API
 // Notes: Export multiple functions here to allow tree-shaking in bundler
 
-// let currentDrag; // HACK: allowDrop (dragover handler) cannot see dragged item, we use a global variable to store the dragged item as a workaround.
-
 // Add all drag-and-drop handlers
 export function addDragAndDropHandlers(gameInstance) {
   // NOTE: Optimization -> Combine dom queries to improve performance
-  const nodeList = document.querySelectorAll('.ship-wrapper, .placement__grid');
+  const nodeList = document.querySelectorAll(
+    '.ship-wrapper, .placement__grid, .axis-marker',
+  );
   const ships = [...nodeList].filter((node) =>
     node.classList.contains('ship-wrapper'),
   );
   const grid = [...nodeList].find((node) =>
     node.classList.contains('placement__grid'),
   );
-  const gameObj = { gameInstance, currentDrag: null };
+  const axisMarkers = [...nodeList].filter((node) =>
+    node.classList.contains('axis-marker'),
+  );
+  const dragObj = {
+    gameInstance,
+    shipName: null,
+    rotated: null,
+    previousIndicatorNodes: [],
+  };
 
   ships.forEach((ship) => {
     ship.draggable = true;
-    ship.addEventListener('drag', dragHandler);
+    // ship.addEventListener('drag', dragHandler);
     ship.addEventListener('dragstart', function (event) {
-      dragstartHandler.call(this, event, gameObj);
+      dragstartHandler.call(this, event, dragObj);
     });
     ship.addEventListener('dragend', dragendHandler);
   });
@@ -28,20 +36,36 @@ export function addDragAndDropHandlers(gameInstance) {
   if (grid) {
     grid.addEventListener(
       'dragenter',
-      createHandler(dragenterHandler, gameObj),
+      createHandler(dragenterHandler, dragObj),
     );
     grid.addEventListener('dragleave', dragleaveHandler);
-    grid.addEventListener('drop', dropHandler);
+    grid.addEventListener('drop', createHandler(dropHandler, dragObj));
     grid.addEventListener('dragover', allowDrop);
   } else {
     console.warn('.placement__grid not found');
   }
 }
 
-function dragHandler(event) {}
+function updateDragObj(dragObj) {
+  const currentDrag = this;
+  dragObj.shipName = currentDrag.dataset.ship;
+  dragObj.rotatedState = currentDrag.dataset.rotated;
 
-function dragstartHandler(event, gameObj) {
-  gameObj.currentDrag = this;
+  // HACK: Excessive method chaining, consider adding facade method in Game instance
+  const shipLength = dragObj.gameInstance
+    .getPlayer1()
+    .getGameboard()
+    .getCreatedShips()
+    .find((shipObj) => shipObj.getName() === dragObj.shipName)
+    .getLength();
+
+  dragObj.shipLength = shipLength;
+}
+
+// function dragHandler(event) {}
+
+function dragstartHandler(event, dragObj) {
+  updateDragObj.call(this, dragObj);
   event.currentTarget.classList.add('dragging');
   event.dataTransfer.setData('text/plain', event.currentTarget.dataset.ship);
 }
@@ -55,20 +79,25 @@ function allowDrop(event) {
   event.dataTransfer.dropEffect = 'move';
 }
 
-// Wrapper function for handlers, allows passing in gameObj
-function createHandler(handler, gameObj) {
+// Wrapper function for handlers, allows passing in dragObj
+function createHandler(handler, dragObj) {
   return function (event) {
-    handler(event, gameObj);
-    // dragenterHandler(event, gameInstance);
+    handler(event, dragObj);
   };
 }
 
-// Where we add the event listener, we have: grid.addEventListener((event) => createDragenterHandler(gameInstance)(event))
-// We must pass in a callback function. The callback function we pass in is, the result of instantly invoking 'createDragenterHandler(gameInstance)' with (event)
-// which, is the same as invoking the anonymous function that is returned immediately. The 'event' variable in parenthesis is passed to the anonymous function
-
 function clampToGrid(mainAxisOffset, shipLength, min = 1, max = 10) {
   return Math.max(Math.min(mainAxisOffset, max - shipLength + 1), min);
+}
+
+function removePreviousIndicators(dragObj) {
+  const { previousIndicatorNodes } = dragObj;
+  if (previousIndicatorNodes === undefined) return;
+
+  const listLength = previousIndicatorNodes.length;
+  for (let i = 0; i < listLength; i += 1) {
+    previousIndicatorNodes.pop().style.background = 'yellow';
+  }
 }
 
 // Indicate when ship placement is valid or invalid (show green or red cells)
@@ -77,11 +106,13 @@ function indicatePlacementValidity(
   dropRow,
   dropColumn,
   rotatedState,
+  dragObj,
 ) {
+  removePreviousIndicators(dragObj);
   const grid = document.querySelector('.placement__grid');
 
   let mainAxisOffset;
-  let crossAxis; // ships have a static height but differing lenths
+  let crossAxis; // cross axis is height of ship, same for all ships
   let length;
   let height;
 
@@ -103,51 +134,62 @@ function indicatePlacementValidity(
     const queryString = `.cell[data-${length}="${mainAxisOffset + i}"][data-${height}="${crossAxis}"]`;
     const targetCell = grid.querySelector(queryString);
     targetCell.style.background = 'Chartreuse';
+    dragObj.previousIndicatorNodes.push(targetCell);
   }
 }
 
-function removeIndication() {
-  document
-    .querySelectorAll('.cell')
-    .forEach((cell) => (cell.style.background = 'teal'));
-}
-
-// TODO: CONTINUE HERE
-// FIXME: dragleaveHandler is fired off AFTER the new and fresh dragenterHandler is fired off
-// That is, new cell stuff happens, then old cell clean up happens.
-// It would have been easier if it were the other way around.
-
 // This function uses target ship's length and direction to show on UI if placement would be valid
-function dragenterHandler(event, gameObj) {
-  // const { currentDrag } = gameObj;
-  // console.log(currentDrag);
-  // const draggedShipName = currentDrag.dataset.ship;
-  // console.log(draggedShipName);
-
-  return;
-
-  const gb = gameInstance.getPlayer1().getGameboard();
-  const shipLength = gb
-    .getCreatedShips()
-    .find((shipObj) => shipObj.getName() === draggedShipName)
-    .getLength();
-  const dropRow = event.currentTarget.dataset.row;
-  const dropColumn = event.currentTarget.dataset.column;
-  let rotatedState = currentDrag.dataset.rotated;
-
-  removeIndication();
-  indicatePlacementValidity(shipLength, dropRow, dropColumn, rotatedState);
-}
-
-function dragleaveHandler(event) {
-  // document
-  // .querySelectorAll('.cell')
-  // .forEach((cell) => (cell.style.background = 'Teal'));
-}
-
-function dropHandler(event) {
-  // event.target -> identifies the element that triggered the event (where the ship was dropped)
+function dragenterHandler(event, dragObj) {
   const cell = event.target.closest('.cell');
-  // event.target.classList.remove('dropping');
+  if (cell === null) return; // axis-markers return null because pointer-events are set to none;
+
+  const { gameInstance, shipName, shipLength, rotatedState } = dragObj;
+
+  const dropRow = cell.dataset.row;
+  const dropColumn = cell.dataset.column;
+
+  indicatePlacementValidity(
+    shipLength,
+    dropRow,
+    dropColumn,
+    rotatedState,
+    dragObj,
+  );
+}
+
+function dragleaveHandler(event) {}
+
+// TODO: Get current player's gameboard and validate ship's placement!!
+
+function dropHandler(event, dragObj) {
+  const cell = event.target.closest('.cell');
+  const { row, column } = cell.dataset;
+  const { gameInstance, shipName, rotatedState } = dragObj;
+
+  // TODO: To use safePlaceShip we need:
+  // ship -> must be ship object
+  // coords -> renamed to startCellCoords
+  // orientation
+  // const {shipName, };
+  // safePlaceShip(ship, startCellCoords, orientation)
+  const player1 = dragObj.gameInstance.getPlayer1();
+  const shipObj = gameInstance.getShipForPlayer(player1, shipName);
+  const startCellCoords = [row, column];
+  const orientation = rotatedState === 'true' ? 'vertical' : 'horizontal';
+
+  // FIXME: UNCOMMENT
+  dragObj.gameInstance.safePlaceShipForPlayer(
+    player1,
+    shipObj,
+    startCellCoords,
+    orientation,
+  );
+
+  // gameBoard
+  //safePlaceShip();
+  // console.log('hello from dropHandler');
+  // const cell = event.target.closest('.cell');
+  // console.log('you are here');
+  // console.log({ dragObj });
   // console.log(event.dataTransfer.getData('text/plain')); // Works!
 }

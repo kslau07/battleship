@@ -88,44 +88,52 @@ export default class Gameboard {
     return this.#placedShips;
   }
 
-  *#getNextCell(ship, coords, orientation) {
+  *#getNextCell(ship, startCellCoords, orientation) {
     const grid = this.getGrid();
     const len = ship.getLength();
 
     for (let i = 0; i < len; i += 1) {
       if (orientation === 'vertical') {
-        yield grid[coords[0] + i]?.[coords[1]]; // Use optional chaining operator (?.) to try to access next hypothetical cell
+        yield grid[startCellCoords[0] + i]?.[startCellCoords[1]]; // Use optional chaining operator (?.) to try to access next hypothetical cell
       } else if (orientation === 'horizontal') {
-        yield grid[coords[0]]?.[coords[1] + i];
+        yield grid[startCellCoords[0]]?.[startCellCoords[1] + i];
       }
     }
   }
 
   // Check cell and throw relevant error
   #validateCell(cell, ship) {
-    if (cell === undefined) {
-      throw new RangeError(
-        `Cannot place "${ship.getName()}" here because it is out of bounds.`,
-      );
-    } else if (cell.ship !== 'none') {
-      throw new Error(
-        `Cannot place "${ship.getName()}" here because it is occupied by "${cell.ship.getName()}".`,
-      );
-    }
+    // TODO: REMOVE ERRORS THROWN
+    // TODO: RETURN TRUE / FALSE USING CONDITIONAL (UTILIZE ||)
+
+    if (cell === undefined || cell.ship !== 'none') return false;
+
+    // if (cell === undefined) {
+    //   throw new RangeError(
+    //     `Cannot place "${ship.getName()}" here because it is out of bounds.`,
+    //   );
+    // } else if (cell.ship !== 'none') {
+    //   throw new Error(
+    //     `Cannot place "${ship.getName()}" here because it is occupied by "${cell.ship.getName()}".`,
+    //   );
+    // }
   }
 
-  // Iterate through cells at given coords and check for errors
-  #validatePlacement(ship, coords, orientation) {
-    const generator = this.#getNextCell(ship, coords, orientation);
+  // Iterate through cells at given startCellCoords and check for errors
+  #validatePlacement(ship, startCellCoords, orientation) {
+    const generator = this.#getNextCell(ship, startCellCoords, orientation);
 
     for (let nextCell of generator) {
-      this.#validateCell(nextCell, ship);
+      const isValid = this.#validateCell(nextCell, ship);
+      if (isValid === false) return false;
     }
+
+    return true;
   }
 
-  // Iterate through cells at given coords and set to ship instance
-  #placeShip(ship, coords, orientation) {
-    const generator = this.#getNextCell(ship, coords, orientation);
+  // Iterate through cells at given startCellCoords and set to ship instance
+  #placeShip(ship, startCellCoords, orientation) {
+    const generator = this.#getNextCell(ship, startCellCoords, orientation);
 
     for (let nextCell of generator) {
       nextCell.ship = ship;
@@ -133,18 +141,27 @@ export default class Gameboard {
   }
 
   // Try to place a ship and intercept errors
-  safePlaceShip(ship, coords, orientation) {
-    try {
-      this.#validatePlacement(ship, coords, orientation);
-      this.#placeShip(ship, coords, orientation);
-    } catch ({ name, message }) {
-      console.log(`${name}: ${message}`);
-    }
-
-    this.#placedShips.push(ship);
+  safePlaceShip(ship, startCellCoords, orientation) {
+    // TODO: CONTINUE HERE
+    // Use conditionals + booleans instead of try/catch + throwing errors
+    // WE MUST MODIFY:
+    // #validatePlacement
+    // #placeShip
+    // safePlaceShip
+    return;
+    // try {
+    //   this.#validatePlacement(ship, coords, orientation);
+    //   this.#placeShip(ship, coords, orientation);
+    // } catch ({ name, message }) {
+    //   console.log(`${name}: ${message}`);
+    //   return false;
+    // }
+    //
+    // this.#placedShips.push(ship);
+    // return true;
   }
 
-  randCoordinates() {
+  randomizeStartCell() {
     const size = Gameboard.#gridSize;
     const x = Math.floor(Math.random() * size);
     const y = Math.floor(Math.random() * size);
@@ -164,9 +181,9 @@ export default class Gameboard {
 
     shipSet.forEach((ship, index) => {
       do {
-        const randCoords = this.randCoordinates();
+        const randStartCell = this.randomizeStartCell();
         const randOrient = this.randOrientation();
-        this.safePlaceShip(ship, randCoords, randOrient);
+        this.safePlaceShip(ship, randStartCell, randOrient);
 
         numShipsAdded = this.getPlacedShips().length;
         success = numShipsAdded === index + 1;
@@ -178,9 +195,9 @@ export default class Gameboard {
     });
   }
 
-  receiveAttack(coords) {
+  receiveAttack(cellCoord) {
     const grid = this.getGrid();
-    const targetCell = grid[coords[0]][coords[1]];
+    const targetCell = grid[cellCoord[0]][cellCoord[1]];
     const isAttacked = targetCell.isAttacked();
 
     if (isAttacked === true) {

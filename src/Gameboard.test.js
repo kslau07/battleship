@@ -110,13 +110,13 @@ describe('Gameboard class', () => {
       grid = gameboard.getGrid();
     });
 
-    describe('when ship has length:2, name:"Patrol Boat", and orientation is "horizontal"', () => {
+    describe('when ship has length:2, name:"Patrol Boat", and isVertical is "horizontal"', () => {
       beforeEach(() => {
         const ship = fakedPatrolBoat;
         const coords = [0, 0];
-        const orientation = 'horizontal';
+        const isVertical = 'horizontal';
 
-        gameboard.safePlaceShip(ship, coords, orientation);
+        gameboard.safePlaceShip(ship, coords, isVertical);
       });
 
       it('should place ship object named "Patrol Boat" on grid at [0, 0]', () => {
@@ -150,11 +150,11 @@ describe('Gameboard class', () => {
     });
 
     describe('when ship has length:3, name:"Destroyer" and coords are [5, 4]', () => {
-      it('should add ship to cells [5, 4], [6, 4], [7, 4]  when we specify "vertical" for orientation', () => {
+      it('should add ship to cells [5, 4], [6, 4], [7, 4]  when we specify "vertical" for isVertical', () => {
         const ship = fakedDestroyer;
         const coords = [5, 4];
-        const orientation = 'vertical';
-        gameboard.safePlaceShip(ship, coords, orientation);
+        const isVertical = 'vertical';
+        gameboard.safePlaceShip(ship, coords, isVertical);
         const cell1 = grid[5][4];
         const cell2 = grid[6][4];
         const cell3 = grid[7][4];

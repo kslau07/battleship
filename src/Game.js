@@ -21,9 +21,17 @@ export default class Game {
     this.#player2 = player2;
   }
 
-  // Facade pattern to abstact away excessive method chaining
-  placeShipForPlayer(player) {
-    player.getGameboard().safePlaceShip();
+  // Methods with 'facade pattern' to abstact away excessive method chaining
+
+  getShipForPlayer(player, shipName) {
+    return player
+      .getGameboard()
+      .getCreatedShips()
+      .find((shipObj) => shipObj.getName() === shipName);
+  }
+
+  safePlaceShipForPlayer(player, shipObj, startCellCoords, orientation) {
+    player.getGameboard().safePlaceShip(shipObj, startCellCoords, orientation);
   }
 
   placeShipsRandomlyForPlayer(player) {
