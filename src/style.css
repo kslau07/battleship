@@ -358,9 +358,9 @@ body {
   outline: 3px dashed lime;
 }
 
-.dropping {
-  /* background: Green; */
-}
+/* .dropping { */
+/*   background: Green; */
+/* } */
 
 @media screen and (min-width: 500px) {
   body {

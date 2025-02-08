@@ -2,31 +2,46 @@
 // This module contains functions used during ship placement, and specifically uses the Drag and Drop API
 // Notes: Export multiple functions here to allow tree-shaking in bundler
 
-let currentDrag; // HACK: allowDrop (dragover handler) cannot see dragged item, we use a global variable to store the dragged item as a workaround.
+// let currentDrag; // HACK: allowDrop (dragover handler) cannot see dragged item, we use a global variable to store the dragged item as a workaround.
 
 // Add all drag-and-drop handlers
 export function addDragAndDropHandlers(gameInstance) {
-  const ships = document.querySelectorAll('.ship-wrapper');
+  // NOTE: Optimization -> Combine dom queries to improve performance
+  const nodeList = document.querySelectorAll('.ship-wrapper, .placement__grid');
+  const ships = [...nodeList].filter((node) =>
+    node.classList.contains('ship-wrapper'),
+  );
+  const grid = [...nodeList].find((node) =>
+    node.classList.contains('placement__grid'),
+  );
+  const gameObj = { gameInstance, currentDrag: null };
+
   ships.forEach((ship) => {
     ship.draggable = true;
-    ship.addEventListener('drag', dragHandler); // fires when a draggable item is dragged
-    ship.addEventListener('dragstart', dragstartHandler); // fires when a user starts dragging an item
-    ship.addEventListener('dragend', dragendHandler); // fires when a drag operation ends
+    ship.addEventListener('drag', dragHandler);
+    ship.addEventListener('dragstart', function (event) {
+      dragstartHandler.call(this, event, gameObj);
+    });
+    ship.addEventListener('dragend', dragendHandler);
   });
 
-  const cells = document.querySelectorAll('.cell');
-  cells.forEach((cell) => {
-    cell.addEventListener('dragenter', createDragenterHandler(gameInstance)); // fires when a dragged item enters a valid drop target
-    cell.addEventListener('dragleave', dragleaveHandler); // fires when a dragged item leaves a valid drop target
-    cell.addEventListener('drop', dropHandler); // fires when an item is dropped over a valid drop target
-    cell.addEventListener('dragover', allowDrop); // fires every few hundred ms, when an item is being dragged over a valid drop target
-  });
+  if (grid) {
+    grid.addEventListener(
+      'dragenter',
+      createHandler(dragenterHandler, gameObj),
+    );
+    grid.addEventListener('dragleave', dragleaveHandler);
+    grid.addEventListener('drop', dropHandler);
+    grid.addEventListener('dragover', allowDrop);
+  } else {
+    console.warn('.placement__grid not found');
+  }
 }
 
 function dragHandler(event) {}
 
-function dragstartHandler(event) {
-  currentDrag = this;
+function dragstartHandler(event, gameObj) {
+  gameObj.currentDrag = this;
   event.currentTarget.classList.add('dragging');
   event.dataTransfer.setData('text/plain', event.currentTarget.dataset.ship);
 }
@@ -40,70 +55,99 @@ function allowDrop(event) {
   event.dataTransfer.dropEffect = 'move';
 }
 
-// Wrapper function to pass gameInstance to dragenterHandler
-function createDragenterHandler(gameInstance) {
+// Wrapper function for handlers, allows passing in gameObj
+function createHandler(handler, gameObj) {
   return function (event) {
-    dragenterHandler(event, gameInstance);
+    handler(event, gameObj);
+    // dragenterHandler(event, gameInstance);
   };
 }
 
-// Indicate on UI if ship placement is valid or invalid (show green or red cells)
-// function indicatePlacementValidity(length, startRow, startColumn)
-function indicatePlacementValidity(shipLen, dropRow, dropColumn, rotatedState) {
-  console.log('hello zero');
-  console.log({ shipLen, dropRow, dropColumn, rotatedState });
+// Where we add the event listener, we have: grid.addEventListener((event) => createDragenterHandler(gameInstance)(event))
+// We must pass in a callback function. The callback function we pass in is, the result of instantly invoking 'createDragenterHandler(gameInstance)' with (event)
+// which, is the same as invoking the anonymous function that is returned immediately. The 'event' variable in parenthesis is passed to the anonymous function
+
+function clampToGrid(mainAxisOffset, shipLength, min = 1, max = 10) {
+  return Math.max(Math.min(mainAxisOffset, max - shipLength + 1), min);
+}
+
+// Indicate when ship placement is valid or invalid (show green or red cells)
+function indicatePlacementValidity(
+  shipLength,
+  dropRow,
+  dropColumn,
+  rotatedState,
+) {
   const grid = document.querySelector('.placement__grid');
+
+  let mainAxisOffset;
+  let crossAxis; // ships have a static height but differing lenths
+  let length;
+  let height;
+
   if (rotatedState === 'true') {
-    let startRow = dropRow - Math.floor(shipLen / 2);
-    startRow = startRow < 1 ? 1 : startRow;
-
-    for (let i = 0; i < shipLen; i += 1) {
-      const curRow = startRow + i;
-      const queryString = `.cell[data-row="${curRow}"][data-column="${dropColumn}"]`;
-      const curCell = grid.querySelector(queryString);
-      curCell.style.background = 'yellow';
-    }
+    length = 'row';
+    height = 'column';
+    mainAxisOffset = dropRow - Math.floor(shipLength / 2); // Center indicating squares
+    mainAxisOffset = clampToGrid(mainAxisOffset, shipLength);
+    crossAxis = dropColumn;
   } else if (rotatedState === 'false') {
-    let startColumn = dropColumn - Math.floor(shipLen / 2);
-    startColumn = startColumn < 1 ? 1 : startColumn;
+    length = 'column';
+    height = 'row';
+    mainAxisOffset = dropColumn - Math.floor(shipLength / 2);
+    mainAxisOffset = clampToGrid(mainAxisOffset, shipLength);
+    crossAxis = dropRow;
+  }
 
-    for (let i = 0; i < shipLen; i += 1) {
-      const curColumn = startColumn + i;
-      const queryString = `.cell[data-row="${dropRow}"][data-column="${curColumn}"]`;
-      const curCell = grid.querySelector(queryString);
-      curCell.style.background = 'orange';
-    }
+  for (let i = 0; i < shipLength; i += 1) {
+    const queryString = `.cell[data-${length}="${mainAxisOffset + i}"][data-${height}="${crossAxis}"]`;
+    const targetCell = grid.querySelector(queryString);
+    targetCell.style.background = 'Chartreuse';
   }
 }
 
-function indicatePlacementValidityRotated(length, startRow, startColumn) {
-  for (let i = 0; i < length; i += 1) {
-    const queryString = `.cell[data-row="${startRow + i}"][data-column="${startColumn}"]`;
-    const targetCell = (document.querySelector(queryString).style.background =
-      'red');
-  }
+function removeIndication() {
+  document
+    .querySelectorAll('.cell')
+    .forEach((cell) => (cell.style.background = 'teal'));
 }
+
+// TODO: CONTINUE HERE
+// FIXME: dragleaveHandler is fired off AFTER the new and fresh dragenterHandler is fired off
+// That is, new cell stuff happens, then old cell clean up happens.
+// It would have been easier if it were the other way around.
 
 // This function uses target ship's length and direction to show on UI if placement would be valid
-function dragenterHandler(event, gameInstance) {
-  event.target.classList.add('dropping');
-  const draggedShipName = currentDrag.dataset.ship;
+function dragenterHandler(event, gameObj) {
+  // const { currentDrag } = gameObj;
+  // console.log(currentDrag);
+  // const draggedShipName = currentDrag.dataset.ship;
+  // console.log(draggedShipName);
+
+  return;
+
   const gb = gameInstance.getPlayer1().getGameboard();
-  const shipLen = gb
+  const shipLength = gb
     .getCreatedShips()
     .find((shipObj) => shipObj.getName() === draggedShipName)
     .getLength();
   const dropRow = event.currentTarget.dataset.row;
   const dropColumn = event.currentTarget.dataset.column;
   let rotatedState = currentDrag.dataset.rotated;
-  indicatePlacementValidity(shipLen, dropRow, dropColumn, rotatedState);
+
+  removeIndication();
+  indicatePlacementValidity(shipLength, dropRow, dropColumn, rotatedState);
 }
 
 function dragleaveHandler(event) {
-  event.target.classList.remove('dropping');
+  // document
+  // .querySelectorAll('.cell')
+  // .forEach((cell) => (cell.style.background = 'Teal'));
 }
 
 function dropHandler(event) {
+  // event.target -> identifies the element that triggered the event (where the ship was dropped)
+  const cell = event.target.closest('.cell');
   // event.target.classList.remove('dropping');
   // console.log(event.dataTransfer.getData('text/plain')); // Works!
 }
