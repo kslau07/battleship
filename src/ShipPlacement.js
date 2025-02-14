@@ -2,6 +2,9 @@
 // This module contains functions used during ship placement, and specifically uses the Drag and Drop API
 // Notes: Export multiple functions here to allow tree-shaking in bundler
 
+// TODO: CONVERT FUNCTIONS THAT USE dragObj TO USE OBJECT PARAMETERS AND ONLY EXTRACT WHAT IS
+// NECESSARY FROM THE OBJECT ARGUMENT
+
 // Add all drag-and-drop handlers
 export function addDragAndDropHandlers(gameInstance) {
   // NOTE: Optimization -> Combine dom queries to improve performance
@@ -20,7 +23,7 @@ export function addDragAndDropHandlers(gameInstance) {
   const dragObj = {
     gameInstance,
     shipName: null,
-    rotated: null,
+    rotatedState: null,
     previousIndicatorNodes: [],
   };
 
@@ -45,6 +48,10 @@ export function addDragAndDropHandlers(gameInstance) {
     console.warn('.placement__grid not found');
   }
 }
+
+// HACK: Consider using an object parameter which looks like this:
+//       function action({ dropRow, dropColumn, shipLength, shipName, rotatedState }) {}
+//       It is essentially using a deconstructed object as parameters
 
 function updateDragObj(dragObj) {
   const currentDrag = this;
@@ -101,37 +108,36 @@ function removePreviousIndicators(dragObj) {
 }
 
 // Indicate when ship placement is valid or invalid (show green or red cells)
-function indicatePlacementValidity(
-  shipLength,
-  dropRow,
-  dropColumn,
-  rotatedState,
-  dragObj,
-) {
+function indicatePlacementValidity(dropRow, dropColumn, dragObj) {
   removePreviousIndicators(dragObj);
   const grid = document.querySelector('.placement__grid');
+  const { shipLength, rotatedState } = dragObj;
 
-  let mainAxisOffset;
-  let crossAxis; // cross axis is height of ship, same for all ships
+  let mainAxisStartCell;
+  let crossAxisStartCell; // cross axis is height of ship, same for all ships
   let length;
   let height;
 
   if (rotatedState === 'true') {
     length = 'row';
     height = 'column';
-    mainAxisOffset = dropRow - Math.floor(shipLength / 2); // Center indicating squares
-    mainAxisOffset = clampToGrid(mainAxisOffset, shipLength);
-    crossAxis = dropColumn;
+    mainAxisStartCell = dropRow - Math.floor(shipLength / 2); //
+    mainAxisStartCell = clampToGrid(mainAxisStartCell, shipLength);
+    crossAxisStartCell = dropColumn;
+    dragObj.rowStart = mainAxisStartCell;
+    dragObj.columnStart = crossAxisStartCell;
   } else if (rotatedState === 'false') {
     length = 'column';
     height = 'row';
-    mainAxisOffset = dropColumn - Math.floor(shipLength / 2);
-    mainAxisOffset = clampToGrid(mainAxisOffset, shipLength);
-    crossAxis = dropRow;
+    mainAxisStartCell = dropColumn - Math.floor(shipLength / 2);
+    mainAxisStartCell = clampToGrid(mainAxisStartCell, shipLength);
+    crossAxisStartCell = dropRow;
+    dragObj.rowStart = crossAxisStartCell;
+    dragObj.columnStart = mainAxisStartCell;
   }
 
   for (let i = 0; i < shipLength; i += 1) {
-    const queryString = `.cell[data-${length}="${mainAxisOffset + i}"][data-${height}="${crossAxis}"]`;
+    const queryString = `.cell[data-${length}="${mainAxisStartCell + i}"][data-${height}="${crossAxisStartCell}"]`;
     const targetCell = grid.querySelector(queryString);
     targetCell.style.background = 'Chartreuse';
     dragObj.previousIndicatorNodes.push(targetCell);
@@ -143,18 +149,9 @@ function dragenterHandler(event, dragObj) {
   const cell = event.target.closest('.cell');
   if (cell === null) return; // axis-markers return null because pointer-events are set to none;
 
-  const { gameInstance, shipName, shipLength, rotatedState } = dragObj;
-
-  const dropRow = cell.dataset.row;
-  const dropColumn = cell.dataset.column;
-
-  indicatePlacementValidity(
-    shipLength,
-    dropRow,
-    dropColumn,
-    rotatedState,
-    dragObj,
-  );
+  const dropRow = Number(cell.dataset.row);
+  const dropColumn = Number(cell.dataset.column);
+  indicatePlacementValidity(dropRow, dropColumn, dragObj);
 }
 
 function dragleaveHandler(event) {}
@@ -162,9 +159,11 @@ function dragleaveHandler(event) {}
 // TODO: Get current player's gameboard and validate ship's placement!!
 
 function dropHandler(event, dragObj) {
-  const cell = event.target.closest('.cell');
-  const { row, column } = cell.dataset;
-  const { gameInstance, shipName, rotatedState } = dragObj;
+  // const cell = event.target.closest('.cell');
+  // const row = Number(cell.dataset.row);
+  // const column = Number(cell.dataset.column);
+  const { gameInstance, shipName, rotatedState, rowStart, columnStart } =
+    dragObj;
 
   // TODO: To use safePlaceShip we need:
   // ship -> must be ship object
@@ -174,10 +173,9 @@ function dropHandler(event, dragObj) {
   // safePlaceShip(ship, startCellCoords, orientation)
   const player1 = dragObj.gameInstance.getPlayer1();
   const shipObj = gameInstance.getShipForPlayer(player1, shipName);
-  const startCellCoords = [row, column];
+  const startCellCoords = [rowStart, columnStart];
   const orientation = rotatedState === 'true' ? 'vertical' : 'horizontal';
 
-  // FIXME: UNCOMMENT
   dragObj.gameInstance.safePlaceShipForPlayer(
     player1,
     shipObj,

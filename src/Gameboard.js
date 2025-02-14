@@ -88,9 +88,18 @@ export default class Gameboard {
     return this.#placedShips;
   }
 
+  // This is a Generator Function
+  // This is where our iterator is created.
   *#getNextCell(ship, startCellCoords, orientation) {
+    // FIXME: DELETE ME IF NOT WORKING
+    // startCellCoords = [Number(startCellCoords[0]), Number(startCellCoords[1])];
+    // console.log('hello from generator function getNextCell');
+    // console.log({ ship, startCellCoords, orientation });
+
     const grid = this.getGrid();
     const len = ship.getLength();
+
+    // TODO: DELETE ME
 
     for (let i = 0; i < len; i += 1) {
       if (orientation === 'vertical') {
@@ -105,6 +114,8 @@ export default class Gameboard {
   #validateCell(cell, ship) {
     // TODO: REMOVE ERRORS THROWN
     // TODO: RETURN TRUE / FALSE USING CONDITIONAL (UTILIZE ||)
+    // console.log('hello from validateCell');
+    // console.log(cell);
 
     if (cell === undefined || cell.ship !== 'none') return false;
 
@@ -120,15 +131,41 @@ export default class Gameboard {
   }
 
   // Iterate through cells at given startCellCoords and check for errors
+  // TODO: Ask if we should use our method this.#getGrid() or just access the private variable this.#grid
   #validatePlacement(ship, startCellCoords, orientation) {
-    const generator = this.#getNextCell(ship, startCellCoords, orientation);
+    console.log({ ship, startCellCoords, orientation });
+    const shipLength = ship.getLength();
+    const grid = this.getGrid();
+    const xStart = startCellCoords[0];
+    const yStart = startCellCoords[1];
 
-    for (let nextCell of generator) {
-      const isValid = this.#validateCell(nextCell, ship);
-      if (isValid === false) return false;
+    let offset = 0;
+    let xOffset = 0;
+    let yOffset = 0;
+
+    for (let i = 0; i < shipLength; i += 1) {
+      offset = i;
+      if (orientation === 'horizontal') {
+        yOffset = yStart + offset;
+      } else if (orientation === 'vertical') {
+        xOffset = xStart + offset;
+      }
+      const cell = grid[xStart + xOffset][yStart + yOffset];
+      console.log(cell);
     }
 
-    return true;
+    // TODO: Use a while-loop to loop through each coordinate and
+    // return false if the intended cell is undefined or cell.ship !== 'none'
+
+    // const generator = this.#getNextCell(ship, startCellCoords, orientation);
+
+    // for (let nextCell of generator) {
+    // console.log({ nextCell });
+    // const isValid = this.#validateCell(nextCell, ship);
+    // if (isValid === false) return false;
+    // }
+
+    // return true;
   }
 
   // Iterate through cells at given startCellCoords and set to ship instance
@@ -143,11 +180,25 @@ export default class Gameboard {
   // Try to place a ship and intercept errors
   safePlaceShip(ship, startCellCoords, orientation) {
     // TODO: CONTINUE HERE
+    // First! -> Get rid of generator function, we learned what we needed, now simplify our game
+    //           Get rid of the 'cell' object and the grid object
+    //              - We will use hash tables containing only things that are affected
+    //              - eg misses: {row1: {item1: miss }, row2: {item1: hit}}
+    //              - eg ships: {row1: {item1: 'Carrier' }, row2: {item3: 'PatrolBoat'}}
     // Use conditionals + booleans instead of try/catch + throwing errors
     // WE MUST MODIFY:
     // #validatePlacement
     // #placeShip
     // safePlaceShip
+    const returnval = this.#validatePlacement(
+      ship,
+      startCellCoords,
+      orientation,
+    );
+
+    // console.log('hello from safePlaceShip');
+    // console.log('validatePlacement return val:', returnval);
+
     return;
     // try {
     //   this.#validatePlacement(ship, coords, orientation);
