@@ -30,8 +30,10 @@ export default class Game {
       .find((shipObj) => shipObj.getName() === shipName);
   }
 
-  safePlaceShipForPlayer(player, shipObj, startCellCoords, orientation) {
-    player.getGameboard().safePlaceShip(shipObj, startCellCoords, orientation);
+  safePlaceShipForPlayer({ player, ship, gridCoords, orientation }) {
+    return player
+      .getGameboard()
+      .safePlaceShip({ ship, gridCoords, orientation });
   }
 
   placeShipsRandomlyForPlayer(player) {

@@ -26,11 +26,11 @@ export default class Gameboard {
     const gridArray = [];
     const numRows = Gameboard.#gridSize;
     const numCols = Gameboard.#gridSize;
+    const gridLength = numRows;
 
-    const maxIndex = Gameboard.#gridSize;
-    for (let rowIdx = 0; rowIdx < maxIndex; rowIdx += 1) {
+    for (let rowIdx = 0; rowIdx < gridLength; rowIdx += 1) {
       const curRow = [];
-      for (let colIdx = 0; colIdx < maxIndex; colIdx += 1) {
+      for (let colIdx = 0; colIdx < gridLength; colIdx += 1) {
         const newCell = Gameboard.#createCell();
         newCell.coords.rowIndex = rowIdx;
         newCell.coords.columnIndex = colIdx;
@@ -73,7 +73,7 @@ export default class Gameboard {
   constructor(shipSet = Gameboard.createDefaultShips()) {
     this.#grid = Gameboard.#buildGrid();
     this.#createdShips = shipSet;
-    this.#placedShips = []; // Ship placement happens manually OR with placeShipsRandomly()
+    this.#placedShips = [];
   }
 
   getGrid() {
@@ -88,128 +88,56 @@ export default class Gameboard {
     return this.#placedShips;
   }
 
-  // This is a Generator Function
-  // This is where our iterator is created.
-  *#getNextCell(ship, startCellCoords, orientation) {
-    // FIXME: DELETE ME IF NOT WORKING
-    // startCellCoords = [Number(startCellCoords[0]), Number(startCellCoords[1])];
-    // console.log('hello from generator function getNextCell');
-    // console.log({ ship, startCellCoords, orientation });
-
-    const grid = this.getGrid();
-    const len = ship.getLength();
-
-    // TODO: DELETE ME
-
-    for (let i = 0; i < len; i += 1) {
-      if (orientation === 'vertical') {
-        yield grid[startCellCoords[0] + i]?.[startCellCoords[1]]; // Use optional chaining operator (?.) to try to access next hypothetical cell
-      } else if (orientation === 'horizontal') {
-        yield grid[startCellCoords[0]]?.[startCellCoords[1] + i];
-      }
-    }
-  }
-
-  // Check cell and throw relevant error
-  #validateCell(cell, ship) {
-    // TODO: REMOVE ERRORS THROWN
-    // TODO: RETURN TRUE / FALSE USING CONDITIONAL (UTILIZE ||)
-    // console.log('hello from validateCell');
-    // console.log(cell);
-
-    if (cell === undefined || cell.ship !== 'none') return false;
-
-    // if (cell === undefined) {
-    //   throw new RangeError(
-    //     `Cannot place "${ship.getName()}" here because it is out of bounds.`,
-    //   );
-    // } else if (cell.ship !== 'none') {
-    //   throw new Error(
-    //     `Cannot place "${ship.getName()}" here because it is occupied by "${cell.ship.getName()}".`,
-    //   );
-    // }
-  }
-
-  // Iterate through cells at given startCellCoords and check for errors
-  // TODO: Ask if we should use our method this.#getGrid() or just access the private variable this.#grid
-  #validatePlacement(ship, startCellCoords, orientation) {
-    console.log({ ship, startCellCoords, orientation });
+  // Iterate through cells at given gridCoords and check for errors
+  #validatePlacement({ ship, gridCoords, orientation }) {
     const shipLength = ship.getLength();
     const grid = this.getGrid();
-    const xStart = startCellCoords[0];
-    const yStart = startCellCoords[1];
+    const [xStart, yStart] = gridCoords;
+    const directions = { horizontal: [0, 1], vertical: [1, 0] };
+    const [xFactor, yFactor] = directions[orientation];
+    const placementCells = [];
 
-    let offset = 0;
-    let xOffset = 0;
-    let yOffset = 0;
+    // NOTE: Redundant check for out-of-bounds, can delete
+    // Check if ship would go out of bounds
+    const xEnd = xStart + xFactor * (shipLength - 1);
+    const yEnd = yStart + yFactor * (shipLength - 1);
+    const gridLength = grid.length;
+    if (xEnd >= gridLength || yEnd >= gridLength || xStart < 0 || yStart < 0) {
+      return false;
+    }
 
+    // Check if all cells are available
     for (let i = 0; i < shipLength; i += 1) {
-      offset = i;
-      if (orientation === 'horizontal') {
-        yOffset = yStart + offset;
-      } else if (orientation === 'vertical') {
-        xOffset = xStart + offset;
+      const x = xStart + xFactor * i;
+      const y = yStart + yFactor * i;
+
+      if (grid[x][y] === undefined || grid[x][y].ship !== 'none') {
+        return false;
       }
-      const cell = grid[xStart + xOffset][yStart + yOffset];
-      console.log(cell);
+
+      placementCells.push(grid[x][y]);
     }
 
-    // TODO: Use a while-loop to loop through each coordinate and
-    // return false if the intended cell is undefined or cell.ship !== 'none'
-
-    // const generator = this.#getNextCell(ship, startCellCoords, orientation);
-
-    // for (let nextCell of generator) {
-    // console.log({ nextCell });
-    // const isValid = this.#validateCell(nextCell, ship);
-    // if (isValid === false) return false;
-    // }
-
-    // return true;
+    return placementCells;
   }
 
-  // Iterate through cells at given startCellCoords and set to ship instance
-  #placeShip(ship, startCellCoords, orientation) {
-    const generator = this.#getNextCell(ship, startCellCoords, orientation);
-
-    for (let nextCell of generator) {
-      nextCell.ship = ship;
-    }
+  #placeShip(placementCells, ship, gridCoords, orientation) {
+    placementCells.forEach((cell) => (cell.ship = ship));
+    this.#placedShips.push({ ship, gridCoords, orientation });
   }
 
-  // Try to place a ship and intercept errors
-  safePlaceShip(ship, startCellCoords, orientation) {
-    // TODO: CONTINUE HERE
-    // First! -> Get rid of generator function, we learned what we needed, now simplify our game
-    //           Get rid of the 'cell' object and the grid object
-    //              - We will use hash tables containing only things that are affected
-    //              - eg misses: {row1: {item1: miss }, row2: {item1: hit}}
-    //              - eg ships: {row1: {item1: 'Carrier' }, row2: {item3: 'PatrolBoat'}}
-    // Use conditionals + booleans instead of try/catch + throwing errors
-    // WE MUST MODIFY:
-    // #validatePlacement
-    // #placeShip
-    // safePlaceShip
-    const returnval = this.#validatePlacement(
+  // Try to place a ship and return a boolean
+  safePlaceShip({ ship, gridCoords, orientation }) {
+    const placement = this.#validatePlacement({
       ship,
-      startCellCoords,
+      gridCoords,
       orientation,
-    );
+    });
 
-    // console.log('hello from safePlaceShip');
-    // console.log('validatePlacement return val:', returnval);
+    if (placement === false) return false;
 
-    return;
-    // try {
-    //   this.#validatePlacement(ship, coords, orientation);
-    //   this.#placeShip(ship, coords, orientation);
-    // } catch ({ name, message }) {
-    //   console.log(`${name}: ${message}`);
-    //   return false;
-    // }
-    //
-    // this.#placedShips.push(ship);
-    // return true;
+    this.#placeShip(placement, ship, gridCoords, orientation);
+    return true;
   }
 
   randomizeStartCell() {

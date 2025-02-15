@@ -55,6 +55,7 @@ export function addDragAndDropHandlers(gameInstance) {
 
 function updateDragObj(dragObj) {
   const currentDrag = this;
+  dragObj.dragElem = this;
   dragObj.shipName = currentDrag.dataset.ship;
   dragObj.rotatedState = currentDrag.dataset.rotated;
 
@@ -173,21 +174,25 @@ function dropHandler(event, dragObj) {
   // safePlaceShip(ship, startCellCoords, orientation)
   const player1 = dragObj.gameInstance.getPlayer1();
   const shipObj = gameInstance.getShipForPlayer(player1, shipName);
-  const startCellCoords = [rowStart, columnStart];
+  const gridCoords = [rowStart - 1, columnStart - 1]; // Index starts at 0
   const orientation = rotatedState === 'true' ? 'vertical' : 'horizontal';
 
-  dragObj.gameInstance.safePlaceShipForPlayer(
-    player1,
-    shipObj,
-    startCellCoords,
+  const placed = dragObj.gameInstance.safePlaceShipForPlayer({
+    player: player1,
+    ship: shipObj,
+    gridCoords,
     orientation,
-  );
+  });
 
-  // gameBoard
-  //safePlaceShip();
-  // console.log('hello from dropHandler');
-  // const cell = event.target.closest('.cell');
-  // console.log('you are here');
-  // console.log({ dragObj });
-  // console.log(event.dataTransfer.getData('text/plain')); // Works!
+  console.log({ placed });
+
+  if (placed === true) {
+    console.log(
+      'ship has been placed, now show it on the grid, and remove ship from bank',
+    );
+    console.log({ dragObj });
+    dragObj.dragElem.style.visibility = 'hidden';
+  } else if (placed === false) {
+    console.log('ship has not been placed, there was something in the way');
+  }
 }
