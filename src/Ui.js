@@ -202,23 +202,16 @@ const addAxisMarker = (cell) => {
 };
 
 const createGrid = (gridContainer) => {
-  const totalRows = 11; // NOTE: 1 extra row & col for axis markers
-  const cellsPerRow = 11;
+  const gridSize = 11; // 10 plus 1 to label axes
 
-  // Create row elems
-  for (let i = 0; i < totalRows; i += 1) {
-    const row = document.createElement('div');
-    row.classList.add('row');
-    row.dataset.row = `${i}`;
-    gridContainer.appendChild(row);
-
-    // Create cells, child elems of each row
-    for (let j = 0; j < cellsPerRow; j += 1) {
+  // Create cells
+  for (let i = 0; i < gridSize; i += 1) {
+    for (let j = 0; j < gridSize; j += 1) {
       const cell = document.createElement('div');
       cell.classList.add('cell');
       cell.dataset.row = `${i}`;
       cell.dataset.column = `${j}`;
-      row.appendChild(cell);
+      gridContainer.appendChild(cell);
       addAxisMarker(cell);
     }
   }
@@ -232,7 +225,7 @@ const populatePlacementGrid = () => {
 const populatePlacementBank = (gameInstance) => {
   // TODO: Append the current player's bank, use gameInstance to find current player
   const template = document.querySelector('.template-ships--player1').content;
-  const images = template.querySelector('.ships--player1');
+  const images = template.querySelector('.ships--player1').cloneNode(true);
   const placementBankBody = document.querySelector('.placement__bank-body');
   placementBankBody.appendChild(images);
 };
@@ -249,14 +242,8 @@ function setRotateButton() {
     this.querySelectorAll('.ship-wrapper').forEach((shipWrapper) => {
       if (rotatedState === false) {
         ships.classList.add('rotated');
-
-        // FIXME: DELETE ME
-        // shipWrapper.querySelector('.ship-rotated-image').style.display = 'none';
-
-        // FIXME: UNCOMMENT BELOW
         shipWrapper.querySelector('.ship-rotated-image').style.display =
           'block';
-
         shipWrapper.querySelector('.ship-image').style.display = 'none';
         shipWrapper.dataset.rotated = 'true';
       } else {
@@ -342,7 +329,6 @@ const createShipImageElements = (playerNum) => {
     const template = document.querySelector(
       `.template-ships--player${playerNum}`,
     ).content;
-
     const ships = template.querySelector(`.ships--player${playerNum}`);
     const shipWrapper = document.createElement('div');
     shipWrapper.classList.add('ship-wrapper');

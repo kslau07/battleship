@@ -123,10 +123,12 @@ export default class Gameboard {
 
   #placeShip(placementCells, ship, gridCoords, orientation) {
     placementCells.forEach((cell) => (cell.ship = ship));
-    this.#placedShips.push({ ship, gridCoords, orientation });
+
+    const placementObj = { ship, gridCoords, orientation };
+    this.#placedShips.push(placementObj);
   }
 
-  // Try to place a ship and return a boolean
+  // Try to place a ship and return placement information
   safePlaceShip({ ship, gridCoords, orientation }) {
     const placement = this.#validatePlacement({
       ship,
@@ -137,7 +139,7 @@ export default class Gameboard {
     if (placement === false) return false;
 
     this.#placeShip(placement, ship, gridCoords, orientation);
-    return true;
+    return { ship, gridCoords, orientation };
   }
 
   randomizeStartCell() {

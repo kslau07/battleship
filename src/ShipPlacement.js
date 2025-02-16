@@ -98,8 +98,7 @@ function clampToGrid(mainAxisOffset, shipLength, min = 1, max = 10) {
   return Math.max(Math.min(mainAxisOffset, max - shipLength + 1), min);
 }
 
-function removePreviousIndicators(dragObj) {
-  const { previousIndicatorNodes } = dragObj;
+function removePreviousIndicators({ previousIndicatorNodes }) {
   if (previousIndicatorNodes === undefined) return;
 
   const listLength = previousIndicatorNodes.length;
@@ -110,7 +109,8 @@ function removePreviousIndicators(dragObj) {
 
 // Indicate when ship placement is valid or invalid (show green or red cells)
 function indicatePlacementValidity(dropRow, dropColumn, dragObj) {
-  removePreviousIndicators(dragObj);
+  const { previousIndicatorNodes } = dragObj;
+  removePreviousIndicators({ previousIndicatorNodes });
   const grid = document.querySelector('.placement__grid');
   const { shipLength, rotatedState } = dragObj;
 
@@ -160,23 +160,22 @@ function dragleaveHandler(event) {}
 // TODO: Get current player's gameboard and validate ship's placement!!
 
 function dropHandler(event, dragObj) {
-  // const cell = event.target.closest('.cell');
-  // const row = Number(cell.dataset.row);
-  // const column = Number(cell.dataset.column);
-  const { gameInstance, shipName, rotatedState, rowStart, columnStart } =
-    dragObj;
-
-  // TODO: To use safePlaceShip we need:
-  // ship -> must be ship object
-  // coords -> renamed to startCellCoords
-  // orientation
-  // const {shipName, };
-  // safePlaceShip(ship, startCellCoords, orientation)
+  const {
+    columnStart,
+    dragElem,
+    gameInstance,
+    rotatedState,
+    rowStart,
+    shipName,
+  } = dragObj;
   const player1 = dragObj.gameInstance.getPlayer1();
   const shipObj = gameInstance.getShipForPlayer(player1, shipName);
   const gridCoords = [rowStart - 1, columnStart - 1]; // Index starts at 0
   const orientation = rotatedState === 'true' ? 'vertical' : 'horizontal';
 
+  dragElem.classList.remove('dragging');
+
+  // Try to place ship on grid
   const placed = dragObj.gameInstance.safePlaceShipForPlayer({
     player: player1,
     ship: shipObj,
@@ -184,15 +183,23 @@ function dropHandler(event, dragObj) {
     orientation,
   });
 
-  console.log({ placed });
-
-  if (placed === true) {
-    console.log(
-      'ship has been placed, now show it on the grid, and remove ship from bank',
-    );
-    console.log({ dragObj });
-    dragObj.dragElem.style.visibility = 'hidden';
-  } else if (placed === false) {
-    console.log('ship has not been placed, there was something in the way');
+  if (placed === false) {
+    console.log('Ship was not been placed, there was something in the way.');
+  } else {
+    placeShipInUI(dragObj);
   }
+}
+
+// TODO: CONTINUE HERE
+// What should we pass into placeShipInUI? It may be called from dropHandler() -OR- randomizeShipsInUI()
+// Use .placed and .rotated classes to keep track of ship states
+// Use appendChild (or append) on entire grid to move us from placement to actual game
+function placeShipInUI() {
+  // const placementGrid = document.querySelector('.placement__grid');
+  // dragElem.style.position = 'absolute';
+  // placementGrid.appendChild(dragElem);
+}
+
+function randomizeShipsInUI() {
+  // for each created ship, call placeShipInUI()
 }
