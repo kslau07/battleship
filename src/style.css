@@ -202,7 +202,7 @@ body {
   transition: transform 150ms;
 }
 
-.placement__grid {
+.game-grid {
   position: relative;
   grid-area: p_grid;
   background: radial-gradient(
@@ -241,7 +241,7 @@ body {
   pointer-events: none;
 }
 
-.placement__bank {
+.bank {
   display: grid;
   grid-template-rows: auto 1fr;
   gap: var(--space-md);
@@ -249,17 +249,17 @@ body {
   grid-area: p_bank;
   background: hsla(0, 0%, 0%, 0.25);
 }
-.placement__bank-header {
+.bank-header {
   display: grid;
   gap: var(--space-md);
   text-align: center;
 }
 
-.placement__bank-heading {
+.bank-heading {
   font-size: var(--rwd-text-sm);
 }
 
-.placement__bank-body {
+.bank-body {
 }
 
 .ships {
@@ -317,14 +317,13 @@ body {
   padding-top: calc(100% / var(--ship-length));
 }
 
-.placement__bank-body {
+.bank-body {
   --cell-size: 8cqw;
   position: relative;
   height: calc(var(--cell-size) * 6);
 }
 
 /* When rotated */
-
 /* Rotated ships not playing nice with grid for some reason, use flex here */
 
 .ships.rotated {
@@ -345,13 +344,31 @@ body {
 .ship-rotated-image {
   width: 100%;
   height: 100%;
-  display: none; /*changes programatically*/
+  display: none; /*change programatically*/
 }
 
-.dragging {
+.ship-wrapper.dragging {
   opacity: 0.25;
-  outline: 3px dashed lime;
 }
+
+/* When placed */
+.ship-wrapper.placed {
+  position: absolute;
+  grid-row: 4 / span 1;
+  grid-column: 4 / span 3;
+  width: 100%;
+  height: 100%;
+}
+
+/*FIXME: DELETE ME DEV ONLY*/
+/* .test-div { */
+/*   position: absolute; */
+/*   background: green; */
+/*   grid-row: 4 / span 1; */
+/*   grid-column: 4 / span 3; */
+/*   width: 100%; */
+/*   height: 100%; */
+/* } */
 
 @media screen and (min-width: 500px) {
   body {
@@ -367,7 +384,7 @@ body {
       'p_grid p_bank';
   }
 
-  .placement__bank-body {
+  .bank-body {
     --cell-size: 5.25cqw;
   }
 
@@ -411,13 +428,3 @@ body {
     padding-top: calc(100% / var(--ship-length));
   }
 }
-
-/*FIXME: DELETE ME DEV ONLY*/
-/* .test-div { */
-/*   position: absolute; */
-/*   background: green; */
-/*   grid-row: 4 / span 1; */
-/*   grid-column: 4 / span 3; */
-/*   width: 100%; */
-/*   height: 100%; */
-/* } */

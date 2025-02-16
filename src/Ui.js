@@ -218,15 +218,15 @@ const createGrid = (gridContainer) => {
 };
 
 const populatePlacementGrid = () => {
-  const placementGrid = document.querySelector('.placement__grid');
-  createGrid(placementGrid);
+  const gameGrid = document.querySelector('.game-grid');
+  createGrid(gameGrid);
 };
 
 const populatePlacementBank = (gameInstance) => {
   // TODO: Append the current player's bank, use gameInstance to find current player
   const template = document.querySelector('.template-ships--player1').content;
   const images = template.querySelector('.ships--player1').cloneNode(true);
-  const placementBankBody = document.querySelector('.placement__bank-body');
+  const placementBankBody = document.querySelector('.bank-body');
   placementBankBody.appendChild(images);
 };
 

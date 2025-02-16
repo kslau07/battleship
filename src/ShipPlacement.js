@@ -9,13 +9,13 @@
 export function addDragAndDropHandlers(gameInstance) {
   // NOTE: Optimization -> Combine dom queries to improve performance
   const nodeList = document.querySelectorAll(
-    '.ship-wrapper, .placement__grid, .axis-marker',
+    '.ship-wrapper, .game-grid, .axis-marker',
   );
   const ships = [...nodeList].filter((node) =>
     node.classList.contains('ship-wrapper'),
   );
   const grid = [...nodeList].find((node) =>
-    node.classList.contains('placement__grid'),
+    node.classList.contains('game-grid'),
   );
   const axisMarkers = [...nodeList].filter((node) =>
     node.classList.contains('axis-marker'),
@@ -45,7 +45,7 @@ export function addDragAndDropHandlers(gameInstance) {
     grid.addEventListener('drop', createHandler(dropHandler, dragObj));
     grid.addEventListener('dragover', allowDrop);
   } else {
-    console.warn('.placement__grid not found');
+    console.warn('.game-grid not found');
   }
 }
 
@@ -55,7 +55,7 @@ export function addDragAndDropHandlers(gameInstance) {
 
 function updateDragObj(dragObj) {
   const currentDrag = this;
-  dragObj.dragElem = this;
+  dragObj.shipElem = this;
   dragObj.shipName = currentDrag.dataset.ship;
   dragObj.rotatedState = currentDrag.dataset.rotated;
 
@@ -79,7 +79,7 @@ function dragstartHandler(event, dragObj) {
 }
 
 function dragendHandler(event) {
-  event.target.classList.remove('dragging');
+  event.currentTarget.classList.remove('dragging');
 }
 
 function allowDrop(event) {
@@ -103,15 +103,15 @@ function removePreviousIndicators({ previousIndicatorNodes }) {
 
   const listLength = previousIndicatorNodes.length;
   for (let i = 0; i < listLength; i += 1) {
-    previousIndicatorNodes.pop().style.background = 'yellow';
+    previousIndicatorNodes.pop().style.background = 'none';
   }
 }
 
 // Indicate when ship placement is valid or invalid (show green or red cells)
 function indicatePlacementValidity(dropRow, dropColumn, dragObj) {
   const { previousIndicatorNodes } = dragObj;
-  removePreviousIndicators({ previousIndicatorNodes });
-  const grid = document.querySelector('.placement__grid');
+
+  const grid = document.querySelector('.game-grid');
   const { shipLength, rotatedState } = dragObj;
 
   let mainAxisStartCell;
@@ -137,6 +137,8 @@ function indicatePlacementValidity(dropRow, dropColumn, dragObj) {
     dragObj.columnStart = mainAxisStartCell;
   }
 
+  // Add indicating cells, remove previous ones
+  removePreviousIndicators({ previousIndicatorNodes });
   for (let i = 0; i < shipLength; i += 1) {
     const queryString = `.cell[data-${length}="${mainAxisStartCell + i}"][data-${height}="${crossAxisStartCell}"]`;
     const targetCell = grid.querySelector(queryString);
@@ -155,25 +157,26 @@ function dragenterHandler(event, dragObj) {
   indicatePlacementValidity(dropRow, dropColumn, dragObj);
 }
 
-function dragleaveHandler(event) {}
+function dragleaveHandler() {}
 
 // TODO: Get current player's gameboard and validate ship's placement!!
 
 function dropHandler(event, dragObj) {
   const {
     columnStart,
-    dragElem,
+    shipElem,
     gameInstance,
     rotatedState,
     rowStart,
     shipName,
+    previousIndicatorNodes,
   } = dragObj;
   const player1 = dragObj.gameInstance.getPlayer1();
   const shipObj = gameInstance.getShipForPlayer(player1, shipName);
   const gridCoords = [rowStart - 1, columnStart - 1]; // Index starts at 0
   const orientation = rotatedState === 'true' ? 'vertical' : 'horizontal';
 
-  dragElem.classList.remove('dragging');
+  // console.log(gameInstance.getPlayer1().getGameboard());
 
   // Try to place ship on grid
   const placed = dragObj.gameInstance.safePlaceShipForPlayer({
@@ -186,18 +189,42 @@ function dropHandler(event, dragObj) {
   if (placed === false) {
     console.log('Ship was not been placed, there was something in the way.');
   } else {
-    placeShipInUI(dragObj);
+    const shipLength = shipObj.getLength();
+    placeShipInUI({ shipElem, shipLength, rowStart, columnStart, orientation });
   }
+
+  removePreviousIndicators({ previousIndicatorNodes });
 }
 
 // TODO: CONTINUE HERE
 // What should we pass into placeShipInUI? It may be called from dropHandler() -OR- randomizeShipsInUI()
 // Use .placed and .rotated classes to keep track of ship states
 // Use appendChild (or append) on entire grid to move us from placement to actual game
-function placeShipInUI() {
-  // const placementGrid = document.querySelector('.placement__grid');
-  // dragElem.style.position = 'absolute';
-  // placementGrid.appendChild(dragElem);
+function placeShipInUI({
+  shipElem,
+  shipLength,
+  rowStart,
+  columnStart,
+  orientation,
+}) {
+  const gameGrid = document.querySelector('.game-grid');
+  const direction = { horizontal: [0, 1], vertical: [1, 0] };
+  const [xFactor, yFactor] = direction[orientation];
+  shipElem.classList.add('placed');
+  shipElem.style.gridRowStart = rowStart + 1;
+  shipElem.style.gridRowEnd = rowStart + 1 + xFactor * shipLength;
+  shipElem.style.gridColumnStart = columnStart + 1;
+  shipElem.style.gridColumnEnd = columnStart + 1 + yFactor * shipLength;
+
+  gameGrid.appendChild(shipElem);
+
+  /* FIXME: DELETE ME TEST DIV */
+  // const testDiv = document.createElement('div');
+  // testDiv.classList.add('test-div');
+  // testDiv.textContent = 'foo';
+  // gameGrid.appendChild(testDiv);
+
+  console.log({ rowStart, columnStart });
 }
 
 function randomizeShipsInUI() {
