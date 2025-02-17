@@ -237,10 +237,12 @@ function setRotateButton() {
 
   rotateShipsBtn.addEventListener('click', () => {
     const ships = this.querySelector('.ships');
-    const rotatedState = ships.classList.contains('rotated');
+    const rotated = ships.classList.contains('rotated');
 
     this.querySelectorAll('.ship-wrapper').forEach((shipWrapper) => {
-      if (rotatedState === false) {
+      if (shipWrapper.classList.contains('placed')) return; // Do not rotate placed ships
+
+      if (rotated === false) {
         ships.classList.add('rotated');
         shipWrapper.querySelector('.ship-rotated-image').style.display =
           'block';
