@@ -351,6 +351,10 @@ body {
   opacity: 0.25;
 }
 
+.ship-wrapper[data-rotated='true'] {
+  padding-top: 0;
+}
+
 /* When placed */
 .ship-wrapper.placed {
   position: absolute;
@@ -359,16 +363,6 @@ body {
   width: 100%;
   height: 100%;
 }
-
-/*FIXME: DELETE ME DEV ONLY*/
-/* .test-div { */
-/*   position: absolute; */
-/*   background: green; */
-/*   grid-row: 4 / span 1; */
-/*   grid-column: 4 / span 3; */
-/*   width: 100%; */
-/*   height: 100%; */
-/* } */
 
 @media screen and (min-width: 500px) {
   body {
@@ -401,30 +395,30 @@ body {
     --ship-length: 5;
     grid-row: 1 / span 1;
     grid-column: 1 / span var(--ship-length);
-    padding-top: calc(100% / var(--ship-length));
+    /* padding-top: calc(100% / var(--ship-length)); */
   }
   .ship-wrapper[data-ship='Battleship'] {
     --ship-length: 4;
     grid-row: 2 / span 1;
     grid-column: 1 / span var(--ship-length);
-    padding-top: calc(100% / var(--ship-length));
+    /* padding-top: calc(100% / var(--ship-length)); */
   }
   .ship-wrapper[data-ship='Destroyer'] {
     --ship-length: 3;
     grid-row: 3 / span 1;
     grid-column: 1 / span var(--ship-length);
-    padding-top: calc(100% / var(--ship-length));
+    /* padding-top: calc(100% / var(--ship-length)); */
   }
   .ship-wrapper[data-ship='Submarine'] {
     --ship-length: 3;
     grid-row: 4 / span 1;
     grid-column: 1 / span var(--ship-length);
-    padding-top: calc(100% / var(--ship-length));
+    /* padding-top: calc(100% / var(--ship-length)); */
   }
   .ship-wrapper[data-ship='PatrolBoat'] {
     --ship-length: 2;
     grid-row: 5 / span 1;
     grid-column: 1 / span var(--ship-length);
-    padding-top: calc(100% / var(--ship-length));
+    /* padding-top: calc(100% / var(--ship-length)); */
   }
 }
