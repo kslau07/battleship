@@ -23,7 +23,7 @@ export function addDragAndDropHandlers(gameInstance) {
   const dragObj = {
     gameInstance,
     shipName: null,
-    rotatedState: null,
+    orientation: null,
     previousIndicatorNodes: [],
   };
 
@@ -50,14 +50,15 @@ export function addDragAndDropHandlers(gameInstance) {
 }
 
 // HACK: Consider using an object parameter which looks like this:
-//       function action({ dropRow, dropColumn, shipLength, shipName, rotatedState }) {}
+//       function action({ dropRow, dropColumn, shipLength, shipName, orientation }) {}
 //       It is essentially using a deconstructed object as parameters
 
 function updateDragObj(dragObj) {
   const currentDrag = this;
   dragObj.shipElem = this;
   dragObj.shipName = currentDrag.dataset.ship;
-  dragObj.rotatedState = currentDrag.dataset.rotated;
+  dragObj.orientation =
+    currentDrag.dataset.rotated === 'true' ? 'vertical' : 'horizontal';
 
   // HACK: Excessive method chaining, consider adding facade method in Game instance
   const shipLength = dragObj.gameInstance
@@ -94,8 +95,8 @@ function createHandler(handler, dragObj) {
   };
 }
 
-function clampToGrid(mainAxisOffset, shipLength, min = 1, max = 10) {
-  return Math.max(Math.min(mainAxisOffset, max - shipLength + 1), min);
+function determineStartCell(gridVal, shipLength, min = 1, max = 10) {
+  return Math.max(Math.min(gridVal, max - shipLength + 1), min);
 }
 
 function removePreviousIndicators({ previousIndicatorNodes }) {
@@ -107,40 +108,32 @@ function removePreviousIndicators({ previousIndicatorNodes }) {
   }
 }
 
+// TODO: WHEN SHIP IS DRAGGED ON TOP OF AN ALREADY PLACED SHIP, THOSE CELLS DO NOT TURN GREEN
+// TODO: SIMPLIFIY THIS FUNCTION
+
 // Indicate when ship placement is valid or invalid (show green or red cells)
 function indicatePlacementValidity(dropRow, dropColumn, dragObj) {
-  const { previousIndicatorNodes } = dragObj;
-
   const grid = document.querySelector('.game-grid');
-  const { shipLength, rotatedState } = dragObj;
+  const { shipLength, orientation, previousIndicatorNodes } = dragObj;
+  const direction = { horizontal: [0, 1], vertical: [1, 0] };
+  const [xFactor, yFactor] = direction[orientation];
 
-  let mainAxisStartCell;
-  let crossAxisStartCell; // cross axis is height of ship, same for all ships
-  let length;
-  let height;
-
-  if (rotatedState === 'true') {
-    length = 'row';
-    height = 'column';
-    mainAxisStartCell = dropRow - Math.floor(shipLength / 2); //
-    mainAxisStartCell = clampToGrid(mainAxisStartCell, shipLength);
-    crossAxisStartCell = dropColumn;
-    dragObj.rowStart = mainAxisStartCell;
-    dragObj.columnStart = crossAxisStartCell;
-  } else if (rotatedState === 'false') {
-    length = 'column';
-    height = 'row';
-    mainAxisStartCell = dropColumn - Math.floor(shipLength / 2);
-    mainAxisStartCell = clampToGrid(mainAxisStartCell, shipLength);
-    crossAxisStartCell = dropRow;
-    dragObj.rowStart = crossAxisStartCell;
-    dragObj.columnStart = mainAxisStartCell;
-  }
+  // This code centers the indicator cells around the dragged item by dividing the length into 2 and subtracting it from the dropRow or dropColumn
+  let rowStart = dropRow - xFactor * Math.floor(shipLength / 2);
+  let columnStart = dropColumn - yFactor * Math.floor(shipLength / 2);
+  rowStart =
+    rowStart === dropRow ? dropRow : determineStartCell(rowStart, shipLength);
+  columnStart =
+    columnStart === dropColumn
+      ? dropColumn
+      : determineStartCell(columnStart, shipLength);
+  dragObj.rowStart = rowStart;
+  dragObj.columnStart = columnStart;
 
   // Add indicating cells, remove previous ones
-  removePreviousIndicators({ previousIndicatorNodes });
+  // removePreviousIndicators({ previousIndicatorNodes });
   for (let i = 0; i < shipLength; i += 1) {
-    const queryString = `.cell[data-${length}="${mainAxisStartCell + i}"][data-${height}="${crossAxisStartCell}"]`;
+    const queryString = `.cell[data-row="${rowStart + xFactor * i}"][data-column="${columnStart + yFactor * i}"]`;
     const targetCell = grid.querySelector(queryString);
     targetCell.style.background = 'Chartreuse';
     dragObj.previousIndicatorNodes.push(targetCell);
@@ -166,7 +159,7 @@ function dropHandler(event, dragObj) {
     columnStart,
     shipElem,
     gameInstance,
-    rotatedState,
+    orientation,
     rowStart,
     shipName,
     previousIndicatorNodes,
@@ -174,7 +167,8 @@ function dropHandler(event, dragObj) {
   const player1 = dragObj.gameInstance.getPlayer1();
   const shipObj = gameInstance.getShipForPlayer(player1, shipName);
   const gridCoords = [rowStart - 1, columnStart - 1]; // Index starts at 0
-  const orientation = rotatedState === 'true' ? 'vertical' : 'horizontal';
+  // const orientation_old =
+  //   orientation === 'true' ? 'vertical' : 'horizontal';
 
   // console.log(gameInstance.getPlayer1().getGameboard());
 
@@ -190,10 +184,16 @@ function dropHandler(event, dragObj) {
     console.log('Ship was not been placed, there was something in the way.');
   } else {
     const shipLength = shipObj.getLength();
-    placeShipInUI({ shipElem, shipLength, rowStart, columnStart, orientation });
+    placeShipInUI({
+      shipElem,
+      shipLength,
+      rowStart,
+      columnStart,
+      orientation,
+    });
   }
 
-  removePreviousIndicators({ previousIndicatorNodes });
+  // removePreviousIndicators({ previousIndicatorNodes });
 }
 
 // TODO: CONTINUE HERE
@@ -223,8 +223,6 @@ function placeShipInUI({
   // testDiv.classList.add('test-div');
   // testDiv.textContent = 'foo';
   // gameGrid.appendChild(testDiv);
-
-  console.log({ rowStart, columnStart });
 }
 
 function randomizeShipsInUI() {
