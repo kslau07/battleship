@@ -4,7 +4,7 @@ import './reset.css';
 import './global.css';
 import './style.css';
 import Game from './Game';
-import { addDragAndDropHandlers } from './ShipPlacement';
+import { addDragAndDropHandlers, setPlacementButtons } from './ShipPlacement';
 
 // const endTurn = (gameObj) => {
 //   gameObj.endTurn();
@@ -230,34 +230,6 @@ const populatePlacementBank = (gameInstance) => {
   placementBankBody.appendChild(images);
 };
 
-// Add listener for "rotate", which toggles images between normal and rotated ships
-// HACK: This function may be too nested
-function setRotateButton() {
-  const rotateShipsBtn = this.querySelector('.placement__button--rotate-ships');
-
-  rotateShipsBtn.addEventListener('click', () => {
-    const ships = this.querySelector('.ships');
-    const rotated = ships.classList.contains('rotated');
-
-    this.querySelectorAll('.ship-wrapper').forEach((shipWrapper) => {
-      if (shipWrapper.classList.contains('placed')) return; // Do not rotate placed ships
-
-      if (rotated === false) {
-        ships.classList.add('rotated');
-        shipWrapper.querySelector('.ship-rotated-image').style.display =
-          'block';
-        shipWrapper.querySelector('.ship-image').style.display = 'none';
-        shipWrapper.dataset.rotated = 'true';
-      } else {
-        ships.classList.remove('rotated');
-        shipWrapper.querySelector('.ship-rotated-image').style.display = 'none';
-        shipWrapper.querySelector('.ship-image').style.display = 'block';
-        shipWrapper.dataset.rotated = 'false';
-      }
-    });
-  });
-}
-
 function populatePlaceShips(gameInstance) {
   const mainDisplay = document.querySelector('.main-display');
   const template = document.querySelector('.template-placement').content;
@@ -268,7 +240,7 @@ function populatePlaceShips(gameInstance) {
   mainDisplay.replaceChildren(placementDiv);
   populatePlacementGrid();
   populatePlacementBank(gameInstance);
-  setRotateButton.apply(placementDiv);
+  setPlacementButtons(gameInstance);
   addDragAndDropHandlers(gameInstance);
 }
 

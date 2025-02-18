@@ -243,6 +243,72 @@ function placeShipInUI({
   gameGrid.appendChild(shipElem);
 }
 
-function randomizeShipsInUI() {
-  // for each created ship, call placeShipInUI()
+function randomizeShipsInUI(gameInstance) {
+  const bank = document.querySelector('.bank');
+  const placements = gameInstance.randomizeShipsCurrentPlayer();
+  if (!placements) return;
+
+  placements.forEach((placement) => {
+    const { ship, gridCoords, orientation } = placement;
+    const shipElem = bank.querySelector(
+      `.ship-wrapper[data-ship="${ship.getName()}"]`,
+    );
+    const shipLength = ship.getLength();
+    const rowStart = gridCoords[0] + 1; // Convert from grid to ui coords
+    const columnStart = gridCoords[1] + 1;
+
+    if (orientation === 'vertical') rotateShip(shipElem);
+    placeShipInUI({ shipElem, shipLength, rowStart, columnStart, orientation });
+  });
+}
+
+function rotateShip(shipWrapper) {
+  shipWrapper.querySelector('.ship-rotated-image').style.display = 'block';
+  shipWrapper.querySelector('.ship-image').style.display = 'none';
+  shipWrapper.dataset.rotated = 'true';
+}
+
+function unrotateShip(shipWrapper) {
+  shipWrapper.querySelector('.ship-rotated-image').style.display = 'none';
+  shipWrapper.querySelector('.ship-image').style.display = 'block';
+  shipWrapper.dataset.rotated = 'false';
+}
+
+function setRotateButton() {
+  const placementDiv = document.querySelector('.placement');
+  const rotateShipsBtn = placementDiv.querySelector(
+    '.placement__button--rotate-ships',
+  );
+
+  rotateShipsBtn.addEventListener('click', () => {
+    const ships = placementDiv.querySelector('.ships');
+    const rotated = ships.classList.contains('rotated');
+
+    placementDiv.querySelectorAll('.ship-wrapper').forEach((shipWrapper) => {
+      if (shipWrapper.classList.contains('placed')) return; // Do not rotate placed ships
+
+      if (rotated === false) {
+        ships.classList.add('rotated');
+        rotateShip(shipWrapper);
+      } else {
+        ships.classList.remove('rotated');
+        unrotateShip(shipWrapper);
+      }
+    });
+  });
+}
+
+function setRandomizeButton(gameInstance) {
+  const randomizeBtn = document.querySelector('.placement__button--randomize');
+  randomizeBtn.addEventListener('click', () => {
+    randomizeShipsInUI(gameInstance);
+  });
+}
+
+function setResetButton() {}
+
+export function setPlacementButtons(gameInstance) {
+  setRotateButton();
+  setRandomizeButton(gameInstance);
+  setResetButton(gameInstance);
 }

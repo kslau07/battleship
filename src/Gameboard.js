@@ -5,7 +5,7 @@ import Ship from './Ship.js';
 export default class Gameboard {
   #grid;
   #createdShips;
-  #placedShips;
+  #placements;
   static #gridSize = 10;
 
   static #createCell() {
@@ -73,7 +73,7 @@ export default class Gameboard {
   constructor(shipSet = Gameboard.createDefaultShips()) {
     this.#grid = Gameboard.#buildGrid();
     this.#createdShips = shipSet;
-    this.#placedShips = [];
+    this.#placements = [];
   }
 
   getGrid() {
@@ -84,8 +84,8 @@ export default class Gameboard {
     return this.#createdShips;
   }
 
-  getPlacedShips() {
-    return this.#placedShips;
+  getPlacements() {
+    return this.#placements;
   }
 
   // Iterate through cells at given gridCoords and check for errors
@@ -125,7 +125,7 @@ export default class Gameboard {
     placementCells.forEach((cell) => (cell.ship = ship));
 
     const placementObj = { ship, gridCoords, orientation };
-    this.#placedShips.push(placementObj);
+    this.#placements.push(placementObj);
   }
 
   // Try to place a ship and return placement information
@@ -164,9 +164,13 @@ export default class Gameboard {
       do {
         const randStartCell = this.randomizeStartCell();
         const randOrient = this.randOrientation();
-        this.safePlaceShip(ship, randStartCell, randOrient);
+        this.safePlaceShip({
+          ship,
+          gridCoords: randStartCell,
+          orientation: randOrient,
+        });
 
-        numShipsAdded = this.getPlacedShips().length;
+        numShipsAdded = this.getPlacements().length;
         success = numShipsAdded === index + 1;
 
         tries += 1;
@@ -174,6 +178,8 @@ export default class Gameboard {
           throw new Error('Oops! Tried too many times to place ship!'); // Prevent infinite loop
       } while (!success); // Loop again if ship couldn't be placed
     });
+
+    return this.#placements;
   }
 
   receiveAttack(cellCoord) {
@@ -193,7 +199,7 @@ export default class Gameboard {
   }
 
   allSunk() {
-    const ships = this.getPlacedShips();
+    const ships = this.getPlacements();
     return ships.every((ship) => ship.isSunk() === true);
   }
 }

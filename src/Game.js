@@ -19,6 +19,8 @@ export default class Game {
   ) {
     this.#player1 = player1;
     this.#player2 = player2;
+
+    if (newMatch === true) this.createNewMatch();
   }
 
   // Methods with 'facade pattern' to abstact away excessive method chaining
@@ -36,11 +38,15 @@ export default class Game {
       .safePlaceShip({ ship, gridCoords, orientation });
   }
 
-  placeShipsRandomlyForPlayer(player) {
-    player.getGameboard().placeShipsRandomly();
+  randomizeShipsCurrentPlayer() {
+    return this.#curPlayer.getGameboard().placeShipsRandomly();
   }
 
+  getCurrentPlayerGameBoard() {}
+
   createNewMatch(randomizeStartingPlayer = true) {
+    randomizeStartingPlayer = false; // FIXME: REMOVE LATER, force deterministic while dev
+
     this.#gameOver = false;
 
     if (randomizeStartingPlayer === true) {
