@@ -42,7 +42,9 @@ export default class Game {
     return this.#curPlayer.getGameboard().placeShipsRandomly();
   }
 
-  getCurrentPlayerGameBoard() {}
+  getCurrentPlayerGameboard() {
+    return this.#curPlayer.getGameboard();
+  }
 
   createNewMatch(randomizeStartingPlayer = true) {
     randomizeStartingPlayer = false; // FIXME: REMOVE LATER, force deterministic while dev

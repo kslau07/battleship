@@ -177,8 +177,8 @@ body {
   gap: var(--space-md);
 
   grid-template-areas:
-    'p_btns'
     'p_grid'
+    'p_btns'
     'p_bank';
 }
 
@@ -191,9 +191,9 @@ body {
 }
 
 .placement__button {
-  font-size: var(--rwd-text-sm);
+  font-size: var(--rwd-text-xs);
   letter-spacing: 0.125rem;
-  padding-block: calc(0.125rem + 1vw);
+  padding-block: 0.5vw;
   border: 2px solid var(--secondary-color);
   color: var(--secondary-color);
   border-radius: var(--border-radius);
@@ -242,103 +242,55 @@ body {
 }
 
 .bank {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  gap: var(--space-md);
-  padding: var(--space-md);
-  grid-area: p_bank;
+  --cell-size: 8cqw;
+  text-align: center;
   background: hsla(0, 0%, 0%, 0.25);
 }
+
 .bank-header {
-  display: grid;
-  gap: var(--space-md);
-  text-align: center;
-}
-
-.bank-heading {
-  font-size: var(--rwd-text-sm);
-}
-
-.bank-body {
+  margin-top: var(--space-sm);
 }
 
 .ships {
-  display: grid;
-  gap: 2vw;
-  grid-auto-flow: row;
-  grid-template-columns: repeat(11, 1fr);
-  grid-template-rows: repeat(5, 1fr);
+  width: 100%;
+  min-height: calc(5 * var(--cell-size));
+  display: flex;
+  align-content: start;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--cell-size);
 }
 
 .ship-wrapper {
+  width: calc(var(--ship-length) * var(--cell-size));
+  height: calc(1 * var(--cell-size));
   cursor: grab;
-  width: 100%;
-  /* height is set through padding-top hack below */
-  position: relative;
 }
 
-.ship-image {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0px;
-  left: 0px;
+.ship-wrapper.rotated {
+  width: calc(1 * var(--cell-size));
+  height: calc(var(--ship-length) * var(--cell-size));
 }
 
-/* padding-top relates to width, this is a hack to define an aspect-ratio using only percentages  */
 .ship-wrapper[data-ship='Carrier'] {
   --ship-length: 5;
-  grid-row: 1 / span 1;
-  grid-column: 1 / span var(--ship-length);
-  padding-top: calc(100% / var(--ship-length));
 }
 .ship-wrapper[data-ship='Battleship'] {
   --ship-length: 4;
-  grid-row: 1 / span 1;
-  grid-column: 7 / span var(--ship-length);
-  padding-top: calc(100% / var(--ship-length));
 }
 .ship-wrapper[data-ship='Destroyer'] {
   --ship-length: 3;
-  grid-row: 2 / span 1;
-  grid-column: 1 / span var(--ship-length);
-  padding-top: calc(100% / var(--ship-length));
 }
 .ship-wrapper[data-ship='Submarine'] {
   --ship-length: 3;
-  grid-row: 2 / span 1;
-  grid-column: 5 / span var(--ship-length);
-  padding-top: calc(100% / var(--ship-length));
 }
 .ship-wrapper[data-ship='PatrolBoat'] {
   --ship-length: 2;
-  grid-row: 2 / span 1;
-  grid-column: 9 / span var(--ship-length);
-  padding-top: calc(100% / var(--ship-length));
 }
 
-.bank-body {
-  --cell-size: 8cqw;
-  position: relative;
-  height: calc(var(--cell-size) * 6);
-}
-
-/* When rotated */
-/* Rotated ships not playing nice with grid for some reason, use flex here */
-
-.ships.rotated {
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: column;
-  justify-content: space-evenly;
-  align-content: space-evenly;
-  height: 35vw;
-}
-
-.ships.rotated > .ship-wrapper {
-  padding: 0; /*remove above padding-top*/
-  width: var(--cell-size);
-  height: calc(var(--cell-size) * var(--ship-length));
+.ship-image {
+  width: 100%;
+  height: 100%;
 }
 
 .ship-rotated-image {
@@ -349,10 +301,6 @@ body {
 
 .ship-wrapper.dragging {
   opacity: 0.25;
-}
-
-.ship-wrapper[data-rotated='true'] {
-  padding-top: 0;
 }
 
 /* When placed */
@@ -374,51 +322,15 @@ body {
   .placement__body {
     grid-template-columns: 65% 1fr;
     grid-template-areas:
-      'p_btns p_bank'
-      'p_grid p_bank';
+      'p_grid p_bank'
+      'p_btns p_btns';
   }
 
-  .bank-body {
+  .bank {
     --cell-size: 5.25cqw;
   }
 
-  .ships.rotated {
-    height: 50vw;
-  }
-
   .ships {
-    grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(11, 1fr);
-  }
-
-  .ship-wrapper[data-ship='Carrier'] {
-    --ship-length: 5;
-    grid-row: 1 / span 1;
-    grid-column: 1 / span var(--ship-length);
-    /* padding-top: calc(100% / var(--ship-length)); */
-  }
-  .ship-wrapper[data-ship='Battleship'] {
-    --ship-length: 4;
-    grid-row: 2 / span 1;
-    grid-column: 1 / span var(--ship-length);
-    /* padding-top: calc(100% / var(--ship-length)); */
-  }
-  .ship-wrapper[data-ship='Destroyer'] {
-    --ship-length: 3;
-    grid-row: 3 / span 1;
-    grid-column: 1 / span var(--ship-length);
-    /* padding-top: calc(100% / var(--ship-length)); */
-  }
-  .ship-wrapper[data-ship='Submarine'] {
-    --ship-length: 3;
-    grid-row: 4 / span 1;
-    grid-column: 1 / span var(--ship-length);
-    /* padding-top: calc(100% / var(--ship-length)); */
-  }
-  .ship-wrapper[data-ship='PatrolBoat'] {
-    --ship-length: 2;
-    grid-row: 5 / span 1;
-    grid-column: 1 / span var(--ship-length);
-    /* padding-top: calc(100% / var(--ship-length)); */
+    margin-top: var(--space-md);
   }
 }

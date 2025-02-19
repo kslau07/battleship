@@ -4,7 +4,7 @@ import './reset.css';
 import './global.css';
 import './style.css';
 import Game from './Game';
-import { addDragAndDropHandlers, setPlacementButtons } from './ShipPlacement';
+import { setPlacementButtonsAndHandlers } from './ShipPlacement';
 
 // const endTurn = (gameObj) => {
 //   gameObj.endTurn();
@@ -240,8 +240,9 @@ function populatePlaceShips(gameInstance) {
   mainDisplay.replaceChildren(placementDiv);
   populatePlacementGrid();
   populatePlacementBank(gameInstance);
-  setPlacementButtons(gameInstance);
-  addDragAndDropHandlers(gameInstance);
+  // setPlacementButtons(gameInstance);
+  setPlacementButtonsAndHandlers(gameInstance);
+  // addDragAndDropHandlers(gameInstance);
 }
 
 function populateInputNames(gameInstance) {

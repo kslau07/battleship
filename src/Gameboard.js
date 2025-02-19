@@ -71,7 +71,7 @@ export default class Gameboard {
   }
 
   constructor(shipSet = Gameboard.createDefaultShips()) {
-    this.#grid = Gameboard.#buildGrid();
+    this.buildNewEmptyGrid();
     this.#createdShips = shipSet;
     this.#placements = [];
   }
@@ -86,6 +86,14 @@ export default class Gameboard {
 
   getPlacements() {
     return this.#placements;
+  }
+
+  emptyPlacements() {
+    this.#placements.length = 0;
+  }
+
+  buildNewEmptyGrid() {
+    this.#grid = Gameboard.#buildGrid();
   }
 
   // Iterate through cells at given gridCoords and check for errors

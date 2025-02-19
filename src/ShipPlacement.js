@@ -2,11 +2,15 @@
 // This module contains functions used during ship placement, and specifically uses the Drag and Drop API
 // Notes: Export multiple functions here to allow tree-shaking in bundler
 
-// TODO: CONVERT FUNCTIONS THAT USE dragObj TO USE OBJECT PARAMETERS AND ONLY EXTRACT WHAT IS
-// NECESSARY FROM THE OBJECT ARGUMENT
-
 // Add all drag-and-drop handlers
-export function addDragAndDropHandlers(gameInstance) {
+export function setPlacementButtonsAndHandlers(gameInstance) {
+  const previousIndicatorNodes = [];
+  const previousPlacementNodes = [];
+
+  setPlacementButtons({ gameInstance, previousPlacementNodes });
+
+  // Set up drag and drop handlers, etc.
+
   // NOTE: Optimization -> Combine dom queries to improve performance
   const nodeList = document.querySelectorAll(
     '.ship-wrapper, .game-grid, .axis-marker',
@@ -24,8 +28,8 @@ export function addDragAndDropHandlers(gameInstance) {
     gameInstance,
     shipName: null,
     orientation: null,
-    previousIndicatorNodes: [],
-    previousPlacementNodes: [],
+    previousIndicatorNodes,
+    previousPlacementNodes,
   };
 
   ships.forEach((ship) => {
@@ -125,9 +129,6 @@ function storePlacementNodes({
   );
 }
 
-// TODO: WHEN SHIP IS DRAGGED ON TOP OF AN ALREADY PLACED SHIP, THOSE CELLS DO NOT TURN GREEN
-// TODO: SIMPLIFIY THIS FUNCTION
-
 // Indicate when ship placement is valid or invalid (show green or red cells)
 function indicatePlacementValidity(dropRow, dropColumn, dragObj) {
   const grid = document.querySelector('.game-grid');
@@ -176,8 +177,6 @@ function dragenterHandler(event, dragObj) {
 
 function dragleaveHandler() {}
 
-// TODO: Get current player's gameboard and validate ship's placement!!
-
 function dropHandler(event, dragObj) {
   const {
     columnStart,
@@ -192,10 +191,6 @@ function dropHandler(event, dragObj) {
   const player1 = dragObj.gameInstance.getPlayer1();
   const shipObj = gameInstance.getShipForPlayer(player1, shipName);
   const gridCoords = [rowStart - 1, columnStart - 1]; // Index starts at 0
-  // const orientation_old =
-  //   orientation === 'true' ? 'vertical' : 'horizontal';
-
-  // console.log(gameInstance.getPlayer1().getGameboard());
 
   // Try to place ship on grid
   const placed = dragObj.gameInstance.safePlaceShipForPlayer({
@@ -207,8 +202,8 @@ function dropHandler(event, dragObj) {
 
   if (placed !== false) {
     storePlacementNodes({ previousIndicatorNodes, previousPlacementNodes });
-
     const shipLength = shipObj.getLength();
+
     placeShipInUI({
       shipElem,
       shipLength,
@@ -243,7 +238,9 @@ function placeShipInUI({
   gameGrid.appendChild(shipElem);
 }
 
-function randomizeShipsInUI(gameInstance) {
+function randomizeShipsInUI({ gameInstance, previousPlacementNodes }) {
+  resetShips({ gameInstance, previousPlacementNodes });
+
   const bank = document.querySelector('.bank');
   const placements = gameInstance.randomizeShipsCurrentPlayer();
   if (!placements) return;
@@ -254,7 +251,7 @@ function randomizeShipsInUI(gameInstance) {
       `.ship-wrapper[data-ship="${ship.getName()}"]`,
     );
     const shipLength = ship.getLength();
-    const rowStart = gridCoords[0] + 1; // Convert from grid to ui coords
+    const rowStart = gridCoords[0] + 1; // Convert from array coords to ui coords
     const columnStart = gridCoords[1] + 1;
 
     if (orientation === 'vertical') rotateShip(shipElem);
@@ -266,12 +263,14 @@ function rotateShip(shipWrapper) {
   shipWrapper.querySelector('.ship-rotated-image').style.display = 'block';
   shipWrapper.querySelector('.ship-image').style.display = 'none';
   shipWrapper.dataset.rotated = 'true';
+  shipWrapper.classList.add('rotated');
 }
 
 function unrotateShip(shipWrapper) {
   shipWrapper.querySelector('.ship-rotated-image').style.display = 'none';
   shipWrapper.querySelector('.ship-image').style.display = 'block';
   shipWrapper.dataset.rotated = 'false';
+  shipWrapper.classList.remove('rotated');
 }
 
 function setRotateButton() {
@@ -281,34 +280,48 @@ function setRotateButton() {
   );
 
   rotateShipsBtn.addEventListener('click', () => {
-    const ships = placementDiv.querySelector('.ships');
-    const rotated = ships.classList.contains('rotated');
-
     placementDiv.querySelectorAll('.ship-wrapper').forEach((shipWrapper) => {
       if (shipWrapper.classList.contains('placed')) return; // Do not rotate placed ships
-
-      if (rotated === false) {
-        ships.classList.add('rotated');
-        rotateShip(shipWrapper);
-      } else {
-        ships.classList.remove('rotated');
-        unrotateShip(shipWrapper);
-      }
+      const rotated = shipWrapper.classList.contains('rotated');
+      rotated === false ? rotateShip(shipWrapper) : unrotateShip(shipWrapper);
     });
   });
 }
 
-function setRandomizeButton(gameInstance) {
+function setRandomizeButton({ gameInstance, previousPlacementNodes }) {
   const randomizeBtn = document.querySelector('.placement__button--randomize');
-  randomizeBtn.addEventListener('click', () => {
-    randomizeShipsInUI(gameInstance);
-  });
+  randomizeBtn.addEventListener(
+    'click',
+    randomizeShipsInUI.bind(null, { gameInstance, previousPlacementNodes }),
+  );
 }
 
-function setResetButton() {}
+function resetShips({ gameInstance, previousPlacementNodes }) {
+  gameInstance.getCurrentPlayerGameboard().emptyPlacements();
+  const placementDiv = document.querySelector('.placement');
+  const shipWrappers = placementDiv.querySelectorAll('.ship-wrapper');
+  shipWrappers.forEach((sw) => unrotateShip.call(null, sw));
+  const shipsCtr = placementDiv.querySelector('.ships');
+  shipWrappers.forEach((sw) => {
+    shipsCtr.appendChild(sw); // Move elem back to bank
+    sw.classList.remove('placed');
+    sw.style['pointer-events'] = 'initial';
+  });
 
-export function setPlacementButtons(gameInstance) {
+  gameInstance.getCurrentPlayerGameboard().buildNewEmptyGrid();
+  previousPlacementNodes.length = 0;
+}
+
+function setResetButton({ gameInstance, previousPlacementNodes }) {
+  const resetBtn = document.querySelector('.placement__button--reset');
+  resetBtn.addEventListener(
+    'click',
+    resetShips.bind(null, { gameInstance, previousPlacementNodes }),
+  );
+}
+
+function setPlacementButtons({ gameInstance, previousPlacementNodes }) {
   setRotateButton();
-  setRandomizeButton(gameInstance);
-  setResetButton(gameInstance);
+  setRandomizeButton({ gameInstance, previousPlacementNodes });
+  setResetButton({ gameInstance, previousPlacementNodes });
 }
