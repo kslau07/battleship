@@ -7,6 +7,7 @@ export default class Game {
   #player2;
   #curPlayer;
   #gameOver;
+  #readyCount;
 
   static createPlayer(name) {
     return new Player(name);
@@ -19,6 +20,7 @@ export default class Game {
   ) {
     this.#player1 = player1;
     this.#player2 = player2;
+    this.#readyCount = 0;
 
     if (newMatch === true) this.createNewMatch();
   }
@@ -42,7 +44,7 @@ export default class Game {
     return this.#curPlayer.getGameboard().placeShipsRandomly();
   }
 
-  getCurrentPlayerGameboard() {
+  getCurPlayerGameboard() {
     return this.#curPlayer.getGameboard();
   }
 
@@ -81,7 +83,19 @@ export default class Game {
     return this.#curPlayer === this.#player1 ? this.#player2 : this.#player1;
   }
 
-  #switchCurPlayer() {
+  increaseReadyCount() {
+    return (this.#readyCount += 1);
+  }
+
+  getReadyCount() {
+    return this.#readyCount;
+  }
+
+  resetReadyCount() {
+    this.#readyCount = 0;
+  }
+
+  switchCurPlayer() {
     this.#curPlayer =
       this.#curPlayer === this.#player1 ? this.#player2 : this.#player1;
   }
@@ -112,7 +126,7 @@ export default class Game {
       this.#endGame();
     }
 
-    this.#switchCurPlayer();
+    this.switchCurPlayer();
   }
 
   isGameOver() {

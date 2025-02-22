@@ -1,15 +1,55 @@
 // ShipPlacement.js
 // This module contains functions used during ship placement, and specifically uses the Drag and Drop API
-// Notes: Export multiple functions here to allow tree-shaking in bundler
 
-// Add all drag-and-drop handlers
-export function setPlacementButtonsAndHandlers(gameInstance) {
+export default function populatePlaceShips(gameInstance) {
+  const mainDisplay = document.querySelector('.main-display');
+  const template = document.querySelector('.template-placement').content;
+  const placementDiv = template.querySelector('.placement');
+  const playerNameSpan = placementDiv.querySelector('.player-name');
+  const acceptButton = placementDiv.querySelector('.menu__button--ready');
+  acceptButton.disabled = true;
+
+  playerNameSpan.textContent = gameInstance.getCurPlayer().getName();
+  mainDisplay.replaceChildren(placementDiv);
+
+  // Insert game-grid
+  const placementButtons = document.querySelector('.placement__buttons');
+  const parent = placementButtons.parentNode;
+  const gridTemplate = document.querySelector('.template-game-grid').content;
+  const gameGrid = gridTemplate.querySelector('.game-grid');
+  parent.insertBefore(gameGrid, placementButtons);
+  populatePlacementBank(gameInstance);
+  setPlacementButtonsAndHandlers(gameInstance);
+}
+
+const populatePlacementBank = (gameInstance) => {
+  // TODO: Append the current player's bank, use gameInstance to find current player
+  const template = document.querySelector('.template-ships--player1').content;
+  const images = template.querySelector('.ships--player1').cloneNode(true);
+  const placementBankBody = document.querySelector('.bank-body');
+  placementBankBody.appendChild(images);
+  checkReady(gameInstance);
+};
+
+function setPlacementButtonsAndHandlers(gameInstance) {
   const previousIndicatorNodes = [];
   const previousPlacementNodes = [];
 
-  setPlacementButtons({ gameInstance, previousPlacementNodes });
+  // FIXME: DELETE ME DEV ONLY
+  document.onkeyup = function (e) {
+    e = e || window.event;
+    if (e.which === 82) {
+      randomizeShipsInUI({ gameInstance, previousPlacementNodes });
+      return false;
+    } else if (e.which === 89) {
+      randomizeShipsInUI({ gameInstance, previousPlacementNodes });
+      return false;
+    } else {
+      console.log(e.keyCode);
+    }
+  };
 
-  // Set up drag and drop handlers, etc.
+  setPlacementButtons({ gameInstance, previousPlacementNodes });
 
   // NOTE: Optimization -> Combine dom queries to improve performance
   const nodeList = document.querySelectorAll(
@@ -54,10 +94,6 @@ export function setPlacementButtonsAndHandlers(gameInstance) {
   }
 }
 
-// HACK: Consider using an object parameter which looks like this:
-//       function action({ dropRow, dropColumn, shipLength, shipName, orientation }) {}
-//       It is essentially using a deconstructed object as parameters
-
 function updateDragObj(dragObj) {
   const currentDrag = this;
   dragObj.shipElem = this;
@@ -100,24 +136,22 @@ function createHandler(handler, dragObj) {
   };
 }
 
-// This code centers the indicator cells around the dragged item
+// Center the indicator cells around the dragged item
 function determineStartCoord(dropCoord, shipLength, min = 1, max = 10) {
   const center = dropCoord - Math.floor(shipLength / 2);
   return Math.max(Math.min(center, max - shipLength + 1), min); // Normalize it to grid boundaries
 }
 
-// Remove previous validation indicators
 function removePreviousIndicators({ previousIndicatorNodes }) {
   if (previousIndicatorNodes === undefined) return;
 
-  // Remove green indicators
   const listLength = previousIndicatorNodes.length;
   for (let i = 0; i < listLength; i += 1) {
     previousIndicatorNodes.pop().style.background = 'none';
   }
 }
 
-// Save placed ships' cells to check against new placements
+// Store where ships are for placement validation
 function storePlacementNodes({
   previousIndicatorNodes,
   previousPlacementNodes,
@@ -129,7 +163,7 @@ function storePlacementNodes({
   );
 }
 
-// Indicate when ship placement is valid or invalid (show green or red cells)
+// Show red/green cells to visually aid ship placement
 function indicatePlacementValidity(dropRow, dropColumn, dragObj) {
   const grid = document.querySelector('.game-grid');
   const {
@@ -157,7 +191,8 @@ function indicatePlacementValidity(dropRow, dropColumn, dragObj) {
     const queryString = `.cell[data-row="${rowStart + xFactor * i}"][data-column="${columnStart + yFactor * i}"]`;
     const targetCell = grid.querySelector(queryString);
     const alreadyTaken = previousPlacementNodes.includes(targetCell);
-    targetCell.style.background = alreadyTaken === true ? 'Red' : 'Chartreuse';
+    targetCell.style.background =
+      alreadyTaken === true ? 'Red' : 'MediumSeaGreen';
     dragObj.previousIndicatorNodes.push(targetCell);
   }
 
@@ -203,13 +238,13 @@ function dropHandler(event, dragObj) {
   if (placed !== false) {
     storePlacementNodes({ previousIndicatorNodes, previousPlacementNodes });
     const shipLength = shipObj.getLength();
-
     placeShipInUI({
       shipElem,
       shipLength,
       rowStart,
       columnStart,
       orientation,
+      gameInstance,
     });
   } else {
     console.log('Ship was not placed, invalid locationn.');
@@ -224,6 +259,7 @@ function placeShipInUI({
   rowStart,
   columnStart,
   orientation,
+  gameInstance,
 }) {
   const gameGrid = document.querySelector('.game-grid');
   const direction = { horizontal: [0, 1], vertical: [1, 0] };
@@ -236,6 +272,7 @@ function placeShipInUI({
   shipElem.style['pointer-events'] = 'none';
 
   gameGrid.appendChild(shipElem);
+  checkReady(gameInstance);
 }
 
 function randomizeShipsInUI({ gameInstance, previousPlacementNodes }) {
@@ -255,7 +292,14 @@ function randomizeShipsInUI({ gameInstance, previousPlacementNodes }) {
     const columnStart = gridCoords[1] + 1;
 
     if (orientation === 'vertical') rotateShip(shipElem);
-    placeShipInUI({ shipElem, shipLength, rowStart, columnStart, orientation });
+    placeShipInUI({
+      shipElem,
+      shipLength,
+      rowStart,
+      columnStart,
+      orientation,
+      gameInstance,
+    });
   });
 }
 
@@ -297,7 +341,7 @@ function setRandomizeButton({ gameInstance, previousPlacementNodes }) {
 }
 
 function resetShips({ gameInstance, previousPlacementNodes }) {
-  gameInstance.getCurrentPlayerGameboard().emptyPlacements();
+  gameInstance.getCurPlayerGameboard().emptyPlacements();
   const placementDiv = document.querySelector('.placement');
   const shipWrappers = placementDiv.querySelectorAll('.ship-wrapper');
   shipWrappers.forEach((sw) => unrotateShip.call(null, sw));
@@ -308,8 +352,9 @@ function resetShips({ gameInstance, previousPlacementNodes }) {
     sw.style['pointer-events'] = 'initial';
   });
 
-  gameInstance.getCurrentPlayerGameboard().buildNewEmptyGrid();
+  gameInstance.getCurPlayerGameboard().buildNewEmptyGrid();
   previousPlacementNodes.length = 0;
+  checkReady(gameInstance);
 }
 
 function setResetButton({ gameInstance, previousPlacementNodes }) {
@@ -324,4 +369,50 @@ function setPlacementButtons({ gameInstance, previousPlacementNodes }) {
   setRotateButton();
   setRandomizeButton({ gameInstance, previousPlacementNodes });
   setResetButton({ gameInstance, previousPlacementNodes });
+  setReadyButton({ gameInstance, previousPlacementNodes });
+}
+
+function switchPlacementScreen({ gameInstance, previousPlacementNodes }) {
+  // Switch curPlayer
+  gameInstance.switchCurPlayer();
+
+  // Remove ships from ui
+  resetShips({ gameInstance, previousPlacementNodes });
+  // Reset counter / ready button
+}
+
+function setReadyButton({ gameInstance, previousPlacementNodes }) {
+  const readyButton = document.querySelector('.menu__button--ready');
+  readyButton.addEventListener('click', () => {
+    const count = gameInstance.increaseReadyCount();
+
+    if (count === 1) {
+      switchPlacementScreen({ gameInstance, previousPlacementNodes });
+    } else if (count === 2) {
+      gameInstance.switchCurPlayer();
+      // startGame function is called by the same element but different event-listener for organizational purposes
+    }
+  });
+}
+
+function checkReady(gameInstance) {
+  // Counter for ships remaining to be placed
+  const unplacedCountSpan = document.querySelector(
+    '.bank-heading__unplaced-ships-count',
+  );
+  unplacedCountSpan.style.color = 'OrangeRed';
+  const total = gameInstance.getCurPlayerGameboard().getCreatedShips().length;
+  const placed = gameInstance.getCurPlayerGameboard().getPlacements().length;
+  const curCount = total - placed;
+  unplacedCountSpan.textContent = curCount;
+
+  // Enable ready button when ships all placed
+  const readyButton = document.querySelector('.menu__button--ready');
+  if (curCount === 0) {
+    readyButton.textContent = 'Ready!';
+    readyButton.disabled = false;
+  } else {
+    readyButton.textContent = 'Not ready';
+    readyButton.disabled = true;
+  }
 }
