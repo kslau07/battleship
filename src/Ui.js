@@ -34,7 +34,7 @@ const addAxisMarker = (cell) => {
 };
 
 const createGrids = () => {
-  const template = document.querySelector('.template-game-grid').content;
+  const template = document.querySelector('.template-game-grids').content;
   const gameGrids = template.querySelectorAll('.game-grid');
   gameGrids.forEach((gameGrid) => {
     const gridSize = 11; // 10 plus 1 to label axes
@@ -138,10 +138,136 @@ const createShipImageElements = (playerNum) => {
   });
 };
 
+function addTorpedoAnimation__dev() {
+  const grid = document.querySelector('.game-grid--guesses');
+  const torpedo = document.createElement('div');
+  torpedo.classList.add('torpedo');
+  const torpedoImage = require('./assets/images/other/torpedo.svg');
+  const torpedoImageElem = document.createElement('img');
+  torpedoImageElem.classList.add('torpedo-image');
+  torpedoImageElem.src = torpedoImage;
+  torpedo.appendChild(torpedoImageElem);
+  grid.appendChild(torpedo);
+
+  const animation = torpedo.animate(
+    [
+      { offset: 0, transform: 'none' },
+      { offset: 0.25, transform: 'translate(200px, 0)' },
+      { offset: 0.5, transform: 'translate(200px, 200px)' },
+      { offset: 0.75, transform: 'translate(0, 200px)' },
+      { offset: 1, transform: 'none' },
+    ],
+    {
+      delay: 500,
+      endDelay: 0,
+      iterationStart: 0,
+      iterations: 1,
+      duration: 1000,
+      direction: 'normal',
+      easing: 'cubic-bezier(0.6, 0, 1, 0.6)',
+    },
+  );
+}
+
+function addTorpedoAnimation() {
+  // Add torpedo image
+  const grid = document.querySelector('.game-grid--guesses');
+  const torpedo = document.createElement('div');
+  torpedo.classList.add('torpedo');
+  const torpedoImage = require('./assets/images/other/torpedo.svg');
+  const torpedoImageElem = document.createElement('img');
+  torpedoImageElem.classList.add('torpedo-image');
+  torpedoImageElem.src = torpedoImage;
+  torpedo.appendChild(torpedoImageElem);
+  grid.appendChild(torpedo);
+
+  const gridBounds = grid.getBoundingClientRect();
+  const torpedoBounds = torpedo.getBoundingClientRect();
+  const centerTorpedo = torpedoBounds.width / 2;
+
+  // TODO: MAKE TORPEDO APPEAR AT BOTTOM OF CURSOR
+  grid.addEventListener('click', (event) => {
+    // Torpedo animation
+    const bounds = grid.getBoundingClientRect();
+    const torpedo = grid.querySelector('.torpedo');
+
+    // Find angle of right triangle after finding adj, opp and hyp sides of said triangle
+    const ptA = bounds.y - bounds.y;
+    const ptB = event.clientX - bounds.x;
+    const ptC = event.clientY - bounds.y;
+    const adj = ptC;
+    const opp = ptB;
+    const hyp = Math.hypot(adj, opp);
+
+    const offsetDeg = (Math.asin(opp / hyp) * 180) / Math.PI;
+    const baseDeg = 185;
+    const targetDeg = baseDeg - offsetDeg;
+
+    const offsetX = 62;
+    const offsetY = 62;
+    const targetX = event.clientX - bounds.x - offsetX;
+    const targetY = event.clientY - bounds.y - offsetY;
+
+    const duration = hyp * 0.3 + 600; // Use hypotenuse of triangle to vary duration
+    const animation = torpedo.animate(
+      [
+        { offset: 0, opacity: 0, transform: 'translateX(-75px)' },
+        {
+          offset: 0.2,
+          opacity: 1,
+          transform: 'translateX(0px) rotateZ(0deg)',
+        },
+        {
+          offset: 0.4,
+          opacity: 1,
+          transform: `translateX(0px) translateY(0px) rotateZ(${targetDeg}deg)`,
+        },
+        {
+          offset: 0.6,
+          opacity: 1,
+          transform: `translateX(0px) translateY(0px) rotateZ(${targetDeg}deg)`,
+        },
+        {
+          offset: 1,
+          opacity: 1,
+          transform: `translateX(${targetX}px) translateY(${targetY}px) rotateZ(${targetDeg}deg)`,
+        },
+      ],
+      {
+        delay: 0,
+        endDelay: 0,
+        fill: 'both',
+        duration: duration,
+        direction: 'normal',
+        easing: 'ease-in',
+      },
+    );
+  });
+}
+
 // const populatePlacementGrid = () => {
 //   const gameGrid = document.querySelector('.game-grid');
 //   createGrid(gameGrid);
 // };
+
+// Guesses-grid shows full width and length lines that follow cursor
+function addCrosshairs() {
+  const grid = document.querySelector('.game-grid--guesses');
+
+  const crosshairX = document.createElement('div');
+  const crosshairY = document.createElement('div');
+  crosshairX.classList.add('crosshairX');
+  crosshairY.classList.add('crosshairY');
+  grid.appendChild(crosshairX);
+  grid.appendChild(crosshairY);
+
+  const bounds = grid.getBoundingClientRect();
+
+  grid.addEventListener('mousemove', (event) => {
+    crosshairX.setAttribute('style', `top: ${event.clientY - bounds.y}px;`);
+    crosshairY.setAttribute('style', `left: ${event.clientX - bounds.x - 2}px`);
+  });
+}
 
 function populateGame(gameInstance) {
   const readyCount = gameInstance.getReadyCount();
@@ -150,6 +276,12 @@ function populateGame(gameInstance) {
 
   const mainDisplay = document.querySelector('.main-display');
   const gameGridOwn = mainDisplay.querySelector('.game-grid--own');
+  const gameGridsTemplate = document.querySelector(
+    '.template-game-grids',
+  ).content;
+  const gameGridGuesses = gameGridsTemplate.querySelector(
+    '.game-grid--guesses',
+  );
 
   mainDisplay.innerHTML = '';
 
@@ -158,12 +290,37 @@ function populateGame(gameInstance) {
   mainDisplay.replaceChildren(gameDiv);
 
   const takeTurnGridGroup = mainDisplay.querySelector('.take-turn__grid-group');
-  const gameGridGuesses = mainDisplay.querySelector('.game-grid--guesses');
-  takeTurnGridGroup.insertBefore(gameGridOwn, gameGridGuesses);
+  takeTurnGridGroup.appendChild(gameGridGuesses);
+  takeTurnGridGroup.appendChild(gameGridOwn);
+  // const gameGridGuesses = mainDisplay.querySelector('.game-grid--guesses');
+  // takeTurnGridGroup.insertBefore(gameGridOwn, gameGridGuesses);
 
   mainDisplay
     .querySelectorAll('.game-grid')
-    .forEach((grid) => grid.classList.add('take-turn'));
+    .forEach((grid) => grid.classList.add('current-turn'));
+
+  addCrosshairs();
+  addTorpedoAnimation();
+
+  gameGridGuesses.addEventListener('click', () => {
+    const cell = event.target.closest('.cell');
+    if (!cell) return;
+
+    const { row, column } = cell.dataset;
+    const attackResult = gameInstance
+      .getCurPlayerGameboard()
+      .receiveAttack([row - 1, column - 1]);
+    // Code to reveal cell
+    // Use animation + picture of missle
+
+    if (attackResult.hit === true) {
+      // hit
+      cell.style['background'] = 'red';
+    } else {
+      // miss
+      cell.style['background'] = 'SlateGray';
+    }
+  });
 }
 
 const initialize = () => {

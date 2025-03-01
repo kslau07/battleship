@@ -37,7 +37,7 @@ body {
 
   /* Fonts */
   --rwd-text-xs: calc(0.25rem + 2vw);
-  --rwd-text-sm: calc(0.5rem + 2vw);
+  --rwd-text-sm: calc(2.5vw);
   --rwd-text-md: calc(0.75rem + 3vw);
 
   /* Colors */
@@ -125,7 +125,7 @@ body {
 .menu__button:hover {
   color: var(--black);
   background: var(--secondary-color);
-  transform: scale(1.06);
+  transform: scaleY(1.15);
 }
 
 .menu__button:focus {
@@ -333,23 +333,82 @@ button:disabled {
 }
 
 .take-turn {
+}
+
+.take-turn__header {
+  text-align: center;
+}
+
+.take-turn__grid-group {
   display: grid;
-  gap: var(--space-md);
-  width: 50vw;
-  height: 50vw;
+  justify-items: center;
+  text-align: center;
 }
 
-.game-grid--own.take-turn {
-  height: 250px;
-  width: 250px;
-
-  outline: 3px dashed lime;
+.take-turn__grid-group > * {
 }
 
-.game-grid--guesses.take-turn {
-  height: 250px;
-  width: 250px;
-  outline: 3px dashed red;
+.game-grid.current-turn {
+  grid-area: initial;
+}
+
+.game-grid--own.current-turn {
+  width: 35vw;
+  height: 35vw;
+  background: radial-gradient(
+    circle,
+    hsl(185, 75%, 45%) 0%,
+    hsl(179, 75%, 40%) 35%,
+    hsl(169, 75%, 35%) 100%
+  );
+}
+
+.game-grid--own.current-turn > .cell {
+  outline: 2px solid hsla(185, 100%, 40%, 0.75);
+}
+
+.game-grid--guesses.current-turn {
+  position: relative;
+  width: 65vw;
+  height: 65vw;
+  background: hsl(185, 100%, 8%);
+}
+
+.game-grid--guesses.current-turn > .cell {
+  cursor: 0.5vw solid hsla(185, 100%, 40%, 0.75);
+}
+
+.game-grid--guesses.current-turn > .cell:hover {
+  cursor: crosshair;
+  background: hsl(185, 100%, 15%);
+}
+
+.crosshairX {
+  position: absolute;
+  height: 0px;
+  width: 100%;
+  border-top: 2px dashed Red;
+  pointer-events: none;
+}
+.crosshairY {
+  position: absolute;
+  width: 0px;
+  height: 100%;
+  border-left: 4px solid Red;
+  pointer-events: none;
+}
+
+.torpedo {
+  height: 75px;
+  aspect-ratio: 1;
+  position: absolute;
+  background:;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.torpedo-image {
+  height: 100%;
 }
 
 @media screen and (min-width: 500px) {

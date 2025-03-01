@@ -190,9 +190,9 @@ export default class Gameboard {
     return this.#placements;
   }
 
-  receiveAttack(cellCoord) {
+  receiveAttack(coords) {
     const grid = this.getGrid();
-    const targetCell = grid[cellCoord[0]][cellCoord[1]];
+    const targetCell = grid[coords[0]][coords[1]];
     const isAttacked = targetCell.isAttacked();
 
     if (isAttacked === true) {
@@ -201,9 +201,17 @@ export default class Gameboard {
 
     targetCell.attack();
 
+    let sunk = false;
     if (targetCell.ship !== 'none') {
       targetCell.ship.hit();
+      sunk = targetCell.ship.isSunk();
     }
+
+    return {
+      hit: targetCell.ship !== 'none',
+      ship: targetCell.ship || null,
+      sunk,
+    };
   }
 
   allSunk() {

@@ -15,7 +15,7 @@ export default function populatePlaceShips(gameInstance) {
   // Insert game-grid
   const placementButtons = document.querySelector('.placement__buttons');
   const parent = placementButtons.parentNode;
-  const gridTemplate = document.querySelector('.template-game-grid').content;
+  const gridTemplate = document.querySelector('.template-game-grids').content;
   const gameGrid = gridTemplate.querySelector('.game-grid');
   parent.insertBefore(gameGrid, placementButtons);
   populatePlacementBank(gameInstance);
@@ -372,13 +372,9 @@ function setPlacementButtons({ gameInstance, previousPlacementNodes }) {
   setReadyButton({ gameInstance, previousPlacementNodes });
 }
 
-function switchPlacementScreen({ gameInstance, previousPlacementNodes }) {
-  // Switch curPlayer
+function placementNextPlayer({ gameInstance, previousPlacementNodes }) {
   gameInstance.switchCurPlayer();
-
-  // Remove ships from ui
   resetShips({ gameInstance, previousPlacementNodes });
-  // Reset counter / ready button
 }
 
 function setReadyButton({ gameInstance, previousPlacementNodes }) {
@@ -387,7 +383,7 @@ function setReadyButton({ gameInstance, previousPlacementNodes }) {
     const count = gameInstance.increaseReadyCount();
 
     if (count === 1) {
-      switchPlacementScreen({ gameInstance, previousPlacementNodes });
+      placementNextPlayer({ gameInstance, previousPlacementNodes });
     } else if (count === 2) {
       gameInstance.switchCurPlayer();
       // startGame function is called by the same element but different event-listener for organizational purposes
