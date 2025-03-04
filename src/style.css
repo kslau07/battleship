@@ -238,8 +238,13 @@ button:disabled {
 }
 
 .cell {
+  display: grid;
+  place-items: center;
+  position: relative;
   width: 100%;
   padding-top: 100%;
+  /*FIXME: We need to use a background on cell, so that we can change its background color on attack. Maybe use cell bg + grid bg and mix-blend-mode*/
+  /* background: black; */
   outline: 2px solid hsla(185, 100%, 75%, 0.75);
   box-shadow: -3px 3px 3px hsla(0, 75%, 1%, 0.15);
 }
@@ -409,6 +414,19 @@ button:disabled {
 
 .torpedo-image {
   height: 100%;
+}
+
+.dot {
+  position: absolute;
+  width: 30%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+.dot.hit {
+  background: red;
+}
+.dot.miss {
+  background: white;
 }
 
 @media screen and (min-width: 500px) {

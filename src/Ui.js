@@ -138,39 +138,183 @@ const createShipImageElements = (playerNum) => {
   });
 };
 
-function addTorpedoAnimation__dev() {
-  const grid = document.querySelector('.game-grid--guesses');
-  const torpedo = document.createElement('div');
-  torpedo.classList.add('torpedo');
-  const torpedoImage = require('./assets/images/other/torpedo.svg');
-  const torpedoImageElem = document.createElement('img');
-  torpedoImageElem.classList.add('torpedo-image');
-  torpedoImageElem.src = torpedoImage;
-  torpedo.appendChild(torpedoImageElem);
-  grid.appendChild(torpedo);
+// function addTorpedoAnimation__dev() {
+//   const grid = document.querySelector('.game-grid--guesses');
+//   const torpedo = document.createElement('div');
+//   torpedo.classList.add('torpedo');
+//   const torpedoImage = require('./assets/images/other/torpedo.svg');
+//   const torpedoImageElem = document.createElement('img');
+//   torpedoImageElem.classList.add('torpedo-image');
+//   torpedoImageElem.src = torpedoImage;
+//   torpedo.appendChild(torpedoImageElem);
+//   grid.appendChild(torpedo);
+//
+//   const animation = torpedo.animate(
+//     [
+//       { offset: 0, transform: 'none' },
+//       { offset: 0.25, transform: 'translate(200px, 0)' },
+//       { offset: 0.5, transform: 'translate(200px, 200px)' },
+//       { offset: 0.75, transform: 'translate(0, 200px)' },
+//       { offset: 1, transform: 'none' },
+//     ],
+//     {
+//       delay: 500,
+//       endDelay: 0,
+//       iterationStart: 0,
+//       iterations: 1,
+//       duration: 1000,
+//       direction: 'normal',
+//       easing: 'cubic-bezier(0.6, 0, 1, 0.6)',
+//     },
+//   );
+// }
 
-  const animation = torpedo.animate(
+function showAttackedCell({ targetCell, grid, gameInstance }) {
+  if (!targetCell)
+    return new Error(
+      'Attack sequence was triggered without clicking on a valid cell.',
+    );
+
+  const { row, column } = targetCell.dataset;
+
+  const attackResult = gameInstance
+    .getCurPlayerGameboard()
+    .receiveAttack([row - 1, column - 1]);
+
+  const dot = document.createElement('div');
+  dot.classList.add('dot');
+
+  // Add a slight delay before showing cell by returning a Promise containing setTimeout
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (attackResult.hit === true) {
+        dot.classList.add('hit');
+      } else {
+        dot.classList.add('miss');
+      }
+
+      targetCell.appendChild(dot);
+      targetCell.style['background'] = 'Navy';
+
+      // Remove torpedo and crosshairs
+      grid.querySelector('.torpedo').style['visibility'] = 'hidden';
+      grid.querySelector('.crosshairX').style.visibility = 'hidden';
+      grid.querySelector('.crosshairY').style.visibility = 'hidden';
+
+      resolve('done');
+    }, 75);
+  });
+}
+
+// Animates torpedo, which which points towards mouse after click on cell
+function animateTorpedo(gameInstance) {
+  const grid = document.querySelector('.game-grid--guesses');
+  const torpedo = grid.querySelector('.torpedo');
+  const bounds = grid.getBoundingClientRect();
+  const torpedoBounds = torpedo.getBoundingClientRect();
+  const centerTorpedo = torpedoBounds.width / 2;
+
+  // Find all sides of right triangle to calculate target angle for rotation animation
+  const ptA = bounds.y - bounds.y;
+  const ptB = event.clientX - bounds.x;
+  const ptC = event.clientY - bounds.y;
+  const adj = ptC;
+  const opp = ptB;
+  const hyp = Math.hypot(adj, opp);
+
+  // Rotate torpedo to face where clicked happened before firing
+  const offsetDeg = (Math.asin(opp / hyp) * 180) / Math.PI;
+  const baseDeg = 185;
+  const targetDeg = baseDeg - offsetDeg;
+
+  // Adjust image pos relative to cursor pos
+  const offsetX = 62;
+  const offsetY = 62;
+  const targetX = event.clientX - bounds.x - offsetX;
+  const targetY = event.clientY - bounds.y - offsetY;
+
+  const duration = hyp * 0.3 + 600; // Use hypotenuse of triangle to vary duration / maintain same speed
+
+  return torpedo.animate(
     [
-      { offset: 0, transform: 'none' },
-      { offset: 0.25, transform: 'translate(200px, 0)' },
-      { offset: 0.5, transform: 'translate(200px, 200px)' },
-      { offset: 0.75, transform: 'translate(0, 200px)' },
-      { offset: 1, transform: 'none' },
+      { offset: 0, opacity: 0, transform: 'translateX(-75px)' },
+      {
+        offset: 0.2,
+        opacity: 1,
+        transform: 'translateX(0px) rotateZ(0deg)',
+      },
+      {
+        offset: 0.4,
+        opacity: 1,
+        transform: `translateX(0px) translateY(0px) rotateZ(${targetDeg}deg)`,
+      },
+      {
+        offset: 0.6,
+        opacity: 1,
+        transform: `translateX(0px) translateY(0px) rotateZ(${targetDeg}deg)`,
+      },
+      {
+        offset: 1,
+        opacity: 1,
+        transform: `translateX(${targetX}px) translateY(${targetY}px) rotateZ(${targetDeg}deg)`,
+      },
     ],
     {
-      delay: 500,
+      delay: 0,
       endDelay: 0,
-      iterationStart: 0,
-      iterations: 1,
-      duration: 1000,
+      fill: 'both',
+      duration: duration,
       direction: 'normal',
-      easing: 'cubic-bezier(0.6, 0, 1, 0.6)',
+      easing: 'ease-in',
     },
   );
 }
 
-function addTorpedoAnimation() {
-  // Add torpedo image
+// TODO: Continue here
+function renderGrids(gameInstance) {
+  // Render current player's guess grid - loop through cells, render guesses, hits, and sunk ships on UI grid
+  const gg = document.querySelector('.game-grid--guesses');
+  const curEnemyGrid = gameInstance.getCurEnemyGameboard().getGrid();
+  curEnemyGrid.forEach((row, rowIndex, arr) => {
+    row.forEach((cell, columnIndex) => {
+      const cellElem = gg.querySelector(
+        `.cell[data-row="${rowIndex + 1}"][data-column="${columnIndex + 1}"]`,
+      );
+      cellElem.replaceChildren(); // Reset cells by removing child nodes (attack dots) and reset bg
+      cellElem.style['background'] = 'black';
+
+      const { isAttacked, ship } = cell;
+      if (isAttacked === true) {
+        if (ship === 'none') {
+          // miss
+          cellElem.style['background'] = 'white';
+        } else {
+          // hit
+          cellElem.style['background'] = 'red';
+        }
+      }
+    });
+  });
+
+  // Render current player's own grid
+  const go = document.querySelector('.game-grid--own');
+  // go.style['background'] = 'brown';
+  // loop through cells, render ships, hits, and sunk ships on UI grid
+  const curPlayerGrid = gameInstance.getCurPlayerGameboard().getGrid();
+}
+
+function switchTurns(gameInstance) {
+  gameInstance.endTurnSequence();
+  const isGameOver = gameInstance.isGameOver();
+
+  if (isGameOver === true) {
+    // gameover sequence
+  }
+
+  renderGrids(gameInstance);
+}
+
+function createTorpedo() {
   const grid = document.querySelector('.game-grid--guesses');
   const torpedo = document.createElement('div');
   torpedo.classList.add('torpedo');
@@ -180,75 +324,28 @@ function addTorpedoAnimation() {
   torpedoImageElem.src = torpedoImage;
   torpedo.appendChild(torpedoImageElem);
   grid.appendChild(torpedo);
-
-  const gridBounds = grid.getBoundingClientRect();
-  const torpedoBounds = torpedo.getBoundingClientRect();
-  const centerTorpedo = torpedoBounds.width / 2;
-
-  // TODO: MAKE TORPEDO APPEAR AT BOTTOM OF CURSOR
-  grid.addEventListener('click', (event) => {
-    // Torpedo animation
-    const bounds = grid.getBoundingClientRect();
-    const torpedo = grid.querySelector('.torpedo');
-
-    // Find angle of right triangle after finding adj, opp and hyp sides of said triangle
-    const ptA = bounds.y - bounds.y;
-    const ptB = event.clientX - bounds.x;
-    const ptC = event.clientY - bounds.y;
-    const adj = ptC;
-    const opp = ptB;
-    const hyp = Math.hypot(adj, opp);
-
-    const offsetDeg = (Math.asin(opp / hyp) * 180) / Math.PI;
-    const baseDeg = 185;
-    const targetDeg = baseDeg - offsetDeg;
-
-    const offsetX = 62;
-    const offsetY = 62;
-    const targetX = event.clientX - bounds.x - offsetX;
-    const targetY = event.clientY - bounds.y - offsetY;
-
-    const duration = hyp * 0.3 + 600; // Use hypotenuse of triangle to vary duration
-    const animation = torpedo.animate(
-      [
-        { offset: 0, opacity: 0, transform: 'translateX(-75px)' },
-        {
-          offset: 0.2,
-          opacity: 1,
-          transform: 'translateX(0px) rotateZ(0deg)',
-        },
-        {
-          offset: 0.4,
-          opacity: 1,
-          transform: `translateX(0px) translateY(0px) rotateZ(${targetDeg}deg)`,
-        },
-        {
-          offset: 0.6,
-          opacity: 1,
-          transform: `translateX(0px) translateY(0px) rotateZ(${targetDeg}deg)`,
-        },
-        {
-          offset: 1,
-          opacity: 1,
-          transform: `translateX(${targetX}px) translateY(${targetY}px) rotateZ(${targetDeg}deg)`,
-        },
-      ],
-      {
-        delay: 0,
-        endDelay: 0,
-        fill: 'both',
-        duration: duration,
-        direction: 'normal',
-        easing: 'ease-in',
-      },
-    );
-  });
 }
 
-// const populatePlacementGrid = () => {
-//   const gameGrid = document.querySelector('.game-grid');
-//   createGrid(gameGrid);
-// };
+// Attack cell, check conditions, and switch sides
+async function turnSequence({ event, grid, gameInstance }) {
+  try {
+    grid.style['pointer-events'] = 'none';
+    const animation = animateTorpedo();
+
+    if (!animation || !animation.finished) {
+      throw new Error(
+        'animateTorpedo did not return a valid animation object.',
+      );
+    }
+
+    await animation.finished;
+    const targetCell = event.target.closest('.cell');
+    await showAttackedCell({ targetCell, grid, gameInstance });
+    switchTurns(gameInstance);
+  } catch (err) {
+    console.error(`Attack animation error: ${err}`);
+  }
+}
 
 // Guesses-grid shows full width and length lines that follow cursor
 function addCrosshairs() {
@@ -272,7 +369,8 @@ function addCrosshairs() {
 function populateGame(gameInstance) {
   const readyCount = gameInstance.getReadyCount();
 
-  if (readyCount !== 2) return;
+  if (readyCount !== 2)
+    return new Error('One or more players are not ready yet.');
 
   const mainDisplay = document.querySelector('.main-display');
   const gameGridOwn = mainDisplay.querySelector('.game-grid--own');
@@ -292,34 +390,16 @@ function populateGame(gameInstance) {
   const takeTurnGridGroup = mainDisplay.querySelector('.take-turn__grid-group');
   takeTurnGridGroup.appendChild(gameGridGuesses);
   takeTurnGridGroup.appendChild(gameGridOwn);
-  // const gameGridGuesses = mainDisplay.querySelector('.game-grid--guesses');
-  // takeTurnGridGroup.insertBefore(gameGridOwn, gameGridGuesses);
 
   mainDisplay
     .querySelectorAll('.game-grid')
     .forEach((grid) => grid.classList.add('current-turn'));
 
   addCrosshairs();
-  addTorpedoAnimation();
+  createTorpedo();
 
-  gameGridGuesses.addEventListener('click', () => {
-    const cell = event.target.closest('.cell');
-    if (!cell) return;
-
-    const { row, column } = cell.dataset;
-    const attackResult = gameInstance
-      .getCurPlayerGameboard()
-      .receiveAttack([row - 1, column - 1]);
-    // Code to reveal cell
-    // Use animation + picture of missle
-
-    if (attackResult.hit === true) {
-      // hit
-      cell.style['background'] = 'red';
-    } else {
-      // miss
-      cell.style['background'] = 'SlateGray';
-    }
+  gameGridGuesses.addEventListener('click', (event) => {
+    turnSequence({ event, grid: gameGridGuesses, gameInstance });
   });
 }
 

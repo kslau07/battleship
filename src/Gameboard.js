@@ -215,7 +215,7 @@ export default class Gameboard {
   }
 
   allSunk() {
-    const ships = this.getPlacements();
+    const ships = this.getCreatedShips();
     return ships.every((ship) => ship.isSunk() === true);
   }
 }

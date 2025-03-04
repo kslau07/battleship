@@ -5,11 +5,11 @@ export default function populatePlaceShips(gameInstance) {
   const mainDisplay = document.querySelector('.main-display');
   const template = document.querySelector('.template-placement').content;
   const placementDiv = template.querySelector('.placement');
-  const playerNameSpan = placementDiv.querySelector('.player-name');
+  const curPlayerNameSpan = placementDiv.querySelector('.current-player-name');
   const acceptButton = placementDiv.querySelector('.menu__button--ready');
   acceptButton.disabled = true;
 
-  playerNameSpan.textContent = gameInstance.getCurPlayer().getName();
+  curPlayerNameSpan.textContent = gameInstance.getCurPlayer().getName();
   mainDisplay.replaceChildren(placementDiv);
 
   // Insert game-grid
@@ -373,7 +373,9 @@ function setPlacementButtons({ gameInstance, previousPlacementNodes }) {
 }
 
 function placementNextPlayer({ gameInstance, previousPlacementNodes }) {
+  const curPlayerNameSpan = document.querySelector('.current-player-name');
   gameInstance.switchCurPlayer();
+  curPlayerNameSpan.textContent = gameInstance.getCurPlayer().getName();
   resetShips({ gameInstance, previousPlacementNodes });
 }
 

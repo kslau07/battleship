@@ -48,6 +48,10 @@ export default class Game {
     return this.#curPlayer.getGameboard();
   }
 
+  getCurEnemyGameboard() {
+    return this.getCurEnemy().getGameboard();
+  }
+
   createNewMatch(randomizeStartingPlayer = true) {
     randomizeStartingPlayer = false; // FIXME: REMOVE LATER, force deterministic while dev
 
@@ -119,7 +123,7 @@ export default class Game {
     return false;
   }
 
-  endTurn() {
+  endTurnSequence() {
     const isEndOfGame = this.#checkGameEndConditions();
 
     if (isEndOfGame === true) {
