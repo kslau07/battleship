@@ -404,6 +404,7 @@ function setReadyButton({ gameInstance, previousPlacementNodes }) {
     if (count === 1) {
       placementNextPlayer({ gameInstance, previousPlacementNodes });
     } else if (count === 2) {
+      console.log('hello from setReadyButton'); //  FIXME: DELETE ME
       gameInstance.switchCurPlayer();
       // startGame function is called by the same element but different event-listener for organizational purposes
     }

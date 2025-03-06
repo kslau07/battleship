@@ -438,15 +438,23 @@ button:disabled {
   width: 30%;
   aspect-ratio: 1;
   border-radius: 50%;
-
-  /*  FIXME: DELETE ME */
-  background: yellow;
 }
 .dot.hit {
   background: red;
 }
 .dot.miss {
   background: white;
+}
+
+.game-over-modal {
+  position: absolute;
+  padding: 3rem;
+  background: teal;
+  font-size: var(--rwd-text-md);
+  color: white;
+  top: 25%;
+  width: 100%;
+  /* left: 15%; */
 }
 
 @media screen and (min-width: 500px) {

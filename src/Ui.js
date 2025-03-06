@@ -65,10 +65,21 @@ function populateInputNames(gameInstance) {
     '.menu__text-input--player2',
   );
 
+  // // Vs. Computer
+  // if (this.value === 'computer') {
+  //   player2Input.disabled = true;
+  //   player2Input.value = 'COMPUTER';
+  // }
+
   continueButton.addEventListener('click', () => {
     gameInstance.getPlayer1().setName(player1Input.value);
     gameInstance.getPlayer2().setName(player2Input.value);
     populatePlaceShips(gameInstance);
+    const readyButton = document.querySelector('.menu__button--ready');
+    readyButton.addEventListener(
+      'click',
+      populateGame.bind(null, gameInstance),
+    );
   });
   mainDisplay.replaceChildren(inputNamesDiv);
 }
@@ -137,37 +148,6 @@ const createShipImageElements = (playerNum) => {
     ships.appendChild(shipWrapper);
   });
 };
-
-// function addTorpedoAnimation__dev() {
-//   const grid = document.querySelector('.game-grid--guesses');
-//   const torpedo = document.createElement('div');
-//   torpedo.classList.add('torpedo');
-//   const torpedoImage = require('./assets/images/other/torpedo.svg');
-//   const torpedoImageElem = document.createElement('img');
-//   torpedoImageElem.classList.add('torpedo-image');
-//   torpedoImageElem.src = torpedoImage;
-//   torpedo.appendChild(torpedoImageElem);
-//   grid.appendChild(torpedo);
-//
-//   const animation = torpedo.animate(
-//     [
-//       { offset: 0, transform: 'none' },
-//       { offset: 0.25, transform: 'translate(200px, 0)' },
-//       { offset: 0.5, transform: 'translate(200px, 200px)' },
-//       { offset: 0.75, transform: 'translate(0, 200px)' },
-//       { offset: 1, transform: 'none' },
-//     ],
-//     {
-//       delay: 500,
-//       endDelay: 0,
-//       iterationStart: 0,
-//       iterations: 1,
-//       duration: 1000,
-//       direction: 'normal',
-//       easing: 'cubic-bezier(0.6, 0, 1, 0.6)',
-//     },
-//   );
-// }
 
 function showAttackedCell({ targetCell, grid, gameInstance }) {
   if (!targetCell)
@@ -378,6 +358,12 @@ function switchTurns(gameInstance) {
 
   if (isGameOver === true) {
     // gameover sequence
+    //  FIXME: DELETE ME - quick game over pop up
+    const gridOwn = document.querySelector('.game-grid--guesses');
+    const gameOverModal = document.createElement('div');
+    gameOverModal.textContent = 'GAME OVER! YOU WON! (play again?)';
+    gameOverModal.classList.add('game-over-modal');
+    gridOwn.appendChild(gameOverModal);
     return console.log('Game is over!');
   }
 
@@ -495,9 +481,9 @@ const initialize = () => {
   populateSelectOpponent(gameInstance);
 };
 
-// initialize(); // TODO: UNCOMMENT THIS LINE LATER
+initialize(); // TODO: UNCOMMENT THIS LINE LATER
 
-// TODO: DELETE ME - DEV ONLY
+//  FIXME: DELETE ME - DEV ONLY
 const testPopPlaceShips = () => {
   [1, 2].forEach(createShipImageElements);
   const gameInstance = new Game();
@@ -508,4 +494,4 @@ const testPopPlaceShips = () => {
   const readyButton = document.querySelector('.menu__button--ready');
   readyButton.addEventListener('click', populateGame.bind(null, gameInstance));
 };
-testPopPlaceShips();
+// testPopPlaceShips();
