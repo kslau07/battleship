@@ -178,23 +178,22 @@ function showAttackedCell({ targetCell, grid, gameInstance }) {
   const { row, column } = targetCell.dataset;
 
   const attackResult = gameInstance
-    .getCurPlayerGameboard()
+    .getCurEnemyGameboard()
     .receiveAttack([row - 1, column - 1]);
-
-  const dot = document.createElement('div');
-  dot.classList.add('dot');
 
   // Add a slight delay before showing cell by returning a Promise containing setTimeout
   return new Promise((resolve, reject) => {
     setTimeout(() => {
+      const dot = targetCell.firstElementChild;
+
       if (attackResult.hit === true) {
         dot.classList.add('hit');
       } else {
         dot.classList.add('miss');
       }
 
-      targetCell.appendChild(dot);
       targetCell.style['background'] = 'Navy';
+      dot.style['visibility'] = 'visible';
 
       // Remove torpedo and crosshairs
       grid.querySelector('.torpedo').style['visibility'] = 'hidden';
@@ -235,6 +234,7 @@ function animateTorpedo(gameInstance) {
 
   const duration = hyp * 0.3 + 600; // Use hypotenuse of triangle to vary duration / maintain same speed
 
+  torpedo.style['visibility'] = 'initial';
   return torpedo.animate(
     [
       { offset: 0, opacity: 0, transform: 'translateX(-75px)' },
@@ -270,37 +270,106 @@ function animateTorpedo(gameInstance) {
   );
 }
 
-// TODO: Continue here
+function setShipElemRotation(shipElem, rotation) {
+  if (rotation === false) {
+    shipElem.querySelector('.ship-rotated-image').style.display = 'none';
+    shipElem.querySelector('.ship-image').style.display = 'block';
+    shipElem.dataset.rotated = 'false';
+    shipElem.classList.remove('rotated');
+  } else if (rotation === true) {
+    shipElem.querySelector('.ship-rotated-image').style.display = 'block';
+    shipElem.querySelector('.ship-image').style.display = 'none';
+    shipElem.dataset.rotated = 'true';
+    shipElem.classList.add('rotated');
+  }
+}
+
+function placeShipOnGridUI({
+  shipElem,
+  shipLength,
+  rowStart,
+  columnStart,
+  orientation,
+}) {
+  const direction = { horizontal: [0, 1], vertical: [1, 0] };
+  const [xFactor, yFactor] = direction[orientation];
+  shipElem.classList.add('placed');
+  shipElem.style.gridRowStart = rowStart;
+  shipElem.style.gridRowEnd = rowStart + xFactor * shipLength;
+  shipElem.style.gridColumnStart = columnStart;
+  shipElem.style.gridColumnEnd = columnStart + yFactor * shipLength;
+  shipElem.style['pointer-events'] = 'none';
+  const isRotated = orientation === 'vertical' ? true : false;
+  setShipElemRotation(shipElem, isRotated);
+}
+
 function renderGrids(gameInstance) {
-  // Render current player's guess grid - loop through cells, render guesses, hits, and sunk ships on UI grid
-  const gg = document.querySelector('.game-grid--guesses');
+  const curPlayerNameSpan = document.querySelector('.current-player-name');
+  curPlayerNameSpan.textContent = `${gameInstance.getCurPlayer().getName()}'s turn!`;
+
+  // Render current player's guess grid
+  const gridGuesses = document.querySelector('.game-grid--guesses');
+  gridGuesses.style['pointer-events'] = 'initial';
   const curEnemyGrid = gameInstance.getCurEnemyGameboard().getGrid();
   curEnemyGrid.forEach((row, rowIndex, arr) => {
     row.forEach((cell, columnIndex) => {
-      const cellElem = gg.querySelector(
+      const cellElem = gridGuesses.querySelector(
         `.cell[data-row="${rowIndex + 1}"][data-column="${columnIndex + 1}"]`,
       );
-      cellElem.replaceChildren(); // Reset cells by removing child nodes (attack dots) and reset bg
-      cellElem.style['background'] = 'black';
 
-      const { isAttacked, ship } = cell;
+      const { ship } = cell;
+      const isAttacked = cell.isAttacked();
+      const dot = cellElem.firstElementChild;
+      dot.classList.remove('hit', 'miss');
+
       if (isAttacked === true) {
+        dot.style['visibility'] = 'visible';
+        cellElem.style['background'] = 'navy';
         if (ship === 'none') {
-          // miss
-          cellElem.style['background'] = 'white';
+          dot.classList.add('miss');
         } else {
-          // hit
-          cellElem.style['background'] = 'red';
+          dot.classList.add('hit');
         }
+      } else {
+        dot.style['visibility'] = 'hidden';
+        cellElem.style['background'] = 'none';
+      }
+
+      // FIXME: DEV ONLY, SHOWS WHERE SHIPS ARE ON GUESS GRID
+      //  FIXME: DELETE ME
+      if (ship !== 'none') {
+        cellElem.style['background'] = 'gray';
+      } else {
+        cellElem.style['background'] = 'navy';
       }
     });
   });
 
-  // Render current player's own grid
-  const go = document.querySelector('.game-grid--own');
-  // go.style['background'] = 'brown';
-  // loop through cells, render ships, hits, and sunk ships on UI grid
-  const curPlayerGrid = gameInstance.getCurPlayerGameboard().getGrid();
+  // Render current player's own grid (position ship elements)
+  const gridOwn = document.querySelector('.game-grid--own');
+  const curPlayerPlacements = gameInstance
+    .getCurPlayerGameboard()
+    .getPlacements();
+
+  curPlayerPlacements.forEach((placement) => {
+    const { ship, gridCoords, orientation } = placement;
+    const shipName = ship.getName();
+    const shipElem = gridOwn.querySelector(
+      `.ship-wrapper[data-ship="${shipName}"]`,
+    );
+    const shipLength = ship.getLength();
+    const gridOffset = 2;
+    const [row, column] = gridCoords;
+    const rowStart = row + gridOffset;
+    const columnStart = column + gridOffset;
+    placeShipOnGridUI({
+      shipElem,
+      shipLength,
+      rowStart,
+      columnStart,
+      orientation,
+    });
+  });
 }
 
 function switchTurns(gameInstance) {
@@ -309,6 +378,7 @@ function switchTurns(gameInstance) {
 
   if (isGameOver === true) {
     // gameover sequence
+    return console.log('Game is over!');
   }
 
   renderGrids(gameInstance);
@@ -341,7 +411,9 @@ async function turnSequence({ event, grid, gameInstance }) {
     await animation.finished;
     const targetCell = event.target.closest('.cell');
     await showAttackedCell({ targetCell, grid, gameInstance });
-    switchTurns(gameInstance);
+    setTimeout(() => {
+      switchTurns(gameInstance);
+    }, 1000);
   } catch (err) {
     console.error(`Attack animation error: ${err}`);
   }
@@ -366,6 +438,19 @@ function addCrosshairs() {
   });
 }
 
+// Add dot elements for guesses
+
+function createDotElements(grid) {
+  grid.querySelectorAll('.cell').forEach((cell) => {
+    if (cell.dataset.row === '0' || cell.dataset.column === '0') return;
+
+    const dot = document.createElement('div');
+    dot.classList.add('dot');
+
+    cell.appendChild(dot);
+  });
+}
+
 function populateGame(gameInstance) {
   const readyCount = gameInstance.getReadyCount();
 
@@ -373,13 +458,11 @@ function populateGame(gameInstance) {
     return new Error('One or more players are not ready yet.');
 
   const mainDisplay = document.querySelector('.main-display');
-  const gameGridOwn = mainDisplay.querySelector('.game-grid--own');
+  const gridOwn = mainDisplay.querySelector('.game-grid--own');
   const gameGridsTemplate = document.querySelector(
     '.template-game-grids',
   ).content;
-  const gameGridGuesses = gameGridsTemplate.querySelector(
-    '.game-grid--guesses',
-  );
+  const gridGuesses = gameGridsTemplate.querySelector('.game-grid--guesses');
 
   mainDisplay.innerHTML = '';
 
@@ -388,8 +471,8 @@ function populateGame(gameInstance) {
   mainDisplay.replaceChildren(gameDiv);
 
   const takeTurnGridGroup = mainDisplay.querySelector('.take-turn__grid-group');
-  takeTurnGridGroup.appendChild(gameGridGuesses);
-  takeTurnGridGroup.appendChild(gameGridOwn);
+  takeTurnGridGroup.appendChild(gridGuesses);
+  takeTurnGridGroup.appendChild(gridOwn);
 
   mainDisplay
     .querySelectorAll('.game-grid')
@@ -397,9 +480,11 @@ function populateGame(gameInstance) {
 
   addCrosshairs();
   createTorpedo();
+  createDotElements(gridGuesses);
+  renderGrids(gameInstance);
 
-  gameGridGuesses.addEventListener('click', (event) => {
-    turnSequence({ event, grid: gameGridGuesses, gameInstance });
+  gridGuesses.addEventListener('click', (event) => {
+    turnSequence({ event, grid: gridGuesses, gameInstance });
   });
 }
 

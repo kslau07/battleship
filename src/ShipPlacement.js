@@ -41,8 +41,25 @@ function setPlacementButtonsAndHandlers(gameInstance) {
     if (e.which === 82) {
       randomizeShipsInUI({ gameInstance, previousPlacementNodes });
       return false;
-    } else if (e.which === 89) {
-      randomizeShipsInUI({ gameInstance, previousPlacementNodes });
+    } else if (e.which === 80) {
+      const curPlayer = gameInstance.getCurPlayer();
+      console.log('curPlayer: ', curPlayer.getName());
+
+      const curPlayerPlacements = gameInstance
+        .getCurPlayerGameboard()
+        .getPlacements();
+
+      curPlayerPlacements.forEach((placement) => {
+        const shipName = placement.ship.getName();
+        console.log(`shipName: ${shipName}`);
+        console.log(`coords: ${placement.gridCoords}`);
+      });
+
+      // const patrolBoatElem = document.querySelector(
+      //   '.ship-wrapper[data-ship="PatrolBoat"]',
+      // );
+      // console.log(patrolBoatElem);
+
       return false;
     } else {
       console.log(e.keyCode);

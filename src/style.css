@@ -176,7 +176,7 @@ body {
 .placement__instructions-subtext {
   font-size: var(--rwd-text-xs);
   font-style: italic;
-  color: Gold;
+  color: gold;
 }
 
 .placement__body {
@@ -342,6 +342,23 @@ button:disabled {
 
 .take-turn__header {
   text-align: center;
+  margin-bottom: var(--space-sm);
+}
+
+.take-turn__header > span {
+  display: block;
+  text-align: center;
+  font-size: var(--rwd-text-sm);
+  font-style: italic;
+  color: gold;
+}
+
+.take-turn__header > span:first-child {
+  display: block;
+  text-align: center;
+  font-size: var(--rwd-text-md);
+  font-style: normal;
+  color: white;
 }
 
 .take-turn__grid-group {
@@ -421,6 +438,9 @@ button:disabled {
   width: 30%;
   aspect-ratio: 1;
   border-radius: 50%;
+
+  /*  FIXME: DELETE ME */
+  background: yellow;
 }
 .dot.hit {
   background: red;

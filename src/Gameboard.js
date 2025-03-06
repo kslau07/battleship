@@ -49,16 +49,11 @@ export default class Gameboard {
   static createDefaultShips() {
     const createdShips = [];
     const defaultShips = [
-      // FIXME: UNCOMMENT BELOW
       { name: 'Carrier', length: 5 },
       { name: 'Battleship', length: 4 },
       { name: 'Destroyer', length: 3 },
       { name: 'Submarine', length: 3 },
       { name: 'PatrolBoat', length: 2 },
-
-      // FIXME: DELETE BELOW
-      // { name: 'Submarine', length: 3 },
-      // { name: 'Patrol Boat', length: 2 },
     ];
 
     defaultShips.forEach((ship) => {
