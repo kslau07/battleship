@@ -66,10 +66,11 @@ function populateInputNames(gameInstance) {
   );
 
   // // Vs. Computer
-  // if (this.value === 'computer') {
-  //   player2Input.disabled = true;
-  //   player2Input.value = 'COMPUTER';
-  // }
+  // test commit
+  if (this.value === 'computer') {
+    player2Input.disabled = true;
+    player2Input.value = 'COMPUTER';
+  }
 
   continueButton.addEventListener('click', () => {
     gameInstance.getPlayer1().setName(player1Input.value);
