@@ -346,11 +346,11 @@ function renderGrids(gameInstance) {
 
       // FIXME: DEV ONLY, SHOWS WHERE SHIPS ARE ON GUESS GRID
       //  FIXME: DELETE ME
-      if (ship !== 'none') {
-        cellElem.style['background'] = 'gray';
-      } else {
-        cellElem.style['background'] = 'navy';
-      }
+      // if (ship !== 'none') {
+      //   cellElem.style['background'] = 'gray';
+      // } else {
+      //   cellElem.style['background'] = 'navy';
+      // }
     });
   });
 
