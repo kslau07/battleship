@@ -61,6 +61,12 @@ function setPlacementButtonsAndHandlers(gameInstance) {
       // console.log(patrolBoatElem);
 
       return false;
+    } else if (e.which === 77) {
+      // console.log('hi');
+      // var e = window.event;
+      // var clientX = e.clientX;
+      // var clientY = e.clientY;
+      // console.log({ clientX, clientY });
     } else {
       console.log(e.keyCode);
     }
@@ -392,8 +398,26 @@ function setPlacementButtons({ gameInstance, previousPlacementNodes }) {
 function placementNextPlayer({ gameInstance, previousPlacementNodes }) {
   const curPlayerNameSpan = document.querySelector('.current-player-name');
   gameInstance.switchCurPlayer();
-  curPlayerNameSpan.textContent = gameInstance.getCurPlayer().getName();
+  const curName = gameInstance.getCurPlayer().getName();
+  curPlayerNameSpan.textContent = curName;
   resetShips({ gameInstance, previousPlacementNodes });
+
+  // Simulate keypresses for COMPUTER player
+  // const curName = gameInstance.getCurPlayer();
+  // console.log({ cur });
+  if (curName === 'COMPUTER') {
+    const readyButton = document.querySelector('.menu__button--ready');
+    readyButton.style['display'] = 'none'; // Remove ready button when computer opponent
+
+    setTimeout(() => {
+      // 1st Press random button (invoke callback manually here)
+      randomizeShipsInUI({ gameInstance, previousPlacementNodes });
+      document.querySelector('.begin-game-dialog').style['display'] = 'initial';
+      // 2nd Press ready
+
+      // 2nd black out placement grid and add text saying: 'Computer is thinking'
+    }, 500);
+  }
 }
 
 function setReadyButton({ gameInstance, previousPlacementNodes }) {
@@ -406,7 +430,7 @@ function setReadyButton({ gameInstance, previousPlacementNodes }) {
     } else if (count === 2) {
       console.log('hello from setReadyButton'); //  FIXME: DELETE ME
       gameInstance.switchCurPlayer();
-      // startGame function is called by the same element but different event-listener for organizational purposes
+      // startGame callback is in UI.js
     }
   });
 }

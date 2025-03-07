@@ -65,11 +65,11 @@ function populateInputNames(gameInstance) {
     '.menu__text-input--player2',
   );
 
-  // // Vs. Computer
-  // test commit
+  // Vs. Computer
   if (this.value === 'computer') {
     player2Input.disabled = true;
     player2Input.value = 'COMPUTER';
+    createBeginGameDialog(gameInstance);
   }
 
   continueButton.addEventListener('click', () => {
@@ -83,6 +83,29 @@ function populateInputNames(gameInstance) {
     );
   });
   mainDisplay.replaceChildren(inputNamesDiv);
+}
+
+function createBeginGameDialog(gameInstance) {
+  // console.log('hello from createBeginGameDialog');
+  const body = document.querySelector('body');
+  const dialog = document.createElement('div');
+  const p = document.createElement('p');
+  p.classList.add('begin-game-dialog__text');
+  p.textContent = 'The COMPUTER has placed their ships.';
+  dialog.appendChild(p);
+  const button = document.createElement('button');
+  button.textContent = 'BEGIN GAME';
+  button.classList.add('menu__button', 'menu__button--dialog');
+  button.addEventListener('click', () => {
+    gameInstance.increaseReadyCount();
+    gameInstance.switchCurPlayer();
+    populateGame(gameInstance);
+    dialog.style['display'] = 'none';
+  });
+  dialog.classList.add('begin-game-dialog');
+  dialog.appendChild(button);
+  dialog.style['display'] = 'none';
+  body.insertBefore(dialog, body.firstChild);
 }
 
 const populateSelectOpponent = (gameInstance) => {
@@ -150,7 +173,7 @@ const createShipImageElements = (playerNum) => {
   });
 };
 
-function showAttackedCell({ targetCell, grid, gameInstance }) {
+function performAttack({ targetCell, gridElem, gameInstance }) {
   if (!targetCell)
     return new Error(
       'Attack sequence was triggered without clicking on a valid cell.',
@@ -177,9 +200,9 @@ function showAttackedCell({ targetCell, grid, gameInstance }) {
       dot.style['visibility'] = 'visible';
 
       // Remove torpedo and crosshairs
-      grid.querySelector('.torpedo').style['visibility'] = 'hidden';
-      grid.querySelector('.crosshairX').style.visibility = 'hidden';
-      grid.querySelector('.crosshairY').style.visibility = 'hidden';
+      gridElem.querySelector('.torpedo').style['visibility'] = 'hidden';
+      gridElem.querySelector('.crosshairX').style.visibility = 'hidden';
+      gridElem.querySelector('.crosshairY').style.visibility = 'hidden';
 
       resolve('done');
     }, 75);
@@ -187,17 +210,22 @@ function showAttackedCell({ targetCell, grid, gameInstance }) {
 }
 
 // Animates torpedo, which which points towards mouse after click on cell
-function animateTorpedo(gameInstance) {
+function animateTorpedo({ gameInstance, attackCoordX, attackCoordY }) {
   const grid = document.querySelector('.game-grid--guesses');
   const torpedo = grid.querySelector('.torpedo');
   const bounds = grid.getBoundingClientRect();
   const torpedoBounds = torpedo.getBoundingClientRect();
   const centerTorpedo = torpedoBounds.width / 2;
 
+  // mouse click coords or given computer coords
+
+  attackCoordX = attackCoordX || event.clientX;
+  attackCoordY = attackCoordY || event.clientY;
+
   // Find all sides of right triangle to calculate target angle for rotation animation
   const ptA = bounds.y - bounds.y;
-  const ptB = event.clientX - bounds.x;
-  const ptC = event.clientY - bounds.y;
+  const ptB = attackCoordX - bounds.x;
+  const ptC = attackCoordY - bounds.y;
   const adj = ptC;
   const opp = ptB;
   const hyp = Math.hypot(adj, opp);
@@ -210,8 +238,8 @@ function animateTorpedo(gameInstance) {
   // Adjust image pos relative to cursor pos
   const offsetX = 62;
   const offsetY = 62;
-  const targetX = event.clientX - bounds.x - offsetX;
-  const targetY = event.clientY - bounds.y - offsetY;
+  const targetX = attackCoordX - bounds.x - offsetX;
+  const targetY = attackCoordY - bounds.y - offsetY;
 
   const duration = hyp * 0.3 + 600; // Use hypotenuse of triangle to vary duration / maintain same speed
 
@@ -353,6 +381,51 @@ function renderGrids(gameInstance) {
   });
 }
 
+// FIXME: MAJOR BUG WITH NULL TARGET CELL
+// FIXME: MAJOR BUG WITH ATTACKING PREVIOUSLY ATTACKED CELL
+async function takeTurnComputer(gameInstance) {
+  // Get valid random cell to attack
+  let valid = false;
+  let randRowIndex;
+  let randColumnIndex;
+  while (valid === false) {
+    randRowIndex = Math.floor(Math.random() * 10);
+    randColumnIndex = Math.floor(Math.random() * 10);
+    const grid = gameInstance.getCurEnemy().getGameboard().getGrid();
+    const targetCell = grid[randRowIndex][randColumnIndex];
+    const isValidCell = targetCell.isAttacked() === false;
+
+    if (isValidCell === true) {
+      valid = true;
+    }
+  }
+
+  const gridElem = document.querySelector('.game-grid--guesses');
+  const indexOffset = 2;
+  const row = randRowIndex + indexOffset;
+  const column = randColumnIndex + indexOffset;
+  const cellElem = gridElem.querySelector(
+    `.cell[data-row="${row}"][data-column="${column}"]`,
+  );
+  const gridBounds = gridElem.getBoundingClientRect();
+  const cellBounds = cellElem.getBoundingClientRect();
+
+  try {
+    const animation = animateTorpedo({
+      gameInstance,
+      attackCoordX: cellBounds.x,
+      attackCoordY: cellBounds.y,
+    });
+    await animation.finished;
+    performAttack({ targetCell: cellElem, gridElem, gameInstance });
+    setTimeout(() => {
+      switchTurns(gameInstance);
+    }, 1000);
+  } catch (err) {
+    console.error("There was an error during the computer's move", err);
+  }
+}
+
 function switchTurns(gameInstance) {
   gameInstance.endTurnSequence();
   const isGameOver = gameInstance.isGameOver();
@@ -369,6 +442,12 @@ function switchTurns(gameInstance) {
   }
 
   renderGrids(gameInstance);
+
+  // Computer goes automatically
+  const curName = gameInstance.getCurPlayer().getName();
+  if (curName === 'COMPUTER') {
+    takeTurnComputer(gameInstance);
+  }
 }
 
 function createTorpedo() {
@@ -384,10 +463,10 @@ function createTorpedo() {
 }
 
 // Attack cell, check conditions, and switch sides
-async function turnSequence({ event, grid, gameInstance }) {
+async function turnSequence({ event, gridElem, gameInstance }) {
   try {
-    grid.style['pointer-events'] = 'none';
-    const animation = animateTorpedo();
+    gridElem.style['pointer-events'] = 'none';
+    const animation = animateTorpedo({ gameInstance });
 
     if (!animation || !animation.finished) {
       throw new Error(
@@ -397,7 +476,7 @@ async function turnSequence({ event, grid, gameInstance }) {
 
     await animation.finished;
     const targetCell = event.target.closest('.cell');
-    await showAttackedCell({ targetCell, grid, gameInstance });
+    await performAttack({ targetCell, gridElem, gameInstance });
     setTimeout(() => {
       switchTurns(gameInstance);
     }, 1000);
@@ -438,6 +517,16 @@ function createDotElements(grid) {
   });
 }
 
+// Check if cell has been attacked before
+function isValidAttack(gameInstance, cellElem) {
+  const indexOffset = 1;
+  const rowIndex = cellElem.dataset.row - 1;
+  const columnIndex = cellElem.dataset.column - 1;
+  const grid = gameInstance.getCurEnemy().getGameboard().getGrid();
+  const targetCell = grid[rowIndex][columnIndex];
+  return targetCell.isAttacked() === false;
+}
+
 function populateGame(gameInstance) {
   const readyCount = gameInstance.getReadyCount();
 
@@ -471,8 +560,15 @@ function populateGame(gameInstance) {
   renderGrids(gameInstance);
 
   gridGuesses.addEventListener('click', (event) => {
-    turnSequence({ event, grid: gridGuesses, gameInstance });
+    // Check if already attacked, get cell clicked on
+    const cellElem = event.target.closest('.cell');
+    const isValid = isValidAttack(gameInstance, cellElem);
+    if (isValid === false) return;
+
+    turnSequence({ event, gridElem: gridGuesses, gameInstance });
   });
+
+  // TODO: Code goes here for when computer goes first
 }
 
 const initialize = () => {
@@ -496,3 +592,9 @@ const testPopPlaceShips = () => {
   readyButton.addEventListener('click', populateGame.bind(null, gameInstance));
 };
 // testPopPlaceShips();
+
+//  FIXME: DELETE ME
+// document.addEventListener('mousemove', (event) => {
+//   const { clientX, clientY } = event;
+//   console.log({ clientX, clientY });
+// });

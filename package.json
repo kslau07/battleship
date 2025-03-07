@@ -9,17 +9,13 @@
     "watch": "webpack --watch",
     "start": "webpack serve --open --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",
-    "deploy": "git subtree push --prefix dist origin gh-pages"
+    "deploy": "gh-pages -d dist"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kslau07/battleship.git"
   },
-  "keywords": [
-    "odin",
-    "project",
-    "battleship"
-  ],
+  "keywords": ["odin", "project", "battleship"],
   "author": "Kwok Lau",
   "license": "ISC",
   "homepage": "https://github.com/kslau07/battleship#readme",

@@ -457,6 +457,29 @@ button:disabled {
   /* left: 15%; */
 }
 
+.begin-game-dialog {
+  position: absolute;
+  display: flex;
+  place-content: center;
+  text-align: center;
+  top: 15%;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: navy;
+  /* margin: 0 auto; */
+  z-index: 9999;
+}
+
+.begin-game-dialog__text {
+  margin: var(--space-md);
+  color: gold;
+}
+
+.menu__button--dialog {
+  padding-inline: var(--space-md);
+}
+
 @media screen and (min-width: 500px) {
   body {
     margin-inline: var(--space-md);
